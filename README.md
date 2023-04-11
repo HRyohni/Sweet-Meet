@@ -10,4 +10,7 @@
 
 -    prijava, registracija (omogućavanje kreiranja računa)
  - upoznavanje ljudi
+
+link koncepta:
+https://www.figma.com/file/WVO97saZWxTIMhlju3u5KD/forgiving-sins?node-id=0-1&t=NoRfkCSCfGA8Fih-0
     
