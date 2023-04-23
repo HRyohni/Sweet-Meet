@@ -1,32 +1,116 @@
 <template>
-  <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view/>
-  </div>
+  <v-app>
+  
+    <div class="topbar">
+      <h1>Sweet Meet</h1> 
+    
+    </div>
+    
+    <div class="mainbar">
+
+      <v-container class="bg-surface-variant">
+        <v-row no-gutters>
+          <v-col style="text-align: left;">
+           <p>side Chicks</p>
+           <!-- Add Icons using String format -->
+
+            
+          </v-col>
+          <v-col style="text-align: center;">
+         
+            <sweet-card  v-for="elem in elements" :key="elem"></sweet-card>
+           
+          </v-col>
+          <v-col style="text-align: right;">
+          <div ></div>
+          
+
+              <p class="d-inline pa-2"> Profile Account</p>
+              
+              <v-avatar class="d-inline pa-2">
+                <v-img
+                  src="https://cdn.vuetifyjs.com/images/john.jpg"
+                  alt="John"
+                ></v-img>
+              </v-avatar>
+          
+
+         
+
+            
+          </v-col>
+          
+        </v-row>
+       
+      </v-container>
+      
+    </div>
+    
+   
+    <div class="bottom">
+    
+    </div>
+      
+    
+
+    
+
+
+
+  </v-app>
+
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script>
+// imports
+import SweetCard from './views/SweetCard.vue';
+
+let elements = [123,213,32,12];
+
+export default {
+  name: 'App',
+  components:
+  { //components
+    SweetCard
+
+  },
+
+  data: () => ({
+    //
+    elements : elements,
+    
+  })
+};
+</script>
+
+
+
+<style scoped>
+
+.topbar
+{
+  background-color: aqua;
+  widows: 100%;
+  height: 10%;
+
 }
 
-nav {
-  padding: 30px;
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+.mainbar
+{
 
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+
+}
+
+.bottom
+{
+
+  position: absolute;
+  display: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 50px;
+  
+  
 }
 </style>

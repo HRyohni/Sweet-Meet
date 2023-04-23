@@ -1,7 +1,5 @@
 {
   "dependencies": {
-    "serve": "^14.2.0",
-    "vue": "^2.7.14",
     "vuetify": "^2.6.0"
   },
   "devDependencies": {
