@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "package-lock.json": "^1.0.0",
+    "package.json": "^0.0.0",
+    "serve": "^14.2.0",
     "vuetify": "^2.6.0"
   },
   "devDependencies": {

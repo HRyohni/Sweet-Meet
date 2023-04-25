@@ -12,13 +12,10 @@
         <v-row no-gutters>
           <v-col style="text-align: left;">
            <p>side Chicks</p>
-           <!-- Add Icons using String format -->
-
-            
           </v-col>
           <v-col style="text-align: center;">
          
-            <sweet-card  v-for="elem in elements" :key="elem"></sweet-card>
+             <sweet-card imeKorisnika="Markan" v-for="elem in elements" :key="elem"></sweet-card>
            
           </v-col>
           <v-col style="text-align: right;">
@@ -65,7 +62,14 @@
 // imports
 import SweetCard from './views/SweetCard.vue';
 
-let elements = [123,213,32,12];
+let elements = [123,213];
+let post ={
+profileName : "Yohn",
+likes: 231
+};
+
+
+
 
 export default {
   name: 'App',
@@ -78,6 +82,9 @@ export default {
   data: () => ({
     //
     elements : elements,
+    test : "fuk",
+    imeKorisnika:"markan",
+   
     
   })
 };

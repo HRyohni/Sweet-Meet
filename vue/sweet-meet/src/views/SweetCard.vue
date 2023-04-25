@@ -3,8 +3,8 @@
 
 
 
-<div  class="card">
-    <img src="https://picsum.photos/1080/1920" alt="" srcset=""  >
+<div  class="card" >
+    <img src="https://picsum.photos/1000/1920" alt="" srcset=""  >
   
     <div  class="bottomText">
         <v-container class="bg-surface-variant">
@@ -19,12 +19,12 @@
                   
                 
                 </v-avatar>
-                <p style="text-align: center;" class="d-inline pa-2" > Yohni</p>
+                <p style="text-align: center;" class="d-inline pa-2" > {{imeKorisnika}}  </p>
                
                 
               </v-col>
               <v-col class="d-inline pa-2" style="text-align: center;">
-              <p >likes</p>
+              <p >likes {{ marko }}</p>
                 
                 
               </v-col>
@@ -44,14 +44,6 @@
     
 </div>
 
-<div class="card">
-    <img src="https://picsum.photos/200/300" alt="" srcset="">
-    
-
-
- 
-   
-</div>   
 
 </v-container>
 </template>
@@ -60,6 +52,16 @@
 
 <script>
 
+export default {
+  name: 'SweetCard',
+ props:{
+  kurac: String, 
+  marko : String,
+  imeKorisnika: String, 
+ 
+ },
+
+};
 
 
 </script>
