@@ -5,18 +5,17 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
-  
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
-    
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/vue-fontawesome": "^2.0.10",
     "core-js": "^3.8.3",
     "vue": "^2.6.14",
     "vue-router": "^3.5.1",
+    "vue2-interact": "^0.0.3",
     "vuetify": "^2.6.0"
   },
   "devDependencies": {
@@ -27,14 +26,11 @@
     "sass-loader": "^12.0.0",
     "vue-cli-plugin-vuetify": "~2.5.8",
     "vue-template-compiler": "^2.6.14",
-    
     "vuetify-loader": "^1.7.0"
   },
   "browserslist": [
     "> 1%",
-    
     "last 2 versions",
     "not dead"
   ]
-  
 }
