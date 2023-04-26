@@ -2,6 +2,7 @@
 
 
   <Vue2InteractDraggable 
+ 
   @draggedRight="draggedRight"
   :interact-max-rotation="15"
   :interact-out-of-sight-x-coordinate="3000"
@@ -104,6 +105,12 @@ export default {
 
      
     },
+
+    delit() {
+      
+    this.isShowing = false;
+     
+    }
   },
 
     
