@@ -1,7 +1,14 @@
 <template>
-<v-container>
+<v-container
+v-on="draggedRight"
+
+@delit="delit"
+>
+<h1>otorinolaringologija</h1>
+
 
   <Vue2InteractDraggable 
+ 
   @draggedRight="draggedRight"
   :interact-max-rotation="15"
   :interact-out-of-sight-x-coordinate="3000"
@@ -79,16 +86,23 @@ export default {
 
   draggedRight() {
       console.log("dragged Right!");
-      this.$destroy;
-      vContainer.$destroy;
+     debugger
+      this.$parent.$delete;
       this.isShowing = false;
-      console.log(this);
-      this.hideCard();
+      this.$el.isShowing = false;
+      console.log(this.$el);
+    
     },
+
+    delit() {
+      
+    this.isShowing = false;
+     
+    }
   },
   hideCard() {
     this.isShowing = false;
-    console.log("kurac")
+  
       setTimeout(() => {
         this.isShowing = false;
       }, 200);
@@ -96,6 +110,8 @@ export default {
         this.isShowing = true;
       }, 1000);
     }
+
+  
   
 
 
