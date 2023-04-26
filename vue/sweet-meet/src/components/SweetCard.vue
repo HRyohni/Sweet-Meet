@@ -1,5 +1,5 @@
 <template>
-<v-container>
+
 
   <Vue2InteractDraggable 
   @draggedRight="draggedRight"
@@ -54,7 +54,7 @@
 
 
 
-</v-container>
+
 </template>
 
 
@@ -78,26 +78,35 @@ export default {
  methods: {
 
   draggedRight() {
-      console.log("dragged Right!");
-      this.$destroy;
-      vContainer.$destroy;
-      this.isShowing = false;
-      console.log(this);
-      this.hideCard();
+    const element = this.$el;
+    //element.style.transition = 'opacity 0.3s ease-in-out';
+    //element.style.opacity = "0";
+    console.log(element.style.width);
+    //element.style.width = "0"
+
+    for (let kurac =0 ; kurac<10;  kurac ++)
+    {
+      console.log(kurac);
+    }
+    for (let x =element.style.width; 0>x ; x-=10)
+    {
+     console.log(x);
+      element.style.width = x;
+    }
+   
+      setTimeout(() => {
+        //element.remove();
+        
+        //element.style.height = "0";
+
+        
+      }, 1000);
+
+     
     },
   },
-  hideCard() {
-    this.isShowing = false;
-    console.log("kurac")
-      setTimeout(() => {
-        this.isShowing = false;
-      }, 200);
-      setTimeout(() => {
-        this.isShowing = true;
-      }, 1000);
-    }
-  
 
+    
 
 };
 
@@ -105,6 +114,14 @@ export default {
 </script>
 
 <style scoped>
+
+
+
+.cardTran
+{
+opacity: 0;
+
+}
 .card
 {
 
@@ -113,12 +130,17 @@ margin: 10px;
 width: 100%;
 height: fit-content;
 
+animation-duration: 0.5s;
+animation-name: animate-fade;
+animation-delay: 0.5s;
+animation-fill-mode: backwards;
+
 
 }
 
 img
 {
-
+  
 
     width: 100%;
     border-radius: 20px;
@@ -147,6 +169,33 @@ img
    
 
 
+}
+
+
+@keyframes animate-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5, 0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+}
+
+.Vue2InteractDraggable
+{
+  animation-duration: 0.5s;
+  animation-name: animate-fade;
+  animation-delay: 0.5s;
+  animation-fill-mode: backwards;
+}
+
+
+
+@keyframes animate-fade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 </style>
