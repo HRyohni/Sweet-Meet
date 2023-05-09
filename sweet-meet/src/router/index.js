@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import profile from '../views/profileView.vue'
 import  mainView  from "../views/mainView.vue";
 
 
@@ -11,6 +12,11 @@ const routes = [
     path: '/',
     name: 'main', // kako god hocu
     component: mainView
+  },
+  {
+    path: '/profile',
+    name: 'profile', // kako god hocu
+    component: profile
   },
 
   {
