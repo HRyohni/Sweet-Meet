@@ -2,10 +2,18 @@
   <v-app>
   
     <div class="topbar">
-      <h1>Sweet Meet</h1> 
+
+    <v-row>
+      <v-col><h1>Sweet Meet</h1> </v-col>
+      <v-col><v-spacer></v-spacer></v-col>
+      
+      <v-col sm="3"> <h3 style="text-align: left;">login</h3></v-col>
+      
+      
+    </v-row>
+      
     
     </div>
-    
     
     <router-view ></router-view>
    
@@ -47,11 +55,15 @@ export default {
 
 <style scoped>
 
+*
+{
+  padding: 0px;
+  margin: 0px;
+}
 .topbar
 {
-  background-color: aqua;
-  widows: 100%;
-  height: 10%;
+  background-color: rgb(255, 255, 255);
+
 
 }
 
