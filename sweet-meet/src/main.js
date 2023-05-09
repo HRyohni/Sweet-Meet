@@ -10,12 +10,12 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
-import { faMessage } from '@fortawesome/free-regular-svg-icons'
+import { faBell, faMessage, faHeart,faComment } from '@fortawesome/free-regular-svg-icons'
 
 
 
 /* add icons to the library */
-library.add(faMessage)
+library.add(faMessage,faBell,faHeart,faComment)
 
 /* add font awesome icon component */
 Vue.component('font-awesome-icon', FontAwesomeIcon)

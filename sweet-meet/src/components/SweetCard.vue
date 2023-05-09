@@ -85,23 +85,15 @@ export default {
     console.log(element.style.width);
     //element.style.width = "0"
 
-    for (let kurac =0 ; kurac<10;  kurac ++)
-    {
-      console.log(kurac);
-    }
-    for (let x =element.style.width; 0>x ; x-=10)
-    {
-     console.log(x);
-      element.style.width = x;
-    }
+  
    
       setTimeout(() => {
-        //element.remove();
+        element.remove();
         
         //element.style.height = "0";
 
         
-      }, 1000);
+      }, 500);
 
      
     },
