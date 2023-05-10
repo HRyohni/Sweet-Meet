@@ -5,6 +5,8 @@ import profile from '../views/profileView.vue'
 import  mainView  from "../views/mainView.vue";
 import login from '../views/LoginView.vue';
 import register from '../views/RegisterView.vue';
+import info from '../views/infoView.vue';
+
 
 
 Vue.use(VueRouter)
@@ -12,22 +14,28 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'main', // kako god hocu
+    name: 'main', 
     component: mainView
+  },
+
+  {
+    path: '/info',
+    name: 'info', 
+    component: info
   },
   {
     path: '/register',
-    name: 'register', // kako god hocu
+    name: 'register', 
     component: register
   },
   {
     path: '/login',
-    name: 'login', // kako god hocu
+    name: 'login', 
     component: login
   },
   {
     path: '/profile',
-    name: 'profile', // kako god hocu
+    name: 'profile', 
     component: profile
   },
 

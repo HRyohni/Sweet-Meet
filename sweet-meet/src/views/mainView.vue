@@ -7,13 +7,20 @@
           <v-btn @click="addData">kurac</v-btn>
         </v-col>
         <v-col style="text-align: center">
-          <sweet-card imeKorisnika="Markan" v-for="index in 10" :key="index"></sweet-card>
+          <sweet-card
+            imeKorisnika="Markan"
+            v-for="index in 10"
+            :key="index"
+          ></sweet-card>
         </v-col>
         <v-col style="text-align: right">
           <p class="d-inline pa-2">Profile Account</p>
 
           <v-avatar class="d-inline pa-2">
-            <v-img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John"></v-img>
+            <v-img
+              src="https://cdn.vuetifyjs.com/images/john.jpg"
+              alt="John"
+            ></v-img>
           </v-avatar>
         </v-col>
       </v-row>
@@ -22,31 +29,25 @@
 </template>
 
 <script>
-
-import SweetCard from '@/components/SweetCard.vue';
-
+import SweetCard from "@/components/SweetCard.vue";
+import { doc, setDoc } from "firebase/firestore";
 import { collection, addDoc } from "firebase/firestore";
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
-import {
-  db,
-} from "../../firebase.js";
+import { auth, db } from "../../firebase.js";
+
+//const authh = getAuth();
 
 let post = {
   profileName: "Yohn",
-  likes: 231
-
+  likes: 231,
 };
 
-
-
-
 export default {
-  name: 'main',
-  components:
-  { //components
-    SweetCard
-
+  name: "main",
+  components: {
+    //components
+    SweetCard,
   },
 
   data: () => ({
@@ -54,41 +55,18 @@ export default {
     elements: elements,
     test: "fuk",
     imeKorisnika: "markan",
-
-
   }),
-  methods:
-  {
-
-
-
-
+  methods: {
     async addData() {
-      const auth = getAuth();
-      console.log(auth.currentUser)
-      console.log("kurac");
-     
-  
-    try
-    {
-      const wp = getDatabase();
-      const kurac = "test";
-  set(ref(wp, 'picke/' + kurac), {
-    kurac: false,
-  
-   
-  });
-    }
-
-
-  catch(e)
-  {
-    console.log(e);
-  }
-
-
-    }
-  }
+      console.log(auth.currentUser);
+      // Add a new document in collection "cities"
+      await setDoc(doc(db, "Users", "UserNames",auth.currentUser.email,auth.currentUser.accessToken), {
+        name: "Los Angeles",
+        state: "CA",
+        country: "USA",
+      });
+    },
+  },
 };
 </script>
 

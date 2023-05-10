@@ -122,7 +122,7 @@ export default {
 			});
 		},
 		registerUser() {
-			debugger;
+			//debugger;
 			const email = this.email;
 			const password = this.password;
 			createUserWithEmailAndPassword(auth, email, password)
@@ -136,7 +136,7 @@ export default {
 					this.postActionMoveToView();
 				})
 				.catch((error) => {
-					debugger;
+					//debugger;
 					const errorCode = error.code;
 					const errorMessage = error.message;
 					console.log(error, errorCode, errorMessage);
