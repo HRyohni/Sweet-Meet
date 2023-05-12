@@ -15,7 +15,7 @@
     <div  class="bottomText">
       <v-container class="bg-surface-variant">
           <v-row no-gutters>
-            <v-col style="text-align: left;">
+          <v-col style="text-align: left;">
               <v-avatar class="">
                   <v-img
                     src="https://cdn.vuetifyjs.com/images/john.jpg"
