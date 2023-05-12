@@ -60,11 +60,20 @@ export default {
     async addData() {
       console.log(auth.currentUser);
       // Add a new document in collection "cities"
-      await setDoc(doc(db, "Users", "UserNames",auth.currentUser.email,auth.currentUser.accessToken), {
-        name: "Los Angeles",
-        state: "CA",
-        country: "USA",
-      });
+      await setDoc(
+        doc(
+          db,
+          "Users",
+          "UserNames",
+          auth.currentUser.email,
+          auth.currentUser.accessToken
+        ),
+        {
+          name: "Los Angeles",
+          state: "CA",
+          country: "USA",
+        }
+      );
     },
   },
 };
