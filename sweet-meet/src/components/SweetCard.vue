@@ -11,7 +11,7 @@
 >
   <div  class="card" >
   
-    <img src="https://picsum.photos/1080/1920" alt="" srcset=""  >
+    <img :src= randomImageUrl() alt="" srcset=""  >
     <div  class="bottomText">
       <v-container class="bg-surface-variant">
           <v-row no-gutters>
@@ -78,22 +78,21 @@ export default {
  },
  methods: {
 
+  randomImageUrl()
+  {
+
+    return "https://picsum.photos/id/" + Math.floor(Math.random() * 100)+"/1080/1920/";
+
+  },
+
   draggedRight() {
     const element = this.$el;
-    //element.style.transition = 'opacity 0.3s ease-in-out';
-    //element.style.opacity = "0";
-    console.log(element.style.width);
-    //element.style.width = "0"
-
-  
-   
       setTimeout(() => {
         element.remove();
         
-        //element.style.height = "0";
-
-        
-      }, 500);
+      
+      }, 300);
+    
 
      
     },

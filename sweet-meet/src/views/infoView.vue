@@ -13,7 +13,7 @@
 
       <v-btn class="ma-5" @click="nextStep"> next</v-btn>
     </v-card>
-   
+
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 1">
       <v-card-title>Chose your music taste</v-card-title>
       <v-chip
@@ -25,10 +25,7 @@
         :key="music"
         @click="checkedChip"
         light
-        
         :color="chipColor"
-        
-        
         >{{ music }}</v-chip
       >
 
@@ -69,7 +66,7 @@ export default {
       "Ambient",
       "EDM",
     ],
-    selected:false,
+    selected: false,
     value: 30,
     rules: [(v) => v >= 18 || "Over 18 Allowed"],
     step: 1,
@@ -85,12 +82,8 @@ export default {
       console.log(this.step);
     },
     checkedChip() {
-      if( this.chipColor == "default")
-        this.chipColor = "green";
-      else
-      this.chipColor = "default";
-      
-   
+      if (this.chipColor == "default") this.chipColor = "green";
+      else this.chipColor = "default";
     },
   },
 };
