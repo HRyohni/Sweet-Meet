@@ -162,6 +162,5 @@ export default {
 </script>
 
 <style>
-.stories {
-}
+
 </style>
