@@ -1,5 +1,5 @@
 <template>
-  <div class="data ma-12 d-flex justify-center">
+  <div class="data d-flex justify-center" style="background-color: aqua; height: 100%;">
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
       <h3>What is yor Genasdder?</h3>
       <v-select :items="genders" label="Pick Gender"></v-select>
