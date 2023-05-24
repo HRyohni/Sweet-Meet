@@ -17,7 +17,9 @@
     "vue": "^2.6.14",
     "vue-location-picker": "^1.0.1",
     "vue-router": "^3.5.1",
+    "vue2-google-maps": "^0.10.7",
     "vue2-interact": "^0.0.3",
+    "vue2-location-picker": "^1.2.0",
     "vuetify": "^2.6.0"
   },
   "devDependencies": {

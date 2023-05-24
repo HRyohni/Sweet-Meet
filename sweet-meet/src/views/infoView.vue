@@ -1,70 +1,117 @@
 <template>
-  <div class="data d-flex justify-center" style="background-color: aqua; height: 100%;">
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
-      <h3>What is yor Genasdder?</h3>
-      <v-select :items="genders" label="Pick Gender"></v-select>
-      <h3>What atracted to?</h3>
-      <v-select :items="genders" label="Pick Gender"></v-select>
+  <div class="data d-flex justify-center">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 1">
+      <h3>What is yor Gender?</h3>
+      <v-select
+        :items="genders"
+        label="Pick Gender"
+        v-model="UserGender"
+      ></v-select>
+      <h3>What are you atracted to?</h3>
+      <v-select
+        :items="genders"
+        label="Pick Gender"
+        v-model="UserAttractedToGender"
+      ></v-select>
       <v-text-field
         label="What is your age?"
         :rules="rules"
         hide-details="auto"
+        v-model="age"
       ></v-text-field>
 
       <v-btn class="ma-5" @click="nextStep"> next</v-btn>
     </v-card>
+    <p>{{ genderPick }}</p>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 1">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
       <v-card-title>Chose your music taste</v-card-title>
+
       <v-chip
         class="ml-3 mt-3"
         link
         outlined
-        :selected="selected"
-        v-for="music in musicType"
-        :key="music"
-        @click="checkedChip"
         light
-        :color="chipColor"
-        >{{ music }}</v-chip
+        :class="{ green: music.isActive }"
+        v-for="(music, index) in musicType"
+        :key="index"
+        @click="checkedChip(index)"
+        >{{ music.label }}</v-chip
       >
 
       <v-spacer></v-spacer>
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
+
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 3">
+      <v-card-title>Location</v-card-title>
+
+      <div id="app">
+        <GmapMap
+          :center="center"
+          :zoom="18"
+          map-style-id="roadmap"
+          :options="mapOptions"
+          style="width: 100vmin; height: 50vmin"
+          ref="mapRef"
+          @click="handleMapClick"
+        >
+          <GmapMarker
+            :zoom="2"
+            :position="marker.position"
+            :clickable="true"
+            :draggable="true"
+            @drag="handleMarkerDrag"
+            @click="panToMarker"
+          />
+        </GmapMap>
+        <v-btn @click="geolocate"> Detect Location </v-btn>
+        <p>Selected Position: {{ marker.position }}</p>
+      </div>
+      <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
+    </v-card>
   </div>
 </template>
-<script>
-import LocationPickerInit from "vue-location-picker/src/init";
-import LocationPicker from "vue-location-picker";
 
+<script>
 export default {
   data: () => ({
+    marker: { position: { lat: 10, lng: 10 } },
+    center: { lat: 10, lng: 10 },
+    mapOptions: {
+      disableDefaultUI: true,
+    },
+    google: null,
+
     genders: ["Male", "Female", "other"],
+    UserGender: "",
+    UserAttractedToGender: "",
+    age: null,
+
     musicType: [
-      "Jazz",
-      "Folk music",
-      "Rock",
-      "Rhythm and blues",
-      "Metal",
-      "Pop music",
-      "Indie rock",
-      "Techno",
-      "Classical music",
-      "Country music",
-      "Popular music",
-      "Alternative",
-      "Punk",
-      "Disco",
-      "Soul music",
-      "Music of Latin America",
-      "Hip hop",
-      "Blues",
-      "Electronic",
-      "Reggae",
-      "Jazz fusion",
-      "Ambient",
-      "EDM",
+      { label: "Jazz", isActive: false },
+      { label: "Folk music", isActive: false },
+      { label: "Rock", isActive: false },
+      { label: "Rhythm and blues", isActive: false },
+      { label: "Metal", isActive: false },
+      { label: "Pop music", isActive: false },
+      { label: "Indie rock", isActive: false },
+      { label: "Techno", isActive: false },
+      { label: "Classical music", isActive: false },
+      { label: "Country music", isActive: false },
+      { label: "Popular music", isActive: false },
+      { label: "Alternative", isActive: false },
+      { label: "Punk", isActive: false },
+      { label: "Disco", isActive: false },
+      { label: "Soul music", isActive: false },
+      { label: "Music of Latin America", isActive: false },
+      { label: "Hip hop", isActive: false },
+      { label: "Blues", isActive: false },
+      { label: "Electronic", isActive: false },
+      { label: "Reggae", isActive: false },
+      { label: "Jazz fusion", isActive: false },
+      { label: "Ambient", isActive: false },
+      { label: "EDM", isActive: false },
     ],
     selected: false,
     value: 30,
@@ -74,22 +121,59 @@ export default {
   }),
 
   methods: {
+    mounted() {
+      this.geolocate();
+      this.google = window.google;
+    },
+
+    //detects location from browser
+    geolocate() {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.marker.position = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        this.panToMarker();
+      });
+    },
+    //sets the position of marker when dragged
+    handleMarkerDrag(e) {
+      this.marker.position = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    },
+    //Moves the map view port to marker
+    panToMarker() {
+     
+      this.$refs.mapRef.panTo(this.marker.position);
+      this.$refs.mapRef.$mapPromise.then((map) => {
+        map.setZoom(10000);
+      });
+    },
+    //Moves the marker to click position on the map
+    handleMapClick(e) {
+      this.marker.position = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+      console.log(e);
+    },
+
     // TODO: https://github.com/pespantelis/vue-location-picker google maps
     // https://stackblitz.com/github/googlemaps/js-samples/tree/sample-add-map?file=index.html
 
     nextStep() {
+      console.log(this.musicType);
       this.step = this.step + 1;
       console.log(this.step);
     },
-    checkedChip() {
-      if (this.chipColor == "default") this.chipColor = "green";
-      else this.chipColor = "default";
+    checkedChip(index) {
+      console.log(this.musicType[index].isActive);
+      this.musicType[index].isActive = !this.musicType[index].isActive;
     },
   },
 };
 </script>
 
 <style scoped>
+.test.active {
+  color: red; /* Change the color to your desired value */
+}
 .data {
   background-color: white;
 }
