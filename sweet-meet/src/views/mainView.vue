@@ -41,20 +41,15 @@
           </div>
         </v-col>
 
-        <v-col  
-        
-        
-        v-if="extend"
-        
-        >
-        <v-btn
-        class="d-flex"
-        v-for="index in 10"
-        :key="index"
-        style="width: 100%;height: 5%;"
-        >
-          kurac
-        </v-btn>
+        <v-col v-if="extend">
+          <v-btn
+            class="d-flex"
+            v-for="index in 10"
+            :key="index"
+            style="width: 100%; height: 5%"
+          >
+            kurac
+          </v-btn>
           <h1>MESSAAGES HERE</h1>
         </v-col>
         <v-col :cols="drag">
@@ -63,7 +58,6 @@
             <v-row>
               <v-col
                 class="justify-left d-flex mt-4 pa-0"
-                
                 v-for="n in 4"
                 :key="n"
               >
@@ -138,13 +132,16 @@ export default {
   },
 
   methods: {
+    mounted()
+  {
+    
+  },
     DragPosts() {
       if (this.drag == 2) this.drag = 4;
       else this.drag = 2;
     },
     friend() {
-      if (this.extend == false) 
-      this.extend = true;
+      if (this.extend == false) this.extend = true;
       else this.extend = false;
     },
     onScroll() {
@@ -152,15 +149,9 @@ export default {
     },
     async addData() {
       console.log(auth.currentUser);
-      // Add a new document in collection "cities"
+    
       await setDoc(
-        doc(
-          db,
-          "Users",
-          "UserNames",
-          auth.currentUser.email,
-          auth.currentUser.accessToken
-        ),
+        doc(db, "Users", "UserNames", auth.currentUser.email, "Information"),
         {
           name: "Los Angeles",
           state: "CA",

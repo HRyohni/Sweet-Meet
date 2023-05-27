@@ -15,6 +15,7 @@ import { faBell, faMessage, faHeart,faComment } from '@fortawesome/free-regular-
 
 
 
+
 /* add icons to the library */
 library.add(faMessage,faBell,faHeart,faComment)
 
@@ -36,3 +37,10 @@ Vue.use(VueGoogleMaps, {
   },
   installComponents: true,
 });
+
+const storage = getStorage(app);
+export {storage}
+
+
+
+

@@ -20,7 +20,7 @@
         v-model="age"
       ></v-text-field>
 
-      <v-btn class="ma-5" @click="nextStep"> next</v-btn>
+      <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
     <p>{{ genderPick }}</p>
 
@@ -35,6 +35,7 @@
         :class="{ green: music.isActive }"
         v-for="(music, index) in musicType"
         :key="index"
+        v-model="musics"
         @click="checkedChip(index)"
         >{{ music.label }}</v-chip
       >
@@ -68,12 +69,52 @@
         <v-btn @click="geolocate"> Detect Location </v-btn>
         <p>Selected Position: {{ marker.position }}</p>
       </div>
+
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
+   
+    </v-card>
+
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
+      <div>
+        <!-- slot for parent component to activate the file changer -->
+        <div @click="launchFilePicker()">
+          <slot name="activator"></slot>
+        </div>
+        <!-- image input: style is set to hidden and assigned a ref so that it can be triggered -->
+        <input
+          type="file"
+          ref="file"
+          :name="uploadFieldName"
+          @change="onFileChange($event.target.name, $event.target.files)"
+          style="display: none"
+        />
+        <!-- error dialog displays any potential error messages -->
+        <v-dialog v-model="errorDialog" max-width="300">
+          <v-card>
+            <v-card-text class="subheading">{{ errorText }}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn @click="errorDialog = false" flat>Got it!</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+      <v-btn class="ma-5" @click="nextStep"> next</v-btn>
+      <v-file-input truncate-length="15" v-model="PictureUrl"></v-file-input>
+
+      <input type="file" ref="myfile" />
+     
+      <v-btn class="ma-5" @click="nextStep() , UploadImageToStorage() , addInfo()"> Done</v-btn>
+  
     </v-card>
   </div>
 </template>
 
 <script>
+import { faMapMarked } from "@fortawesome/free-solid-svg-icons";
+import { auth, db, doc, setDoc,storage } from "../../firebase.js";
+import { ref, uploadBytes } from "firebase/storage";
+
 export default {
   data: () => ({
     marker: { position: { lat: 10, lng: 10 } },
@@ -87,6 +128,7 @@ export default {
     UserGender: "",
     UserAttractedToGender: "",
     age: null,
+    musics: null,
 
     musicType: [
       { label: "Jazz", isActive: false },
@@ -118,6 +160,7 @@ export default {
     rules: [(v) => v >= 18 || "Over 18 Allowed"],
     step: 1,
     chipColor: "default",
+    PictureUrl: null,
   }),
 
   methods: {
@@ -142,11 +185,10 @@ export default {
     },
     //Moves the map view port to marker
     panToMarker() {
-     
-      this.$refs.mapRef.panTo(this.marker.position);
+      /* this.$refs.mapRef.panTo(this.marker.position);
       this.$refs.mapRef.$mapPromise.then((map) => {
         map.setZoom(10000);
-      });
+      });*/
     },
     //Moves the marker to click position on the map
     handleMapClick(e) {
@@ -162,6 +204,36 @@ export default {
       this.step = this.step + 1;
       console.log(this.step);
     },
+    UploadImageToStorage() {
+      console.log("uplodaing...");
+      const storageRef = ref(storage, "Users/"+auth.currentUser.email+"/ProfilePicture/profile");
+      uploadBytes(storageRef, this.$refs.myfile.files[0]).then(
+        console.log("done!")
+      );
+    },
+
+    async addInfo() {
+      console.log(auth.currentUser);
+      let FavoriteMusicType = [];
+      this.musicType.forEach((el) => {
+        if (el.isActive) FavoriteMusicType.push(el.label);
+        this.$router.push("/");
+      });
+
+      await setDoc(
+        doc(db, "Users", "UserNames", auth.currentUser.email, "Information"),
+        {
+          UserGender: this.UserGender,
+          UserAttractedToGender: this.UserAttractedToGender,
+          age: this.age,
+          lat: this.marker.position.lat,
+          lng: this.marker.position.lng,
+          musicType: FavoriteMusicType,
+          InformationComplete: true,
+        }
+      );
+    },
+
     checkedChip(index) {
       console.log(this.musicType[index].isActive);
       this.musicType[index].isActive = !this.musicType[index].isActive;
