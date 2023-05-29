@@ -4,6 +4,7 @@ import { doc, addDoc, getDoc, setDoc, getDocs, getCount, getFirestore, collectio
 import { getAuth, updatePassword, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, confirmPasswordReset, beforeAuthStateChanged, onAuthStateChanged } from 'firebase/auth'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
+import 'firebase/storage';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -37,6 +38,11 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 const db = getFirestore(app);
 
+firebase.initializeApp(firebaseConfig);
+
+// Export Firebase Storage instance
+
+
 export { app, auth, storage,
   getAuth,
 	db,
@@ -55,3 +61,4 @@ createUserWithEmailAndPassword,
   updatePassword
 
 }
+

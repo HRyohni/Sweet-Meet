@@ -4,7 +4,8 @@
     <div class="topbar pa-2">
       <v-row>
         <v-col>
-       <h1>sadasdsad</h1>
+       <h1>Hello, {{this.userName}}</h1>
+       <v-btn color="dark" @click="UsernamePlacement()">refresh</v-btn>
         </v-col>
         <v-col style="text-align: center;">
       
@@ -20,7 +21,7 @@
         <v-col style="text-align: right; font-size: 3vh;" class="pa-5">
           
       
-   
+          <v-btn color="red" elevation="12">Sign Out</v-btn>
 
         </v-col>
       </v-row>
@@ -47,6 +48,7 @@
 
 <script>
 // imports
+import {auth} from "../firebase.js";
 
 export default {
   name: 'App',
@@ -58,10 +60,24 @@ export default {
 
   data: () => ({
     //
- 
+    userName: "test"
    
     
-  })
+  }),
+  methods:
+  {
+    mounted()
+    {
+      this.UsernamePlacement()
+      console.log("kurac");
+    },
+    UsernamePlacement()
+    {
+      this.userName = "kurac"
+      console.log(auth == null);
+    }
+  }
+  
 };
 </script>
 

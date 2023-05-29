@@ -127,12 +127,17 @@ export default {
       let password = this.password;
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-          this.$router.push("/");
+          kurac();
+          //firstTimeSignIn(); // ! TODO riejsiti ovooo 
+        //this.$router.push("/info");
         })
-        .catch((error) => {
+        /*.catch((error) => {
           alert(error.message);
-        });
+        });*/
+     
     },
+    kurac()
+    {console.log("picka");},
     resetPassword(email) {
       sendPasswordResetEmail(auth, email)
         .then(() => {
@@ -146,7 +151,19 @@ export default {
       this.closeDialog();
     },
     postActionMoveToView() {
-      this.$router.push({ path: "/" });
+      this.$router.push({ path: "/info" });
+    },
+     async firstTimeSignIn() {
+      const docRef = doc(db, "users", "UserNames",auth.currentUser.email,"information");
+      const docSnap =  await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+        this.$router.push("/");
+      } else {
+        // docSnap.data() will be undefined in this case
+        this.$router.push("/info");
+      }
     },
     closeDialog() {
       this.passwordIssuesDialog = false;
