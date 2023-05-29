@@ -279,6 +279,7 @@ export default {
     },
     checkedMusic(index) {
       //this.musicType[index].isActive = !this.musicType[index].isActive;
+    },
     UploadImageToStorage() {
       console.log("uplodaing...");
       const storageRef = ref(storage, "Users/"+auth.currentUser.email+"/ProfilePicture/profile");
