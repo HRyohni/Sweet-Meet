@@ -4,7 +4,7 @@
     <div class="topbar pa-2">
       <v-row>
         <v-col>
-       <h1>Hello, {{this.userName}}</h1>
+       <h1>Hello, {{userName}}</h1>
        <v-btn color="dark" @click="UsernamePlacement()">refresh</v-btn>
         </v-col>
         <v-col style="text-align: center;">
@@ -60,21 +60,23 @@ export default {
 
   data: () => ({
     //
-    userName: "test"
+    userName: "test",
    
     
   }),
   methods:
   {
-    mounted()
-    {
-      this.UsernamePlacement()
-      console.log("kurac");
-    },
+    created()
+  {
+    this.userName = "hello";
+    this.UsernamePlacement();
+  },
+
+
     UsernamePlacement()
     {
-      this.userName = "kurac"
-      console.log(auth == null);
+      this.userName = auth.firstName;
+     
     }
   }
   

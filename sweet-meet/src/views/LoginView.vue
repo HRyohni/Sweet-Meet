@@ -87,6 +87,9 @@
 <script>
 import {
   auth,
+  db,
+  doc,
+  getDoc,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "../../firebase.js";
@@ -127,17 +130,14 @@ export default {
       let password = this.password;
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-          kurac();
-          //firstTimeSignIn(); // ! TODO riejsiti ovooo 
-        //this.$router.push("/info");
+          this.firstTimeSignIn();
+          this.$router.push("/info");
         })
-        /*.catch((error) => {
+        .catch((error) => {
           alert(error.message);
-        });*/
-     
+        });
     },
-    kurac()
-    {console.log("picka");},
+
     resetPassword(email) {
       sendPasswordResetEmail(auth, email)
         .then(() => {
@@ -153,16 +153,22 @@ export default {
     postActionMoveToView() {
       this.$router.push({ path: "/info" });
     },
-     async firstTimeSignIn() {
-      const docRef = doc(db, "users", "UserNames",auth.currentUser.email,"information");
-      const docSnap =  await getDoc(docRef);
+    async firstTimeSignIn() {
+      const docRef = doc(
+        db,
+        "Users",
+        "UserNames",
+        auth.currentUser.email,
+        "Information"
+      );
+      const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         console.log("Document data:", docSnap.data());
-        this.$router.push("/");
+        this.$router.push("/info");
       } else {
         // docSnap.data() will be undefined in this case
-        this.$router.push("/info");
+        console.log("nema kurca");
       }
     },
     closeDialog() {
@@ -172,7 +178,12 @@ export default {
       this.passwordIssuesDialog = true;
     },
   },
-  created() {},
+  created() {
+    console.log(auth.currentUser.email);
+   if (auth.currentUser.email != null)
+   this.$router.push("/");
+  
+  },
   mounted() {},
   destroyed() {},
 };
