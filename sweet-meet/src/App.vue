@@ -60,24 +60,20 @@ export default {
 
   data: () => ({
     //
-    userName: "test",
+    userName: false,
    
     
   }),
+  mounted()
+  {
+   
+    this.userName = auth.currentUser.email;
+    
+  },
   methods:
   {
-    created()
-  {
-    this.userName = "hello";
-    this.UsernamePlacement();
-  },
+ 
 
-
-    UsernamePlacement()
-    {
-      this.userName = auth.firstName;
-     
-    }
   }
   
 };

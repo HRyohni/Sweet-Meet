@@ -64,7 +64,6 @@
 
 import { Vue2InteractDraggable } from 'vue2-interact'
 
-
 export default {
   name: 'SweetCard',
   components: {
