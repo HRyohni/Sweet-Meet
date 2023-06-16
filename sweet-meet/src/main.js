@@ -37,9 +37,9 @@ Vue.use(VueGoogleMaps, {
   },
   installComponents: true,
 });
-
-const storage = getStorage(app);
-export {storage}
+//import {getStorage,  } from "../firebase";
+//const storage = getStorage(app);
+//export {storage}
 
 
 

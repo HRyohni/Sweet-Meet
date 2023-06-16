@@ -87,7 +87,6 @@
       </div>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
-   
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
@@ -119,16 +118,30 @@
       <v-file-input truncate-length="15" v-model="PictureUrl"></v-file-input>
 
       <input type="file" ref="myfile" />
-     
-      <v-btn class="ma-5" @click="nextStep() , UploadImageToStorage() , addInfo()"> Done</v-btn>
-  
+
+      <v-btn
+        class="ma-5"
+        @click="nextStep(), UploadImageToStorage(), addInfo()"
+      >
+        Done</v-btn
+      >
     </v-card>
   </div>
 </template>
 
 <script>
 import { faMapMarked } from "@fortawesome/free-solid-svg-icons";
-import { auth, db, doc, setDoc,storage } from "../../firebase.js";
+import {
+  auth,
+  db,
+  doc,
+  setDoc,
+  storage,
+  push,
+  child,
+  getDatabase,
+  update,
+} from "../../firebase.js";
 import { ref, uploadBytes } from "firebase/storage";
 
 export default {
@@ -196,8 +209,6 @@ export default {
     kreni() {
       this.geolocate();
       this.google = window.google;
-     
-    
 
       var client_id = "7448353694614b49b63a0132165f3d54";
       var client_secret = "acad1c8ca7f747ed89ee4c56707bd643";
@@ -282,32 +293,43 @@ export default {
     },
     UploadImageToStorage() {
       console.log("uplodaing...");
-      const storageRef = ref(storage, "Users/"+auth.currentUser.email+"/ProfilePicture/profile");
+      const storageRef = ref(
+        storage,
+        "Users/" + auth.currentUser.email + "/ProfilePicture/profile"
+      );
       uploadBytes(storageRef, this.$refs.myfile.files[0]).then(
         console.log("done!")
       );
     },
 
-    async addInfo() {
-      console.log(auth.currentUser);
-      let FavoriteMusicType = [];
-      this.musicType.forEach((el) => {
-        if (el.isActive) FavoriteMusicType.push(el.label);
-        this.$router.push("/");
-      });
+    addInfo() {
+     
+      const collectionRef = db.collection("yourCollection");
+      const documentRef = collectionRef.doc("yourDocumentId");
 
-      await setDoc(
-        doc(db, "Users", "UserNames", auth.currentUser.email, "Information"),
-        {
-          UserGender: this.UserGender,
-          UserAttractedToGender: this.UserAttractedToGender,
-          age: this.age,
-          lat: this.marker.position.lat,
-          lng: this.marker.position.lng,
-          musicType: FavoriteMusicType,
-          InformationComplete: true,
+      documentRef.get().then((doc) => {
+        if (doc.exists) {
+          const existingData = doc.data();
+          // Add your logic to modify the existingData object
+        } else {
+          // Handle the case when the document doesn't exist
         }
-      );
+      });
+      // Create a new post reference with an auto-generated id
+      email = auth.currentUser.email;
+      const location = `Users/UserNames/${email}/Information`;
+      const db = getDatabase();
+      const postListRef = ref(db, "posts");
+      const newPostRef = push(postListRef);
+      set(newPostRef, {
+        UserGender: this.UserGender,
+        UserAttractedToGender: this.UserAttractedToGender,
+        age: this.age,
+        lat: this.marker.position.lat,
+        lng: this.marker.position.lng,
+        musicType: this.FavoriteMusicType,
+        InformationComplete: true,
+      });
     },
 
     checkedChip(index) {

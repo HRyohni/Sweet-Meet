@@ -107,6 +107,8 @@ export default {
   },
   data() {
     return {
+      userLoginStatus: false,
+
       emailForPassword: null,
       passwordIssuesDialog: false,
       isButtonDisabled: false,
@@ -125,13 +127,33 @@ export default {
     };
   },
   methods: {
+    async checkLoginStatus()
+    {
+      await onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.userLoginStatus = true;
+        // ...
+      } else {
+        this.userLoginStatus = false;
+      }
+    });
+
+    },
     login() {
       let email = this.email;
       let password = this.password;
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-          this.firstTimeSignIn();
-          this.$router.push("/info");
+          if (!this.firstTimeSignIn())
+          {
+            this.$router.push("/info");
+            
+          }
+          else
+          {
+            this.$router.push("/");
+          }
+          
         })
         .catch((error) => {
           alert(error.message);
@@ -164,11 +186,12 @@ export default {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
-        this.$router.push("/info");
+        //console.log("Document data:", docSnap.data());
+        
+        return true;
       } else {
         // docSnap.data() will be undefined in this case
-        console.log("nema kurca");
+        return false;
       }
     },
     closeDialog() {
@@ -179,12 +202,16 @@ export default {
     },
   },
   created() {
-    console.log(auth.currentUser.email);
-   if (auth.currentUser.email != null)
-   this.$router.push("/");
-  
+    
+    if (checkLoginStatus())
+    {
+      this.$router.push("/");
+    } 
   },
-  mounted() {},
+  mounted() {
+
+   
+  },
   destroyed() {},
 };
 </script>

@@ -12,19 +12,12 @@
               <v-text-field
                 v-model="firstName"
                 dense
-                label="Name"
+                label="User Name"
                 clearble
                 type="text"
                 outlined
               ></v-text-field>
-              <v-text-field
-                v-model="lastName"
-                dense
-                label="Last Name"
-                clearble
-                type="text"
-                outlined
-              ></v-text-field>
+
               <v-text-field
                 v-model="email"
                 dense
@@ -86,9 +79,8 @@ export default {
       isButtonDisabled: false,
       valid: true,
       firstName: null,
-      lastName: null,
       email: null,
-	  displayName: null,
+      displayName: null,
       password: null,
       showIcon: false,
       rules: {
@@ -106,33 +98,31 @@ export default {
   destroyed() {},
   methods: {
     clearFormData() {
-      this.firstName = null;
-      this.lastName = null;
+      this.displayName = null;
+      
       this.email = null;
       this.password = null;
-	  displayName = null;
     },
     postActionMoveToView() {
-      this.$router.push({ path: "/" });
+      this.$router.push({ path: "/info" });
     },
     async saveAdditionalData(user, email, firstName, lastName) {
-      await setDoc(doc(db, "users", email), {
+      await setDoc(doc(db, "Users","UserNames", email,"Information"), {
         Email: email,
-        FirstName: firstName,
-        LastName: lastName,
+        displayName: firstName,
         AuthorisationType: "USER",
       });
     },
     registerUser() {
       const email = this.email;
       const password = this.password;
-      createUserWithEmailAndPassword(auth, email, password,displayName)
+      createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
           const firstName = this.firstName;
           const lastName = this.lastName;
-		  
+
           this.saveAdditionalData(user, email, firstName, lastName);
           this.postActionMoveToView();
         })
