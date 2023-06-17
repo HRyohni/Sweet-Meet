@@ -21,12 +21,10 @@
       ></v-text-field>
 
       <v-btn class="ma-5" @click="nextStep"> next</v-btn>
-      <v-btn class="ma-5" @click="kreni"> oblak</v-btn>
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
       <v-card-title>Chose your music taste</v-card-title>
-
       <v-chip
         class="ml-3 mt-3"
         link
@@ -36,7 +34,7 @@
         v-for="(music, index) in musicType"
         :key="index"
         v-model="musics"
-        @click="checkedChip(index)"
+        @click="checkedMusic(index)"
         >{{ music.label }}</v-chip
       >
       <v-spacer></v-spacer>
@@ -90,37 +88,13 @@
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
-      <div>
-        <!-- slot for parent component to activate the file changer -->
-        <div @click="launchFilePicker()">
-          <slot name="activator"></slot>
-        </div>
-        <!-- image input: style is set to hidden and assigned a ref so that it can be triggered -->
-        <input
-          type="file"
-          ref="file"
-          :name="uploadFieldName"
-          @change="onFileChange($event.target.name, $event.target.files)"
-          style="display: none"
-        />
-        <!-- error dialog displays any potential error messages -->
-        <v-dialog v-model="errorDialog" max-width="300">
-          <v-card>
-            <v-card-text class="subheading">{{ errorText }}</v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn @click="errorDialog = false" flat>Got it!</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
-      <v-btn class="ma-5" @click="nextStep"> next</v-btn>
-      <v-file-input truncate-length="15" v-model="PictureUrl"></v-file-input>
+      <v-card-title> Setup your profile picture</v-card-title>
 
-      <input type="file" ref="myfile" />
-
+      <v-file-input ref="myfile" type="file" v-model="imageUrl"></v-file-input>
+      <v-btn class="ma-5" @click="backStep"> back</v-btn>
       <v-btn
         class="ma-5"
+        color="primary"
         @click="nextStep(), UploadImageToStorage(), addInfo()"
       >
         Done</v-btn
@@ -131,18 +105,10 @@
 
 <script>
 import { faMapMarked } from "@fortawesome/free-solid-svg-icons";
-import {
-  auth,
-  db,
-  doc,
-  setDoc,
-  storage,
-  push,
-  child,
-  getDatabase,
-  update,
-} from "../../firebase.js";
+import { auth, db, storage, getDoc } from "../../firebase.js";
 import { ref, uploadBytes } from "firebase/storage";
+
+import { doc, updateDoc } from "firebase/firestore";
 
 export default {
   data: () => ({
@@ -157,6 +123,7 @@ export default {
     UserGender: "",
     UserAttractedToGender: "",
     age: null,
+    imageUrl: "",
     musics: null,
 
     musicType: [
@@ -200,58 +167,16 @@ export default {
     selected: false,
     value: 30,
     rules: [(v) => v >= 18 || "Over 18 Allowed"],
-    step: 1,
+    step: -1,
+    imageUrl: "",
     chipColor: "default",
     PictureUrl: null,
   }),
-
+  async mounted() {
+    if (!auth) console.log(auth.currentUser);
+    this.CheckInformationStatus();
+  },
   methods: {
-    kreni() {
-      this.geolocate();
-      this.google = window.google;
-
-      var client_id = "7448353694614b49b63a0132165f3d54";
-      var client_secret = "acad1c8ca7f747ed89ee4c56707bd643";
-
-      var authOptions = {
-        url: "https://accounts.spotify.com/api/token",
-        headers: {
-          Authorization:
-            "Basic " +
-            new Buffer.from(client_id + ":" + client_secret).toString("base64"),
-        },
-        form: {
-          grant_type: "client_credentials",
-        },
-        json: true,
-      };
-      var spotifyApi = new SpotifyWebApi();
-      spotifyApi.setAccessToken(token);
-      request.post(authOptions, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-          var token = body.access_token;
-        }
-      });
-      console.log(token);
-      spotifyApi.getArtistAlbums(
-        "43ZHCT0cAZBISjO8DG9PnE",
-        function (err, data) {
-          if (err) console.error(err);
-          else console.log("Artist albums", data);
-        }
-      );
-
-      // get Elvis' albums, using Promises through Promise, Q or when
-      spotifyApi.getArtistAlbums("43ZHCT0cAZBISjO8DG9PnE").then(
-        function (data) {
-          console.log("Artist albums", data);
-        },
-        function (err) {
-          console.error(err);
-        }
-      );
-    },
-
     //detects location from browser
     geolocate() {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -273,6 +198,7 @@ export default {
         map.setZoom(10000);
       });*/
     },
+
     //Moves the marker to click position on the map
     handleMapClick(e) {
       this.marker.position = { lat: e.latLng.lat(), lng: e.latLng.lng() };
@@ -288,51 +214,78 @@ export default {
     backStep() {
       if (this.step > 1) this.step = this.step - 1;
     },
-    checkedMusic(index) {
-      //this.musicType[index].isActive = !this.musicType[index].isActive;
-    },
+
     UploadImageToStorage() {
-      console.log("uplodaing...");
+      console.log("uplodaing..." + this.imageUrl);
       const storageRef = ref(
         storage,
         "Users/" + auth.currentUser.email + "/ProfilePicture/profile"
       );
-      uploadBytes(storageRef, this.$refs.myfile.files[0]).then(
-        console.log("done!")
-      );
+      uploadBytes(storageRef, this.imageUrl).then(console.log("done!"));
+    },
+    async CheckInformationStatus() {
+      const docRef = doc(   db,
+        "Users",
+        "UserNames",
+        "matosevic.leo@gmail.com",
+        "Information");
+      
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        console.log(docSnap.data().InformationComplete);
+        if (docSnap.data().InformationComplete)
+        {
+          
+          this.$router.push("/");
+        }
+         
+        
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+      }
+      this.step = 1;
     },
 
-    addInfo() {
-     
-      const collectionRef = db.collection("yourCollection");
-      const documentRef = collectionRef.doc("yourDocumentId");
-
-      documentRef.get().then((doc) => {
-        if (doc.exists) {
-          const existingData = doc.data();
-          // Add your logic to modify the existingData object
-        } else {
-          // Handle the case when the document doesn't exist
-        }
+    async addInfo() {
+      // for music
+      let FavoriteMusicType = [];
+      this.musicType.forEach((el) => {
+        if (el.isActive) FavoriteMusicType.push(el.label);
       });
-      // Create a new post reference with an auto-generated id
-      email = auth.currentUser.email;
-      const location = `Users/UserNames/${email}/Information`;
-      const db = getDatabase();
-      const postListRef = ref(db, "posts");
-      const newPostRef = push(postListRef);
-      set(newPostRef, {
+      // for movies
+      let FavoriteMovieType = [];
+      this.movieType.forEach((el) => {
+        if (el.isActive) FavoriteMovieType.push(el.label);
+      });
+
+      const reff = doc(
+        db,
+        "Users",
+        "UserNames",
+        "matosevic.leo@gmail.com",
+        "Information"
+      );
+      const InformationData = {
         UserGender: this.UserGender,
         UserAttractedToGender: this.UserAttractedToGender,
         age: this.age,
         lat: this.marker.position.lat,
         lng: this.marker.position.lng,
-        musicType: this.FavoriteMusicType,
+        FavMusicType: FavoriteMusicType,
+        FavMovieType: FavoriteMovieType,
         InformationComplete: true,
-      });
+      };
+
+      await updateDoc(reff, InformationData);
+      this.$router.push("/");
     },
 
-    checkedChip(index) {
+    checkedMusic(index) {
+      //this.musicType[index].isActive = !this.musicType[index].isActive;
+    },
+    checkedMusic(index) {
       console.log(this.musicType[index].isActive);
       this.musicType[index].isActive = !this.musicType[index].isActive;
     },

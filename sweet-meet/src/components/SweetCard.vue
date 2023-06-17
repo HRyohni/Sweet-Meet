@@ -70,9 +70,7 @@ export default {
     Vue2InteractDraggable
   },
  props:{
-  kurac: String, 
-  marko : String,
-  imeKorisnika: String, 
+
  
  },
  methods: {

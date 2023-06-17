@@ -39,7 +39,18 @@
               ></v-text-field>
             </v-form>
           </v-card-text>
+            <v-btn
+              @click="login()"
+              class="link-left"
+              text
+              x-small
+              color="blue"
+            >
+              Alerady have account?
+            </v-btn>
+           
           <v-card-actions class="card-actions">
+            
             <v-btn
               class="btn-right-margin"
               @click="clearFormData"
@@ -131,6 +142,11 @@ export default {
           const errorMessage = error.message;
           console.log(error, errorCode, errorMessage);
         });
+    },
+    login()
+    {
+    
+      this.$router.push("/login");
     },
   },
 };

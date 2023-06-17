@@ -2,8 +2,8 @@
   <v-app>
     <div class="topbar pa-2">
       <v-row>
-        <v-col> 
-          <p>test: {{userEmail}}</p>
+        <v-col>
+          <h2>{{ displayName }}</h2>
         </v-col>
         <v-col style="text-align: center">
           <div>
@@ -18,16 +18,21 @@
             elevation="12"
             >Sign Out</v-btn
           >
-          <v-btn v-if="!userLoginStatus" color="primary" 
-          @click="LoginPage()"
-          class="ma-2"
+          <v-btn
+            v-if="!userLoginStatus"
+            color="primary"
+            @click="LoginPage()"
+            class="ma-2"
             >Log In</v-btn
           >
-          
-          <v-btn v-if="!userLoginStatus"  color="red" outlined 
-          @click="RegisterPage()"
-          >Sign in</v-btn
-        >
+
+          <v-btn
+            v-if="!userLoginStatus"
+            color="red"
+            outlined
+            @click="RegisterPage()"
+            >Sign in</v-btn
+          >
         </v-col>
       </v-row>
     </div>
@@ -40,8 +45,15 @@
 
 <script>
 // imports
-import { auth, getAuth, onAuthStateChanged,signOut,getStorage  } from "../firebase.js";
-
+import {
+  db,
+  auth,
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  getStorage,
+} from "../firebase.js";
+import { doc, getDoc } from "firebase/firestore";
 export default {
   name: "App",
   components: {
@@ -53,44 +65,60 @@ export default {
     userLoginStatus: false,
     userInfo: null,
     userEmail: null,
+    displayName: null,
   }),
-   async mounted()
-  {
-    console.log(auth.currentUser) 
-     await onAuthStateChanged(auth, (user) => {
+  async mounted() {
+    
+    await onAuthStateChanged(auth, (user) => {
       if (user) {
-        this.userLoginStatus = true; 
+        this.userLoginStatus = true;
         this.userInfo = user;
-        this.userEmail =user.email;
-        // ...
+        this.userEmail = user.email;
       } else {
         this.userLoginStatus = false;
       }
     });
+    this.GetDisplayName(this.userLoginStatus);
   },
 
-    methods: {
-     SignOut() {
+  methods: {
+    SignOut() {
       const auth = getAuth();
       signOut(auth)
         .then(() => {
-          
           this.$router.push("/login");
         })
         .catch((error) => {
           // An error happened.
           console.log(error);
         });
-
-      
     },
-    LoginPage()
-    {
+    LoginPage() {
       this.$router.push("/login");
     },
-    RegisterPage()
-    {
+    RegisterPage() {
       this.$router.push("/register");
+    },
+    async GetDisplayName(LoginState) {
+      if (!LoginState)
+        return null;
+
+      const docRef = doc(
+        db,
+        "Users",
+        "UserNames",
+        auth.currentUser.email,
+        "Information"
+      );
+
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        this.displayName = docSnap.data().displayName
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("DisplayName Error");
+      }
     },
   },
 };

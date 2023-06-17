@@ -36,6 +36,17 @@
             >
               Forgot password?
             </v-btn>
+
+            <v-btn
+              @click="register()"
+              class="link-left"
+              text
+              x-small
+              color="blue"
+            >
+              Don't have Account?
+            </v-btn>
+            
           </v-card-text>
           <v-card-actions class="card-actions">
             <v-btn @click="login" :disabled="isButtonDisabled" outlined>
@@ -127,33 +138,30 @@ export default {
     };
   },
   methods: {
-    async checkLoginStatus()
-    {
+    async checkLoginStatus() {
       await onAuthStateChanged(auth, (user) => {
-      if (user) {
-        this.userLoginStatus = true;
-        // ...
-      } else {
-        this.userLoginStatus = false;
-      }
-    });
-
+        if (user) {
+          this.userLoginStatus = true;
+          // ...
+        } else {
+          this.userLoginStatus = false;
+        }
+      });
+    },
+    register()
+    {
+      this.$router.push("/register");
     },
     login() {
       let email = this.email;
       let password = this.password;
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-          if (!this.firstTimeSignIn())
-          {
+          if (!this.firstTimeSignIn()) {
             this.$router.push("/info");
-            
-          }
-          else
-          {
+          } else {
             this.$router.push("/");
           }
-          
         })
         .catch((error) => {
           alert(error.message);
@@ -187,7 +195,7 @@ export default {
 
       if (docSnap.exists()) {
         //console.log("Document data:", docSnap.data());
-        
+
         return true;
       } else {
         // docSnap.data() will be undefined in this case
@@ -202,15 +210,12 @@ export default {
     },
   },
   created() {
-    
-    if (checkLoginStatus())
-    {
+    if (checkLoginStatus()) {
       this.$router.push("/");
-    } 
+    }
   },
   mounted() {
-
-   
+    
   },
   destroyed() {},
 };

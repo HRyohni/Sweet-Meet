@@ -3,6 +3,10 @@
     <v-container class="bg-surface-variant">
       <v-row no-gutters class="justify-center">
         <v-col class="d-block" cols="1">
+          <v-avatar size="30">
+            <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
+          </v-avatar>
+          <p class="d-inline ma-2">{{ displayName }}</p>
           <p>Home</p>
           <font-awesome-icon icon="fa-regular fa-bell" class="d-block mt-4" />
           <font-awesome-icon icon="fa-regular fa-heart" class="d-block mt-4" />
@@ -82,17 +86,13 @@
               :max-height="widnowHeight"
             >
               <span v-scroll.self="onScroll"></span>
-              <sweet-card
-                v-for="index in 10"
-                :key="index"
-                imeKorisnika="Markan"
-              ></sweet-card>
+              <sweet-card v-for="index in 10" :key="index"></sweet-card>
             </v-card>
           </div>
         </v-col>
         <v-col style="text-align: center" cols="3">
           <h1>Feed</h1>
-          <sweet-card imeKorisnika="Markan" class="ma-5"></sweet-card>
+          <sweet-card class="ma-5"></sweet-card>
         </v-col>
       </v-row>
     </v-container>
@@ -101,24 +101,25 @@
 
 <script>
 import SweetCard from "@/components/SweetCard.vue";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
 import { auth, db } from "../../firebase.js";
-
-//const authh = getAuth();
-
-let post = {
-  profileName: "Yohn",
-  likes: 231,
-};
-
+import {
+  getStorage,
+  getMetadata,
+  storageRef,
+  child,
+  storage,
+} from "firebase/storage";
+import firebase from "firebase/app";
+import "firebase/storage";
 export default {
   data() {
     return {
-      test: "fuk",
-      imeKorisnika: "markan",
+      displayName: "username",
+
       drag: 2,
       extend: false,
       scrollInvoked: 0,
@@ -130,12 +131,39 @@ export default {
     //components
     SweetCard,
   },
-
-  methods: {
-    mounted()
-  {
-    
+  mounted() {
+    this.Debugging();
+    this.GetUserData();
   },
+  methods: {
+    async Debugging() {
+      // Create a reference to the file whose metadata we want to retrieve
+      // TODO: SETUP STORAGE IMPORT IMAGE
+      const storage = getStorage();
+      const pathReference = ref(
+        storage,
+        "Users" + "/matosevic.leo@gmail.com/" + "ProfilePicture/profile.png"
+      );
+      console.log(pathReference);
+    },
+    async GetUserData() {
+      const docRef = doc(
+        db,
+        "Users",
+        "UserNames",
+        auth.currentUser.email,
+        "Information"
+      );
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        // setup display name
+        this.displayName = docSnap.data().displayName;
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("DisplayName Error");
+      }
+    },
     DragPosts() {
       if (this.drag == 2) this.drag = 4;
       else this.drag = 2;
@@ -148,10 +176,8 @@ export default {
       this.scrollInvoked++;
     },
     async addData() {
-      console.log(auth.currentUser);
-    
       await setDoc(
-        doc(db, "Users", "UserNames", auth.currentUser.email, "Information"),
+        doc(db, "Users", "UserNames", auth.currentUser.email, "testing"),
         {
           name: "Los Angeles",
           state: "CA",
