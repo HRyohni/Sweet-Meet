@@ -131,9 +131,10 @@ export default {
     //components
     SweetCard,
   },
-  mounted() {
+  async mounted() {
+    await this.GetUserData();
     this.Debugging();
-    this.GetUserData();
+    
   },
   methods: {
     async Debugging() {

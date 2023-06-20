@@ -109,6 +109,7 @@ import { auth, db, storage, getDoc } from "../../firebase.js";
 import { ref, uploadBytes } from "firebase/storage";
 
 import { doc, updateDoc } from "firebase/firestore";
+import { onMounted } from 'vue';
 
 export default {
   data: () => ({
@@ -169,12 +170,21 @@ export default {
     rules: [(v) => v >= 18 || "Over 18 Allowed"],
     step: -1,
     imageUrl: "",
+    email: "",
     chipColor: "default",
     PictureUrl: null,
   }),
-  async mounted() {
-    if (!auth) console.log(auth.currentUser);
-    this.CheckInformationStatus();
+      mounted() {  
+       console.log(auth.currentUser.email);
+       this.email = auth.currentUser.email;
+        
+        this.CheckInformationStatus();
+        console.log(this.email);
+  },
+  created()
+  {
+    console.log(this.email);
+    this.step = 1;
   },
   methods: {
     //detects location from browser
@@ -219,33 +229,36 @@ export default {
       console.log("uplodaing..." + this.imageUrl);
       const storageRef = ref(
         storage,
-        "Users/" + auth.currentUser.email + "/ProfilePicture/profile"
+        "Users/" + this.email + "/ProfilePicture/profile"
       );
       uploadBytes(storageRef, this.imageUrl).then(console.log("done!"));
     },
-    async CheckInformationStatus() {
+     CheckInformationStatus() {
+     
+     
       const docRef = doc(   db,
         "Users",
         "UserNames",
-        "matosevic.leo@gmail.com",
+        this.email,
         "Information");
       
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        console.log(docSnap.data().InformationComplete);
-        if (docSnap.data().InformationComplete)
+      const docSnap =  getDoc(docRef);
+   
+      if (docSnap) 
+      {   if(docSnap.data().InformationComplete)
         {
-          
+          console.log("information done!"); 
           this.$router.push("/");
         }
          
-        
-      } else {
+       
+      } 
+      else {
         // docSnap.data() will be undefined in this case
         console.log("No such document!");
       }
       this.step = 1;
+      console.log("asdasd");
     },
 
     async addInfo() {
@@ -264,7 +277,7 @@ export default {
         db,
         "Users",
         "UserNames",
-        "matosevic.leo@gmail.com",
+        this.email,
         "Information"
       );
       const InformationData = {
