@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import vuetify from './plugins/vuetify'
 
+import * as VueGoogleMaps from "vue2-google-maps";
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
@@ -11,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
 import { faBell, faMessage, faHeart,faComment } from '@fortawesome/free-regular-svg-icons'
+
 
 
 
@@ -27,3 +29,18 @@ new Vue({
   vuetify,
   render: h => h(App)
 }).$mount('#app')
+
+
+Vue.use(VueGoogleMaps, {
+  load: {
+    key: "AIzaSyBOmxGwmFyMuLzyg6gPY1d8_urrsa1rRUA",
+  },
+  installComponents: true,
+});
+//import {getStorage,  } from "../firebase";
+//const storage = getStorage(app);
+//export {storage}
+
+
+
+

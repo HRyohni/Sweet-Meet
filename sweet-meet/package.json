@@ -14,10 +14,13 @@
     "@fortawesome/vue-fontawesome": "^2.0.10",
     "core-js": "^3.8.3",
     "firebase": "^9.21.0",
+    "spotify-web-api-js": "^1.5.2",
     "vue": "^2.6.14",
+    "vue-location-picker": "^1.0.1",
     "vue-router": "^3.5.1",
+    "vue2-google-maps": "^0.10.7",
     "vue2-interact": "^0.0.3",
-    "vuefire": "^3.1.0",
+    "vue2-location-picker": "^1.2.0",
     "vuetify": "^2.6.0"
   },
   "devDependencies": {

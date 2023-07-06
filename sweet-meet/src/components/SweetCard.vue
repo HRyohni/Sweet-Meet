@@ -11,11 +11,11 @@
 >
   <div  class="card" >
   
-    <img src="https://picsum.photos/1080/1920" alt="" srcset=""  >
+    <img :src= randomImageUrl() alt="" srcset=""  >
     <div  class="bottomText">
       <v-container class="bg-surface-variant">
           <v-row no-gutters>
-            <v-col style="text-align: left;">
+          <v-col style="text-align: left;">
               <v-avatar class="">
                   <v-img
                     src="https://cdn.vuetifyjs.com/images/john.jpg"
@@ -64,36 +64,32 @@
 
 import { Vue2InteractDraggable } from 'vue2-interact'
 
-
 export default {
   name: 'SweetCard',
   components: {
     Vue2InteractDraggable
   },
  props:{
-  kurac: String, 
-  marko : String,
-  imeKorisnika: String, 
+
  
  },
  methods: {
 
+  randomImageUrl()
+  {
+
+    return "https://picsum.photos/id/" + Math.floor(Math.random() * 100)+"/1080/1920/";
+
+  },
+
   draggedRight() {
     const element = this.$el;
-    //element.style.transition = 'opacity 0.3s ease-in-out';
-    //element.style.opacity = "0";
-    console.log(element.style.width);
-    //element.style.width = "0"
-
-  
-   
       setTimeout(() => {
         element.remove();
         
-        //element.style.height = "0";
-
-        
-      }, 500);
+      
+      }, 300);
+    
 
      
     },

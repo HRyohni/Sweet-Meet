@@ -3,10 +3,6 @@
     <v-container class="bg-surface-variant">
       <v-row no-gutters class="justify-center">
         <v-col class="d-block" cols="1">
-          <v-avatar size="30">
-            <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
-          </v-avatar>
-          <p class="d-inline ma-2">{{ displayName }}</p>
           <p>Home</p>
           <font-awesome-icon icon="fa-regular fa-bell" class="d-block mt-4" />
           <font-awesome-icon icon="fa-regular fa-heart" class="d-block mt-4" />
@@ -17,6 +13,7 @@
 
           <v-icon large color="blue darken-2" class="d-block mt-4">
             mdi-message-text
+
           </v-icon>
 
           <v-btn class="mt-3" @click="addData" dark elevation="12">Test</v-btn>
@@ -45,15 +42,20 @@
           </div>
         </v-col>
 
-        <v-col v-if="extend">
-          <v-btn
-            class="d-flex"
-            v-for="index in 10"
-            :key="index"
-            style="width: 100%; height: 5%"
-          >
-            kurac
-          </v-btn>
+        <v-col  
+        
+        
+        v-if="extend"
+        
+        >
+        <v-btn
+        class="d-flex"
+        v-for="index in 10"
+        :key="index"
+        style="width: 100%;height: 5%;"
+        >
+          kurac
+        </v-btn>
           <h1>MESSAAGES HERE</h1>
         </v-col>
         <v-col :cols="drag">
@@ -62,6 +64,7 @@
             <v-row>
               <v-col
                 class="justify-left d-flex mt-4 pa-0"
+                
                 v-for="n in 4"
                 :key="n"
               >
@@ -86,13 +89,17 @@
               :max-height="widnowHeight"
             >
               <span v-scroll.self="onScroll"></span>
-              <sweet-card v-for="index in 10" :key="index"></sweet-card>
+              <sweet-card
+                v-for="index in 10"
+                :key="index"
+                imeKorisnika="Markan"
+              ></sweet-card>
             </v-card>
           </div>
         </v-col>
         <v-col style="text-align: center" cols="3">
           <h1>Feed</h1>
-          <sweet-card class="ma-5"></sweet-card>
+          <sweet-card imeKorisnika="Markan" class="ma-5"></sweet-card>
         </v-col>
       </v-row>
     </v-container>
@@ -101,30 +108,24 @@
 
 <script>
 import SweetCard from "@/components/SweetCard.vue";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
 import { auth, db } from "../../firebase.js";
-import {
-  getStorage,
-  getMetadata,
-  storageRef,
-  child,
-  storage,
-} from "firebase/storage";
-import firebase from "firebase/app";
-import "firebase/storage";
-import {onAuthStateChanged} from "../../firebase";
+
+//const authh = getAuth();
+
+let post = {
+  profileName: "Yohn",
+  likes: 231,
+};
+
 export default {
   data() {
     return {
-      displayName: "username",
-  // User Login Info
-      userLoginStatus: false,
-      userInfo: null,
-      userEmail: null,
-
+      test: "fuk",
+      imeKorisnika: "markan",
       drag: 2,
       extend: false,
       scrollInvoked: 0,
@@ -136,78 +137,31 @@ export default {
     //components
     SweetCard,
   },
-   mounted() {
-    //debugger;
-    this.GetUserStatus();
-    this.GetUserDataFeed();
-    //this.Debugging();
-    
-  },
+
   methods: {
-    async Debugging() {
-      // Create a reference to the file whose metadata we want to retrieve
-      // TODO: SETUP STORAGE IMPORT IMAGE
-      const storage = getStorage();
-      const pathReference = ref(
-        storage,
-        "Users" + "/matosevic.leo@gmail.com/" + "ProfilePicture/profile.png"
-      );
-      console.log(pathReference);
-    },
-    GetUserStatus ()
-    {
-      debugger;
-       onAuthStateChanged(auth, function (user)  { // TODO: Fix this fucked up shit
-        if (user) {
-          this.userLoginStatus = true;
-          this.userInfo = user;
-          this.userEmail = user.email;
-
-        } else {
-          this.userLoginStatus = false;
-        }
-      });
-      console.log(this.userLoginStatus.toString());
-      if (!this.userLoginStatus) {
-        this.$router.push("/login")
-      }
-
-    },
-
-    async GetUserDataFeed() {
-      debugger;
-      const docRef = doc(
-        db,
-        "Users",
-        "UserNames",
-        auth.currentUser.email,
-        "Information"
-      );
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        // setup display name
-        this.displayName = docSnap.data().displayName;
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("Unkown Users");
-        await this.$router.push("/")
-      }
-    },
     DragPosts() {
       if (this.drag == 2) this.drag = 4;
       else this.drag = 2;
     },
     friend() {
-      if (this.extend == false) this.extend = true;
+      if (this.extend === false)
+      this.extend = true;
       else this.extend = false;
     },
     onScroll() {
       this.scrollInvoked++;
     },
     async addData() {
+      console.log(auth.currentUser);
+      // Add a new document in collection "cities"
       await setDoc(
-        doc(db, "Users", "UserNames", auth.currentUser.email, "testing"),
+        doc(
+          db,
+          "Users",
+          "UserNames",
+          auth.currentUser.email,
+          auth.currentUser.accessToken
+        ),
         {
           name: "Los Angeles",
           state: "CA",
