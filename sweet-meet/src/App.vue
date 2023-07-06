@@ -7,7 +7,7 @@
         </v-col>
         <v-col style="text-align: center">
           <div>
-            <v-text-field label="Search" hide-details="auto"></v-text-field>
+            <v-text-field label="Search " hide-details="auto"></v-text-field>
           </div>
         </v-col>
         <v-col style="text-align: right; font-size: 3vh" class="pa-5">
@@ -69,7 +69,7 @@ export default {
   }),
   async mounted() {
     
-    await onAuthStateChanged(auth, (user) => {
+    await onAuthStateChanged(auth, (user) => { // TODO: Rly bad method to check auth
       if (user) {
         this.userLoginStatus = true;
         this.userInfo = user;

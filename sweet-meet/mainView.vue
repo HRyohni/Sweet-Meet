@@ -13,6 +13,7 @@
 
           <v-icon large color="blue darken-2" class="d-block mt-4">
             mdi-message-text
+
           </v-icon>
 
           <v-btn class="mt-3" @click="addData" dark elevation="12">Test</v-btn>
@@ -143,7 +144,7 @@ export default {
       else this.drag = 2;
     },
     friend() {
-      if (this.extend == false) 
+      if (this.extend === false)
       this.extend = true;
       else this.extend = false;
     },

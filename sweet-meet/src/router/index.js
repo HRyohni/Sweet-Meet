@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import profile from '../views/profileView.vue'
 import  mainView  from "../views/mainView.vue";
 import login from '../views/LoginView.vue';
 import register from '../views/RegisterView.vue';
 import info from '../views/infoView.vue';
+import landingPage from '../views/landingPageView.vue'
 
 
 
@@ -13,9 +13,14 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
+    path: '/feed',
     name: 'main', 
     component: mainView
+  },
+  {
+    path: '/',
+    name: 'landingPage', 
+    component: landingPage
   },
 
   {

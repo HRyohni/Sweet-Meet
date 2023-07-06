@@ -115,10 +115,15 @@ import {
 } from "firebase/storage";
 import firebase from "firebase/app";
 import "firebase/storage";
+import {onAuthStateChanged} from "../../firebase";
 export default {
   data() {
     return {
       displayName: "username",
+  // User Login Info
+      userLoginStatus: false,
+      userInfo: null,
+      userEmail: null,
 
       drag: 2,
       extend: false,
@@ -131,9 +136,11 @@ export default {
     //components
     SweetCard,
   },
-  async mounted() {
-    await this.GetUserData();
-    this.Debugging();
+   mounted() {
+    //debugger;
+    this.GetUserStatus();
+    this.GetUserDataFeed();
+    //this.Debugging();
     
   },
   methods: {
@@ -147,7 +154,28 @@ export default {
       );
       console.log(pathReference);
     },
-    async GetUserData() {
+    GetUserStatus ()
+    {
+      debugger;
+       onAuthStateChanged(auth, function (user)  { // TODO: Fix this fucked up shit
+        if (user) {
+          this.userLoginStatus = true;
+          this.userInfo = user;
+          this.userEmail = user.email;
+
+        } else {
+          this.userLoginStatus = false;
+        }
+      });
+      console.log(this.userLoginStatus.toString());
+      if (!this.userLoginStatus) {
+        this.$router.push("/login")
+      }
+
+    },
+
+    async GetUserDataFeed() {
+      debugger;
       const docRef = doc(
         db,
         "Users",
@@ -162,7 +190,8 @@ export default {
         this.displayName = docSnap.data().displayName;
       } else {
         // docSnap.data() will be undefined in this case
-        console.log("DisplayName Error");
+        console.log("Unkown Users");
+        await this.$router.push("/")
       }
     },
     DragPosts() {
