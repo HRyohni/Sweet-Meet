@@ -4,49 +4,49 @@
       <v-col align="center" justify="center" cols="12">
         <v-card class="card-border" width="600px" outlined>
           <v-card-title align="left">LOGIN</v-card-title>
-          <v-card-subtitle align="left"> Deer user, plz login </v-card-subtitle>
+          <v-card-subtitle align="left"> Deer user, plz login</v-card-subtitle>
           <v-card-text class="card-text-border">
             <v-form v-model="valid">
               <v-text-field
-                v-model="email"
-                dense
-                label="Email"
-                clearble
-                type="text"
-                :rules="[rules.required, rules.email]"
-                outlined
+                  v-model="email"
+                  dense
+                  label="Email"
+                  clearble
+                  type="text"
+                  :rules="[rules.required, rules.email]"
+                  outlined
               ></v-text-field>
               <v-text-field
-                v-model="password"
-                dense
-                label="Password"
-                clearble
-                :append-icon="showIcon ? 'mdi-eye' : 'mdi-eye-off'"
-                :rules="[rules.required, rules.min]"
-                :type="showIcon ? 'text' : 'password'"
-                outlined
+                  v-model="password"
+                  dense
+                  label="Password"
+                  clearble
+                  :append-icon="showIcon ? 'mdi-eye' : 'mdi-eye-off'"
+                  :rules="[rules.required, rules.min]"
+                  :type="showIcon ? 'text' : 'password'"
+                  outlined
               ></v-text-field>
             </v-form>
             <v-btn
-              @click="openDialog"
-              class="link-left"
-              text
-              x-small
-              color="blue"
+                @click="openDialog"
+                class="link-left"
+                text
+                x-small
+                color="blue"
             >
               Forgot password?
             </v-btn>
 
             <v-btn
-              @click="register()"
-              class="link-left"
-              text
-              x-small
-              color="blue"
+                @click="register()"
+                class="link-left"
+                text
+                x-small
+                color="blue"
             >
               Don't have Account?
             </v-btn>
-            
+
           </v-card-text>
           <v-card-actions class="card-actions">
             <v-btn @click="login" :disabled="isButtonDisabled" outlined>
@@ -55,33 +55,33 @@
           </v-card-actions>
         </v-card>
         <v-dialog
-          width="300px"
-          outlined
-          persistent
-          v-model="passwordIssuesDialog"
+            width="300px"
+            outlined
+            persistent
+            v-model="passwordIssuesDialog"
         >
           <v-card class="card-border">
             <v-card-title>E-mail</v-card-title>
-            <v-card-subtitle> Please enter you e-mail </v-card-subtitle>
+            <v-card-subtitle> Please enter you e-mail</v-card-subtitle>
             <v-card-text>
               <v-text-field
-                v-model="emailForPassword"
-                dense
-                label="Email"
-                clearble
-                type="text"
-                :rules="[rules.required, rules.email]"
-                outlined
+                  v-model="emailForPassword"
+                  dense
+                  label="Email"
+                  clearble
+                  type="text"
+                  :rules="[rules.required, rules.email]"
+                  outlined
               ></v-text-field>
             </v-card-text>
             <v-card-actions class="card-actions">
               <v-btn
-                class="btn-right-margin"
-                color="red darken-3"
-                outlined
-                text
-                small
-                @click="closeDialog"
+                  class="btn-right-margin"
+                  color="red darken-3"
+                  outlined
+                  text
+                  small
+                  @click="closeDialog"
               >
                 CLOSE
               </v-btn>
@@ -104,6 +104,7 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "../../firebase.js";
+
 export default {
   name: "LoginView",
   components: {},
@@ -131,9 +132,9 @@ export default {
         required: (value) => !!value || "Required.",
         min: (v) => v?.length >= 6 || "Min 6 characters",
         email: (v) =>
-          !v ||
-          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-          "E-mail must be valid",
+            !v ||
+            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+            "E-mail must be valid",
       },
     };
   },
@@ -148,48 +149,47 @@ export default {
         }
       });
     },
-    register()
-    {
+    register() {
       this.$router.push("/register");
     },
     login() {
       let email = this.email;
       let password = this.password;
       signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          if (!this.firstTimeSignIn()) {
-            this.$router.push("/info");
-          } else {
-            this.$router.push("/");
-          }
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
+          .then(() => {
+            if (!this.firstTimeSignIn()) {
+              this.$router.push("/info");
+            } else {
+              this.$router.push("/feed");
+            }
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
     },
 
     resetPassword(email) {
       sendPasswordResetEmail(auth, email)
-        .then(() => {
-          console.log("Email sent");
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // ..
-        });
+          .then(() => {
+            console.log("Email sent");
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // ..
+          });
       this.closeDialog();
     },
     postActionMoveToView() {
-      this.$router.push({ path: "/info" });
+      this.$router.push({path: "/info"});
     },
     async firstTimeSignIn() {
       const docRef = doc(
-        db,
-        "Users",
-        "UserNames",
-        auth.currentUser.email,
-        "Information"
+          db,
+          "Users",
+          "UserNames",
+          auth.currentUser.email,
+          "Information"
       );
       const docSnap = await getDoc(docRef);
 
@@ -215,9 +215,10 @@ export default {
     }
   },
   mounted() {
-    
+
   },
-  destroyed() {},
+  destroyed() {
+  },
 };
 </script>
 

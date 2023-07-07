@@ -8,11 +8,11 @@
           </v-avatar>
           <p class="d-inline ma-2">{{ displayName }}</p>
           <p>Home</p>
-          <font-awesome-icon icon="fa-regular fa-bell" class="d-block mt-4" />
-          <font-awesome-icon icon="fa-regular fa-heart" class="d-block mt-4" />
+          <font-awesome-icon icon="fa-regular fa-bell" class="d-block mt-4"/>
+          <font-awesome-icon icon="fa-regular fa-heart" class="d-block mt-4"/>
           <font-awesome-icon
-            icon="fa-regular fa-comment"
-            class="d-block mt-4"
+              icon="fa-regular fa-comment"
+              class="d-block mt-4"
           />
 
           <v-icon large color="blue darken-2" class="d-block mt-4">
@@ -27,17 +27,17 @@
           <div v-for="n in 5" :key="n" class="mt-5">
             <v-btn class="justify-left" @click="friend">
               <v-badge
-                bordered
-                bottom
-                color="deep-purple green"
-                large
-                dot
-                offset-x="10"
-                offset-y="10"
+                  bordered
+                  bottom
+                  color="deep-purple green"
+                  large
+                  dot
+                  offset-x="10"
+                  offset-y="10"
               >
                 <v-avatar size="40">
                   <v-img
-                    src="https://cdn.vuetifyjs.com/images/lists/2.jpg"
+                      src="https://cdn.vuetifyjs.com/images/lists/2.jpg"
                   ></v-img>
                 </v-avatar>
               </v-badge>
@@ -47,10 +47,10 @@
 
         <v-col v-if="extend">
           <v-btn
-            class="d-flex"
-            v-for="index in 10"
-            :key="index"
-            style="width: 100%; height: 5%"
+              class="d-flex"
+              v-for="index in 10"
+              :key="index"
+              style="width: 100%; height: 5%"
           >
             kurac
           </v-btn>
@@ -61,17 +61,15 @@
           <div class="stories d-inline">
             <v-row>
               <v-col
-                class="justify-left d-flex mt-4 pa-0"
-                v-for="n in 4"
-                :key="n"
+                  class="justify-left d-flex mt-4 pa-0"
+                  v-for="n in 4"
+                  :key="n"
               >
                 <div class="d-inline">
                   <v-avatar size="3vw" class="ma-1">
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John"
-                    />
+                    <h1>asdasd</h1>
                   </v-avatar>
+                  <h1 class="ma"
 
                   <p class="d-flex justify-center">Leo m</p>
                 </div>
@@ -81,9 +79,9 @@
             <v-btn dark elevation-10 @click="DragPosts">test</v-btn>
 
             <v-card
-              v-scroll.self="onScroll"
-              class="overflow-y-auto pa-4"
-              :max-height="widnowHeight"
+                v-scroll.self="onScroll"
+                class="overflow-y-auto pa-4"
+                :max-height="widnowHeight"
             >
               <span v-scroll.self="onScroll"></span>
               <sweet-card v-for="index in 10" :key="index"></sweet-card>
@@ -101,26 +99,19 @@
 
 <script>
 import SweetCard from "@/components/SweetCard.vue";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { collection, addDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { getDatabase, ref, set } from "firebase/database";
-import { auth, db } from "../../firebase.js";
-import {
-  getStorage,
-  getMetadata,
-  storageRef,
-  child,
-  storage,
-} from "firebase/storage";
-import firebase from "firebase/app";
+import {doc, getDoc, setDoc} from "firebase/firestore";
+import {ref} from "firebase/database";
+import {auth, db} from "../../firebase.js";
+import {getStorage,} from "firebase/storage";
 import "firebase/storage";
 import {onAuthStateChanged} from "../../firebase";
+import NewComtestponent from "@/views/NewComtestponent.vue";
+
 export default {
   data() {
     return {
       displayName: "username",
-  // User Login Info
+      // User Login Info
       userLoginStatus: false,
       userInfo: null,
       userEmail: null,
@@ -133,15 +124,16 @@ export default {
   },
   name: "main",
   components: {
+    NewComtestponent,
     //components
     SweetCard,
   },
-   mounted() {
+  mounted() {
     //debugger;
     this.GetUserStatus();
     this.GetUserDataFeed();
     //this.Debugging();
-    
+
   },
   methods: {
     async Debugging() {
@@ -149,15 +141,16 @@ export default {
       // TODO: SETUP STORAGE IMPORT IMAGE
       const storage = getStorage();
       const pathReference = ref(
-        storage,
-        "Users" + "/matosevic.leo@gmail.com/" + "ProfilePicture/profile.png"
+          storage,
+          "Users" + "/matosevic.leo@gmail.com/" + "ProfilePicture/profile.png"
       );
       console.log(pathReference);
     },
-    GetUserStatus ()
-    {
+    GetUserStatus () {
       debugger;
-       onAuthStateChanged(auth, function (user)  { // TODO: Fix this fucked up shit
+
+
+      onAuthStateChanged(auth, function (user) { // TODO: Fix this fucked up shit
         if (user) {
           this.userLoginStatus = true;
           this.userInfo = user;
@@ -177,11 +170,11 @@ export default {
     async GetUserDataFeed() {
       debugger;
       const docRef = doc(
-        db,
-        "Users",
-        "UserNames",
-        auth.currentUser.email,
-        "Information"
+          db,
+          "Users",
+          "UserNames",
+          auth.currentUser.email,
+          "Information"
       );
       const docSnap = await getDoc(docRef);
 
@@ -207,16 +200,15 @@ export default {
     },
     async addData() {
       await setDoc(
-        doc(db, "Users", "UserNames", auth.currentUser.email, "testing"),
-        {
-          name: "Los Angeles",
-          state: "CA",
-          country: "USA",
-        }
+          doc(db, "Users", "UserNames", auth.currentUser.email, "testing"),
+          {
+            name: "Los Angeles",
+            state: "CA",
+            country: "USA",
+          }
       );
     },
   },
 };
 </script>
 
-<style></style>
