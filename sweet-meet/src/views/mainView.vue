@@ -106,6 +106,7 @@ import {getStorage,} from "firebase/storage";
 import "firebase/storage";
 import {onAuthStateChanged} from "../../firebase";
 import NewComtestponent from "@/views/NewComtestponent.vue";
+import {getAuth} from "firebase/auth";
 
 export default {
   data() {
@@ -138,6 +139,7 @@ export default {
   methods: {
     async Debugging() {
       // Create a reference to the file whose metadata we want to retrieve
+      debugger;
       // TODO: SETUP STORAGE IMPORT IMAGE
       const storage = getStorage();
       const pathReference = ref(
@@ -146,25 +148,11 @@ export default {
       );
       console.log(pathReference);
     },
-    GetUserStatus () {
-      debugger;
-
-
-      onAuthStateChanged(auth, function (user) { // TODO: Fix this fucked up shit
-        if (user) {
-          this.userLoginStatus = true;
-          this.userInfo = user;
-          this.userEmail = user.email;
-
-        } else {
-          this.userLoginStatus = false;
-        }
-      });
-      console.log(this.userLoginStatus.toString());
-      if (!this.userLoginStatus) {
-        this.$router.push("/login")
-      }
-
+    DragPosts() {
+      if (this.drag === 2)
+        this.drag = 4;
+      else
+        this.drag = 2;
     },
 
     async GetUserDataFeed() {
@@ -187,16 +175,27 @@ export default {
         await this.$router.push("/")
       }
     },
-    DragPosts() {
-      if (this.drag == 2) this.drag = 4;
-      else this.drag = 2;
-    },
-    friend() {
-      if (this.extend == false) this.extend = true;
-      else this.extend = false;
-    },
-    onScroll() {
-      this.scrollInvoked++;
+    GetUserStatus() {
+      debugger;
+      let auth = getAuth();
+      let user = auth.currentUser;
+
+
+      if (user) {
+        this.userLoginStatus = true;
+        this.userInfo = user;
+        this.userEmail = user.email;
+
+      } else {
+        this.userLoginStatus = false;
+      }
+
+
+      console.log("->", this.userLoginStatus.toString());
+      if (!this.userLoginStatus) {
+        this.$router.push("/login")
+      }
+
     },
     async addData() {
       await setDoc(
@@ -207,6 +206,13 @@ export default {
             country: "USA",
           }
       );
+    },
+    friend() {
+      if (this.extend == false) this.extend = true;
+      else this.extend = false;
+    },
+    onScroll() {
+      this.scrollInvoked++;
     },
   },
 };
