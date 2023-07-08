@@ -12,26 +12,29 @@
         </v-col>
         <v-col style="text-align: right; font-size: 3vh" class="pa-5">
           <v-btn
-            v-if="userLoginStatus"
-            @click="SignOut()"
-            color="red"
-            elevation="12"
-            >Sign Out</v-btn
+              v-if="userLoginStatus"
+              @click="SignOut()"
+              color="red"
+              elevation="12"
+          >Sign Out
+          </v-btn
           >
           <v-btn
-            v-if="!userLoginStatus"
-            color="primary"
-            @click="LoginPage()"
-            class="ma-2"
-            >Log In</v-btn
+              v-if="!userLoginStatus"
+              color="primary"
+              @click="LoginPage()"
+              class="ma-2"
+          >Log In
+          </v-btn
           >
 
           <v-btn
-            v-if="!userLoginStatus"
-            color="red"
-            outlined
-            @click="RegisterPage()"
-            >Sign in</v-btn
+              v-if="!userLoginStatus"
+              color="red"
+              outlined
+              @click="RegisterPage()"
+          >Sign in
+          </v-btn
           >
         </v-col>
       </v-row>
@@ -53,7 +56,8 @@ import {
   signOut,
   getStorage,
 } from "../firebase.js";
-import { doc, getDoc } from "firebase/firestore";
+import {doc, getDoc} from "firebase/firestore";
+
 export default {
   name: "App",
   components: {
@@ -68,7 +72,7 @@ export default {
     displayName: null,
   }),
   async mounted() {
-    
+
     await onAuthStateChanged(auth, (user) => { // TODO: Rly bad method to check auth
       if (user) {
         this.userLoginStatus = true;
@@ -82,17 +86,19 @@ export default {
   },
 
   methods: {
+
     SignOut() {
       const auth = getAuth();
       signOut(auth)
-        .then(() => {
-          this.$router.push("/login");
-        })
-        .catch((error) => {
-          // An error happened.
-          console.log(error);
-        });
+          .then(() => {
+            this.$router.push("/login");
+          })
+          .catch((error) => {
+            // An error happened.
+            console.log(error);
+          });
     },
+
     LoginPage() {
       this.$router.push("/login");
     },
@@ -104,11 +110,11 @@ export default {
         return null;
 
       const docRef = doc(
-        db,
-        "Users",
-        "UserNames",
-        auth.currentUser.email,
-        "Information"
+          db,
+          "Users",
+          "UserNames",
+          auth.currentUser.email,
+          "Information"
       );
 
       const docSnap = await getDoc(docRef);

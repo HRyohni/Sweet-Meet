@@ -1,5 +1,5 @@
 <template>
-  <v-card width="100%" >
+  <v-card width="100%">
     <v-img height="300px" src="https://cdn.pixabay.com/photo/2020/07/12/07/47/bee-5396362_1280.jpg">
 
 
@@ -13,7 +13,7 @@
           <img alt="user" src="https://cdn.pixabay.com/photo/2020/06/24/19/12/cabbage-5337431_1280.jpg"/>
         </v-avatar>
 
-        <p class="ml-3">John Doe</p>
+        <p class="ml-3">{{ this.firstName }} {{ this.secondName }}</p>
       </v-card-title>
 
 
@@ -23,16 +23,8 @@
 
       <div class="font-weight-bold ml-8 mb-2"><b>About Me:</b></div>
       <div>
-
-        <h5>love hicking</h5>
         <h5>
-          Eu ullamco dolore eu reprehenderit ea magna proident eu ex
-          pariatur exercitation ullamco ullamco excepteur. Nostrud dolor
-          Lorem culpa magna officia. Ipsum qui sint irure excepteur do
-          ipsum voluptate aute anim anim magna cupidatat. Do mollit sint
-          cupidatat eu reprehenderit excepteur et aute eu incididunt
-          aute. Dolore eu et do incididunt excepteur fugiat. Nisi
-          pariatur pariatur incididunt sint.
+      {{profileDescription}}
         </h5>
 
       </div>
@@ -45,6 +37,16 @@
 </template>
 <script>
 export default {
-  name: 'ProfileInfoCard'
+  name: 'ProfileInfoCard',
+  data: () => ({
+
+  }),
+  props:{
+    profileDescription: "",
+    firstName: "",
+    secondName: "",
+  }
+
 }
+
 </script>

@@ -24,7 +24,7 @@
 
 
               </v-avatar>
-              <p style="text-align: center;" class="d-inline pa-2"> {{ imeKorisnika }} </p>
+              <p style="text-align: center;" class="d-inline pa-2"> ime Korisnika </p>
 
 
             </v-col>
@@ -63,7 +63,9 @@ export default {
   components: {
     Vue2InteractDraggable
   },
-  props: {},
+  props: {
+
+  },
   methods: {
 
     randomImageUrl() {
@@ -83,11 +85,6 @@ export default {
 
     },
 
-    delit() {
-
-      this.isShowing = false;
-
-    }
   },
 
 
@@ -107,7 +104,7 @@ export default {
 .card {
 
   position: relative;
-  margin-top: 10px ;
+  margin-top: 10px;
   width: 100%;
   height: fit-content;
 

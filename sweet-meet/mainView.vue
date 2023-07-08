@@ -125,7 +125,7 @@ export default {
   data() {
     return {
       test: "fuk",
-      imeKorisnika: "markan",
+
       drag: 2,
       extend: false,
       scrollInvoked: 0,

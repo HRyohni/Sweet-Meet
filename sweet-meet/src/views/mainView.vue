@@ -124,6 +124,7 @@ export default {
     };
   },
   name: "main",
+
   components: {
     NewComtestponent,
     //components
@@ -156,7 +157,7 @@ export default {
     },
 
     async GetUserDataFeed() {
-      debugger;
+
       const docRef = doc(
           db,
           "Users",
@@ -176,7 +177,7 @@ export default {
       }
     },
     GetUserStatus() {
-      debugger;
+
       let auth = getAuth();
       let user = auth.currentUser;
 
