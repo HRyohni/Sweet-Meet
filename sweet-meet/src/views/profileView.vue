@@ -5,7 +5,7 @@
     <!--                                       Profile info card for more information about profile -->
     <div class="TopSelection">
 
-      <ProfileInfoCard profile-description="this is test" :first-name="this.userUrlName" second-name="test"/>
+      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName" second-name="test"/>
 
 
     </div>
@@ -76,6 +76,7 @@ export default {
 
     // User Information
     userAllInformation: null,
+    userAdmin: false,
 
 
   }),
@@ -90,6 +91,7 @@ export default {
     this.setUserUrlName();
     await this.setUserInformation();
     this.setUserEditProfileIfAdmin();
+    this.chnageToUserAdminView();
   },
 
 
@@ -97,7 +99,9 @@ export default {
       {
 
         getUserEmail() {      //TODO: Email wont save on time **LifeCycle Problem prob**
+
           this.userEmail = getAuth().currentUser.email
+
         },
 
         async checkLoginStatus() {
@@ -125,7 +129,13 @@ export default {
         },
 
         setUserEditProfileIfAdmin() {
-          console.log("-> ", this.userAllInformation["displayName"]);
+          if (this.userAllInformation["displayName"].toLowerCase() === this.userUrlName) {
+            this.userAdmin = true;
+          }
+        },
+
+        chnageToUserAdminView()
+        {
 
         },
 

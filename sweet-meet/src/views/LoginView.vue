@@ -80,11 +80,13 @@
                   color="red darken-3"
                   outlined
                   text
+
                   small
                   @click="closeDialog"
               >
                 CLOSE
               </v-btn>
+
               <v-btn outlined text @click="resetPassword(emailForPassword)">
                 SEND
               </v-btn>
