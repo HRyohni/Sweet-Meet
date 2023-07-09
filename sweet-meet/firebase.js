@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import firebase from 'firebase/compat/app'
 import { doc, addDoc, getDoc, setDoc, getDocs, getCount, getFirestore, collection } from 'firebase/firestore'
-import { getAuth, updatePassword, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, confirmPasswordReset, beforeAuthStateChanged, onAuthStateChanged } from 'firebase/auth'
+import { getAuth, setPersistence, browserLocalPersistence, updatePassword, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, confirmPasswordReset, beforeAuthStateChanged, onAuthStateChanged } from 'firebase/auth'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 import 'firebase/storage';
@@ -14,6 +14,7 @@ import 'firebase/storage';
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import async from "async";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -34,7 +35,25 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const auth = getAuth(app)
+
+let email = null;
+// Set the persistence to 'local' (or 'session' if desired)
+async function setAuthPersistence() {
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    // Persistence setting applied successfully
+    console.log('Auth persistence set to local');
+    email = auth.currentUser.email
+    // Continue with other operations or authentication flow
+  } catch (error) {
+    // Handle error
+    console.error('Error setting auth persistence:', error);
+  }
+}
+
+setAuthPersistence();
+
 const storage = getStorage(app);
 const db = getFirestore(app);
 
@@ -46,6 +65,7 @@ firebase.initializeApp(firebaseConfig);
 export { app, auth, storage,
   getAuth,
 	db,
+    email,
   doc,
   getDoc,
 	setDoc,

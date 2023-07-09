@@ -1,15 +1,16 @@
 <template>
-  <v-container>
-
+  <v-container v-if="true">
 
     <!--                                       Profile info card for more information about profile -->
     <div class="TopSelection">
 
-      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName" second-name="test"/>
+      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName"
+                       second-name="test"/>
 
 
     </div>
 
+    <v-btn @click="test">test</v-btn>
     <v-col>
       <div class="profileinfo">
       </div>
@@ -18,7 +19,7 @@
 
     <v-row class="BottomSite ">
 
-      <!--                                 TODO:fix nameing id with site      Follow Suggestion system-->
+      <!--                                 TODO: fix nameing id with site      Follow Suggestion system-->
       <v-col>
         <v-row justify="space-around" class="ma-12">
           <FollowSugestionComponent/>
@@ -48,12 +49,14 @@
 
 <script>
 import SweetCard from "@/components/SweetCard.vue";
-import {auth, db, doc, getDoc} from "../../firebase.js";
+import {auth, db, doc, getDoc, email} from "../../firebase.js";
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
 import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue";
 
+
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {collection, getDocs} from "firebase/firestore";
+import kuca from "@/class/User";
 
 
 export default {
@@ -71,7 +74,7 @@ export default {
     // Firebase Data
     auth: null,
     userLoginStatus: null,
-    userEmail: "",
+    userEmail: null,
 
 
     // User Information
@@ -81,28 +84,40 @@ export default {
 
   }),
 
-  async beforeMount() {
-    this.getUserEmail()
-  },
 
   async mounted() {
+
+
+
+    console.log(email);
+
     await this.checkLoginStatus();
-    this.getUserEmail()
-    this.setUserUrlName();
+    await this.getUserEmail();
+    await this.setUserUrlName();
     await this.setUserInformation();
-    this.setUserEditProfileIfAdmin();
-    this.chnageToUserAdminView();
+    await this.setUserEditProfileIfAdmin();
+    await this.chnageToUserAdminView();
+
+
   },
+
+
 
 
   methods:
       {
+        test() {
 
-        getUserEmail() {      //TODO: Email wont save on time **LifeCycle Problem prob**
 
-          this.userEmail = getAuth().currentUser.email
+          this.getUserEmail();
+        },
+
+        async getUserEmail() {
+          this.userEmail = getAuth().currentUser.email;
+          console.log(getAuth().currentUser)
 
         },
+
 
         async checkLoginStatus() {
           await onAuthStateChanged(auth, (user) => {
@@ -120,9 +135,12 @@ export default {
 
         setUserUrlName() {
           this.userUrlName = this.$route.params["id"];
+
+
         },
 
         async setUserInformation() {
+
           await this.checkLoginStatus();
           const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.userEmail));
           this.userAllInformation = querySnapshot.docs[0].data();
@@ -131,11 +149,11 @@ export default {
         setUserEditProfileIfAdmin() {
           if (this.userAllInformation["displayName"].toLowerCase() === this.userUrlName) {
             this.userAdmin = true;
+
           }
         },
 
-        chnageToUserAdminView()
-        {
+        chnageToUserAdminView() {
 
         },
 

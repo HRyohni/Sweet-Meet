@@ -137,6 +137,9 @@ export default {
     //components
     SweetCard,
   },
+mounted() {
+
+},
 
   methods: {
     DragPosts() {
