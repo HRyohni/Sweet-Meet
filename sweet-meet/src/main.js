@@ -13,6 +13,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 /* import specific icons */
 import { faBell, faMessage, faHeart,faComment } from '@fortawesome/free-regular-svg-icons'
 
+import store from './store'
+
 
 
 
@@ -27,6 +29,7 @@ Vue.config.productionTip = false
 new Vue({
   router,
   vuetify,
+  store,
   render: h => h(App)
 }).$mount('#app')
 

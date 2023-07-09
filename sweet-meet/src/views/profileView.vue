@@ -57,6 +57,7 @@ import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue"
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {collection, getDocs} from "firebase/firestore";
 import kuca from "@/class/User";
+import {mapActions, mapGetters, mapMutations} from "vuex";
 
 
 export default {
@@ -70,6 +71,7 @@ export default {
   data: () => ({
     // User Id Site
     userUrlName: "",
+
 
     // Firebase Data
     auth: null,
@@ -88,24 +90,37 @@ export default {
   async mounted() {
 
 
-
-    console.log(email);
-
     await this.checkLoginStatus();
     await this.getUserEmail();
+    console.log(this.mail);
     await this.setUserUrlName();
     await this.setUserInformation();
     await this.setUserEditProfileIfAdmin();
     await this.chnageToUserAdminView();
 
 
+
+  },
+
+  computed: {
+    ...mapGetters(
+        
+        {
+          mail: "getEmail",
+          checkDrop: "checkDrop",
+        }
+    )
   },
 
 
-
-
   methods:
+
+
       {
+        ...mapMutations([
+          'setUserEmail'
+        ]),
+
         test() {
 
 
@@ -113,8 +128,8 @@ export default {
         },
 
         async getUserEmail() {
-          this.userEmail = getAuth().currentUser.email;
-          console.log(getAuth().currentUser)
+          //this.userEmail = getAuth().currentUser.email;
+          this.setUserEmail(getAuth().currentUser.email);
 
         },
 
