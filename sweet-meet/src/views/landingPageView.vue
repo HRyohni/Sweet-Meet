@@ -9,6 +9,17 @@
        >
          Sweet Meet
        </v-btn>
+
+
+      <v-card
+          class="pa-9 ma-11"
+          width="400px"
+      >
+        <v-card-title>naslov</v-card-title>
+        <v-card-subtitle>ovo je podnaslov</v-card-subtitle>
+      </v-card>
+
+
      </div>
 
    </mainText>

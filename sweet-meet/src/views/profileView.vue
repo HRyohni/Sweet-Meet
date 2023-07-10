@@ -4,8 +4,7 @@
     <!--                                       Profile info card for more information about profile -->
     <div class="TopSelection">
 
-      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName"
-                       second-name="test"/>
+      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName" second-name="test"/>
 
 
     </div>

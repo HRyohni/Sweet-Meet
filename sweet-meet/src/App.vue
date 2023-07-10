@@ -3,6 +3,7 @@
     <div class="topbar pa-2">
       <v-row>
         <v-col>
+          <h1>test</h1>
           <h2>{{ displayName }}</h2>
         </v-col>
         <v-col style="text-align: center">

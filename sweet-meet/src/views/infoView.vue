@@ -8,6 +8,7 @@
         v-model="UserGender"
       ></v-select>
       <h3>What are you atracted to?</h3>
+      
       <v-select
         :items="genders"
         label="Pick Gender"

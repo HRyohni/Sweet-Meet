@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+            // View Imports
 import profile from '../views/profileView.vue'
 import mainView from "../views/mainView.vue";
 import login from '../views/LoginView.vue';
