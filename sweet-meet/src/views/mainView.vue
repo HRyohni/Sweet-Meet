@@ -52,7 +52,6 @@
               :key="index"
               style="width: 100%; height: 5%"
           >
-            kurac
           </v-btn>
           <h1>MESSAAGES HERE</h1>
         </v-col>
@@ -131,6 +130,8 @@ export default {
     SweetCard,
   },
   mounted() {
+
+    console.log(auth);
     //debugger;
     this.GetUserStatus();
     this.GetUserDataFeed();

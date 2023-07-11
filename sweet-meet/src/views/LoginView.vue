@@ -106,6 +106,9 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "../../firebase.js";
+import {onAuthStateChanged} from "firebase/auth";
+import {mapGetters, mapMutations} from "vuex";
+import store from "@/store";
 
 export default {
   name: "LoginView",
@@ -140,8 +143,18 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapGetters(
+
+        {
+          mail: "getEmail",
+
+        }
+    )
+  },
   methods: {
-    async checkLoginStatus() {
+
+    async  checkLoginStatus() {
       await onAuthStateChanged(auth, (user) => {
         if (user) {
           this.userLoginStatus = true;
@@ -154,11 +167,16 @@ export default {
     register() {
       this.$router.push("/register");
     },
+
+
     login() {
       let email = this.email;
       let password = this.password;
       signInWithEmailAndPassword(auth, email, password)
           .then(() => {
+
+
+
             if (!this.firstTimeSignIn()) {
               this.$router.push("/info");
             } else {
@@ -212,7 +230,7 @@ export default {
     },
   },
   created() {
-    if (checkLoginStatus()) {
+    if ( this.checkLoginStatus()) {
       this.$router.push("/");
     }
   },

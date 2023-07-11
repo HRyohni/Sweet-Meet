@@ -10,52 +10,52 @@
           <v-card-text>
             <v-form v-model="valid">
               <v-text-field
-                v-model="firstName"
-                dense
-                label="User Name"
-                clearble
-                type="text"
-                outlined
+                  v-model="firstName"
+                  dense
+                  label="User Name"
+                  clearble
+                  type="text"
+                  outlined
               ></v-text-field>
 
               <v-text-field
-                v-model="email"
-                dense
-                label="Email"
-                clearble
-                type="text"
-                :rules="[rules.required, rules.email]"
-                outlined
+                  v-model="email"
+                  dense
+                  label="Email"
+                  clearble
+                  type="text"
+                  :rules="[rules.required, rules.email]"
+                  outlined
               ></v-text-field>
               <v-text-field
-                v-model="password"
-                dense
-                label="Password"
-                clearble
-                :append-icon="showIcon ? 'mdi-eye' : 'mdi-eye-off'"
-                :rules="[rules.required, rules.min]"
-                :type="showIcon ? 'text' : 'password'"
-                outlined
+                  v-model="password"
+                  dense
+                  label="Password"
+                  clearble
+                  :append-icon="showIcon ? 'mdi-eye' : 'mdi-eye-off'"
+                  :rules="[rules.required, rules.min]"
+                  :type="showIcon ? 'text' : 'password'"
+                  outlined
               ></v-text-field>
             </v-form>
           </v-card-text>
-            <v-btn
+          <v-btn
               @click="login()"
               class="link-left"
               text
               x-small
               color="blue"
-            >
-              Alerady have account?
-            </v-btn>
-           
+          >
+            Alerady have account?
+          </v-btn>
+
           <v-card-actions class="card-actions">
-            
+
             <v-btn
-              class="btn-right-margin"
-              @click="clearFormData"
-              color="red darken-3"
-              outlined
+                class="btn-right-margin"
+                @click="clearFormData"
+                color="red darken-3"
+                outlined
             >
               CLEAR
             </v-btn>
@@ -75,8 +75,12 @@ import {
   auth,
   db,
   setDoc,
+
   createUserWithEmailAndPassword,
 } from "../../firebase.js";
+
+import { getAuth, updateProfile } from "@firebase/auth";
+
 export default {
   name: "RegistrationView",
   components: {},
@@ -98,27 +102,30 @@ export default {
         required: (value) => !!value || "Required.",
         min: (v) => v?.length >= 6 || "Min 6 characters",
         email: (v) =>
-          !v ||
-          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-          "E-mail must be valid",
+            !v ||
+            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+            "E-mail must be valid",
       },
     };
   },
-  created() {},
-  mounted() {},
-  destroyed() {},
+  created() {
+  },
+  mounted() {
+  },
+  destroyed() {
+  },
   methods: {
     clearFormData() {
       this.displayName = null;
-      
+
       this.email = null;
       this.password = null;
     },
     postActionMoveToView() {
-      this.$router.push({ path: "/info" });
+      this.$router.push({path: "/info"});
     },
     async saveAdditionalData(user, email, firstName, lastName) {
-      await setDoc(doc(db, "Users","UserNames", email,"Information"), {
+      await setDoc(doc(db, "Users", "UserNames", firstName, "Information"), {
         Email: email,
         displayName: firstName,
         AuthorisationType: "USER",
@@ -127,25 +134,56 @@ export default {
     registerUser() {
       const email = this.email;
       const password = this.password;
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Signed in
-          const user = userCredential.user;
-          const firstName = this.firstName;
-          const lastName = this.lastName;
 
-          this.saveAdditionalData(user, email, firstName, lastName);
-          this.postActionMoveToView();
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log(error, errorCode, errorMessage);
-        });
+      createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            const firstName = this.firstName;
+            const lastName = this.lastName;
+
+            updateProfile(auth.currentUser, {
+              displayName: this.firstName,
+            }).then(() => {
+              // Profile updated!
+              // ...
+            }).catch((error) => {
+              // An error occurred
+              // ...
+            });
+
+            this.saveAdditionalData(user, email, firstName, lastName);
+            this.UpdateProfile();
+            this.postActionMoveToView();
+
+
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(error, errorCode, errorMessage);
+          });
+
+
     },
-    login()
+
+
+    UpdateProfile()
     {
-    
+      updateProfile(auth.currentUser, {
+        displayName: this.displayName
+      }).then(() => {
+        // Profile updated!
+        console.log("updated!");
+        // ...
+      }).catch((error) => {
+        // An error occurred
+         console.log("fuck");
+      });
+    },
+
+    login() {
+
       this.$router.push("/login");
     },
   },

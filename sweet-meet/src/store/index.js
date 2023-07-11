@@ -8,15 +8,13 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
 
-      userEmail: "default",
+      storeUserEmail: "default",
       checkDrop: "fuck off",
-
-
   },
   getters: {
 
     getEmail (state) {
-      return state.userEmail;
+      return state.storeUserEmail;
     },
 
     checkDrop(state) {
@@ -27,7 +25,7 @@ export default new Vuex.Store({
   mutations: {
 
     setUserEmail(state, payload) {
-      state.userEmail = payload;
+      state.storeUserEmail = payload;
     },
   },
   actions: {

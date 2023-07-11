@@ -4,12 +4,27 @@
     <!--                                       Profile info card for more information about profile -->
     <div class="TopSelection">
 
-      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName" second-name="test"/>
+      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName"
+                       second-name="test"/>
+      <div class="text-center">
+
+
+        <v-overlay
+            v-if="this.overlay"
+            class="align-center justify-center"
+        >
+          <v-progress-circular
+              color="primary"
+              indeterminate
+              size="64"
+          ></v-progress-circular>
+        </v-overlay>
+      </div>
 
 
     </div>
 
-    <v-btn @click="test">test</v-btn>
+
     <v-col>
       <div class="profileinfo">
       </div>
@@ -55,11 +70,11 @@ import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue"
 
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {collection, getDocs} from "firebase/firestore";
-import kuca from "@/class/User";
-import {mapActions, mapGetters, mapMutations} from "vuex";
-
 
 export default {
+
+  // Mixin Classes
+
 
   components: {
     FollowSugestionComponent,
@@ -68,6 +83,8 @@ export default {
   },
 
   data: () => ({
+    // Overley
+    overlay: false,
     // User Id Site
     userUrlName: "",
 
@@ -84,54 +101,34 @@ export default {
 
 
   }),
+  watch: {
+    overlay(val) {
+      val && setTimeout(() => {
+        this.overlay = false
+      }, 500)
+    },
+  },
 
 
   async mounted() {
 
 
-    await this.checkLoginStatus();
-    await this.getUserEmail();
-    console.log(this.mail);
-    await this.setUserUrlName();
-    await this.setUserInformation();
-    await this.setUserEditProfileIfAdmin();
-    await this.chnageToUserAdminView();
+    await onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log(auth);
+        this.userEmail = auth.currentUser.email;
+        this.checkLoginStatus();
+        this.setUserUrlName();
+        this.setUserEditProfileIfAdmin();
 
 
-
+        this.overlay = true;
+      }
+    });
   },
-
-  computed: {
-    ...mapGetters(
-        
-        {
-          mail: "getEmail",
-          checkDrop: "checkDrop",
-        }
-    )
-  },
-
 
   methods:
-
-
       {
-        ...mapMutations([
-          'setUserEmail'
-        ]),
-
-        test() {
-
-
-          this.getUserEmail();
-        },
-
-        async getUserEmail() {
-          //this.userEmail = getAuth().currentUser.email;
-          this.setUserEmail(getAuth().currentUser.email);
-
-        },
-
 
         async checkLoginStatus() {
           await onAuthStateChanged(auth, (user) => {
@@ -149,31 +146,26 @@ export default {
 
         setUserUrlName() {
           this.userUrlName = this.$route.params["id"];
-
-
         },
 
-        async setUserInformation() {
 
-          await this.checkLoginStatus();
-          const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.userEmail));
-          this.userAllInformation = querySnapshot.docs[0].data();
-        },
+        async setUserEditProfileIfAdmin() {
 
-        setUserEditProfileIfAdmin() {
-          if (this.userAllInformation["displayName"].toLowerCase() === this.userUrlName) {
-            this.userAdmin = true;
+          const docRef = doc(db, "Users", "UserNames", this.userEmail, "Information");
+          const docSnap = await getDoc(docRef);
 
+          if (docSnap.exists()) {
+            this.userAllInformation = docSnap.data();
+            if (this.userAllInformation["displayName"].toLowerCase() === this.userUrlName)
+              this.userAdmin = true;
+
+          } else {
+            alert("no such document Error");
+            this.$router.push("/login")
           }
         },
 
-        chnageToUserAdminView() {
-
-        },
-
-
-        getUserUploades() {
-
+        getUserData() {
         },
 
 

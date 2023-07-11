@@ -1,7 +1,7 @@
 <template>
   <main grid-list-xs >
-   <mainText>
-     <div class="middleText">
+   <div class="mainText">
+     <div class="pa-10 align-center align-content-center">
        <h1>Welcome to Sweet Meet</h1>
        <v-btn
            color="primary"
@@ -22,7 +22,7 @@
 
      </div>
 
-   </mainText>
+   </div>
   </main>
 </template>
 
