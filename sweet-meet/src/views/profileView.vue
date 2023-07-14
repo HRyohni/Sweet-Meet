@@ -97,7 +97,7 @@ export default {
 
     // User Information
     userAllInformation: null,
-    userAdmin: false,
+    userAdmin: null,
 
 
   }),
@@ -105,7 +105,7 @@ export default {
     overlay(val) {
       val && setTimeout(() => {
         this.overlay = false
-      }, 500)
+      }, 300)
     },
   },
 
@@ -120,8 +120,6 @@ export default {
         this.checkLoginStatus();
         this.setUserUrlName();
         this.setUserEditProfileIfAdmin();
-
-
         this.overlay = true;
       }
     });
@@ -150,19 +148,10 @@ export default {
 
 
         async setUserEditProfileIfAdmin() {
-
-          const docRef = doc(db, "Users", "UserNames", this.userEmail, "Information");
-          const docSnap = await getDoc(docRef);
-
-          if (docSnap.exists()) {
-            this.userAllInformation = docSnap.data();
-            if (this.userAllInformation["displayName"].toLowerCase() === this.userUrlName)
-              this.userAdmin = true;
-
-          } else {
-            alert("no such document Error");
-            this.$router.push("/login")
-          }
+          if (auth.currentUser.displayName === this.userUrlName)
+            this.userAdmin = true;
+          else
+            this.userAdmin = false;
         },
 
         getUserData() {

@@ -1,14 +1,13 @@
 <template>
   <v-app>
-    <div class="topbar pa-2">
-      <v-row>
+    <div class="topbar pa-2" style="position: absolute; width: 100%" >
+      <v-row >
         <v-col>
-          <h1>test</h1>
-          <h2>{{ displayName }}</h2>
+          <h4>sweet meet</h4>
         </v-col>
         <v-col style="text-align: center">
           <div>
-            <v-text-field label="Search " hide-details="auto"></v-text-field>
+
           </div>
         </v-col>
         <v-col style="text-align: right; font-size: 3vh" class="pa-5">
@@ -32,6 +31,7 @@
           <v-btn
               v-if="!userLoginStatus"
               color="red"
+
               outlined
               @click="RegisterPage()"
           >Sign in

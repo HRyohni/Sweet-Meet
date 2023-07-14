@@ -174,9 +174,6 @@ export default {
       let password = this.password;
       signInWithEmailAndPassword(auth, email, password)
           .then(() => {
-
-
-
             if (!this.firstTimeSignIn()) {
               this.$router.push("/info");
             } else {
@@ -231,7 +228,8 @@ export default {
   },
   created() {
     if ( this.checkLoginStatus()) {
-      this.$router.push("/");
+      console.log(this.userLoginStatus);
+      //this.$router.push("/test");
     }
   },
   mounted() {

@@ -1,6 +1,9 @@
 <template>
-  <div class="data d-flex justify-center">
+  <div class="data d-flex  justify-center">
+
+
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 1">
+      <v-progress-linear class="mt-5 mb-3" value="50"></v-progress-linear>
       <h3>What is yor Gender?</h3>
       <v-select
           :items="genders"
@@ -25,6 +28,37 @@
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
+      <v-progress-linear class="mt-5 mb-3" value="50"></v-progress-linear>
+      <h3>Add some information you want to add</h3>
+      <h3>{{ firstQuestion }}</h3>
+      <v-select
+          :items="this.questions"
+          label="Pick Question no.1"
+          v-model="firstQuestion"
+      ></v-select>
+      <v-text-field></v-text-field>
+      <v-divider class="mt-5"></v-divider>
+
+      <h3>{{ firstQuestion }}</h3>
+      <v-select
+          :items="this.questions"
+          label="Pick Question no.2"
+          v-model="firstQuestion"
+      ></v-select>
+      <v-text-field> </v-text-field>
+  <v-divider class="mt-5"></v-divider>
+      <h3>{{ firstQuestion }}</h3>
+      <v-select
+          :items="this.questions"
+          label="Pick Question no.3"
+          v-model="firstQuestion"
+      ></v-select>
+      <v-text-field> </v-text-field>
+
+      <v-btn class="ma-5" @click="nextStep"> next</v-btn>
+    </v-card>
+
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 3">
       <v-card-title>Chose your music taste</v-card-title>
       <v-chip
           class="ml-3 mt-3"
@@ -61,7 +95,7 @@
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 3">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
       <v-card-title>Location</v-card-title>
 
       <div id="app">
@@ -90,20 +124,51 @@
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 5">
       <v-card-title> Setup your profile picture</v-card-title>
 
-      <v-file-input ref="myfile" type="file" v-model="imageUrl"></v-file-input>
+      <v-file-input @change="onFileChangeProfileImage" :ref="this.myFileUrl" type="file"
+                    v-model="profileImageUrl"></v-file-input>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <v-btn
-          class="ma-5"
-          color="primary"
-          @click="nextStep(), UploadImageToStorage(), addInfo()"
-      >
-        Done
-      </v-btn
-      >
+      <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
+
+    <!--            SETUP PROFILE DESCRIPTION-->
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 6">
+      <v-card-title> Setup your profile Description</v-card-title>
+      <p>change profile</p>
+      <input type="file" @change="onFileChangeProfileImage"/>
+      <p>chnage background image</p>
+      <input @change="this.onFileChangeProfileBackground" type="file" :v-model="this.profileBackgroundImageUrl"></input>
+
+      <v-img width="200px" v-if="this.urlImageProfile" :src="this.urlImageProfile"></v-img>
+      <v-btn class="ma-5" @click="backStep"> back</v-btn>
+      <profile-info-card :first-name="this.displayName"
+                         :profile-picture="this.urlImageProfile"
+                         :profile-description="description"
+                         :background-image="this.urlImageBackgroundProfile"
+                         :card-color="this.cardColor"
+
+      ></profile-info-card>
+
+      <div class="ma-4">
+        <p>Pick Color:</p>
+        <v-btn @click="colorOfCard('white')" class="ma-2" color="white"></v-btn>
+        <v-btn @click="colorOfCard('blue')" class="ma-2" color="blue"></v-btn>
+        <v-btn @click="colorOfCard('red')" class="ma-2" color="red"></v-btn>
+        <v-btn @click="colorOfCard('yellow')" class="ma-2" color="yellow"></v-btn>
+        <v-btn @click="colorOfCard('green')" class="ma-2" color="green"></v-btn>
+      </div>
+
+
+      <p>Description: </p>
+      <v-text-field class="mt-10" v-model="description"></v-text-field>
+
+      <v-btn class="ma-5" color="primary"
+             @click="UploadProfileImageToStorage(),UploadProfileBackgroundImageToStorage(), addInfo()">Done
+      </v-btn>
+    </v-card>
+
   </div>
 </template>
 
@@ -114,8 +179,10 @@ import {ref, uploadBytes} from "firebase/storage";
 
 import {doc, updateDoc} from "firebase/firestore";
 import {onMounted} from 'vue';
+import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
 
 export default {
+  components: {ProfileInfoCard},
   data: () => ({
     marker: {position: {lat: 10, lng: 10}},
     center: {lat: 10, lng: 10},
@@ -168,19 +235,45 @@ export default {
       {label: "Historical", isActive: false},
       {label: "Crime", isActive: false},
     ],
+
+     questions : [
+      "What are your favorite hobbies or interests?",
+      "Are you involved in any clubs or organizations? Which ones and what do you do there?",
+      "What kind of books, movies, or TV shows do you enjoy?",
+      "Do you have any sports or physical activities that you participate in?",
+      "Are there any particular causes or social issues that you are passionate about?",
+      "Have you traveled anywhere recently or do you have any upcoming travel plans?",
+      "What kind of music do you listen to? Do you have any favorite artists or genres?",
+      "Are you currently working on any personal projects or creative endeavors?",
+      "Do you play any musical instruments or have any artistic talents?",
+      "Are there any new skills or subjects you are interested in learning more about?"
+    ],
+
+
+
     selected: false,
     value: 30,
     rules: [(v) => v >= 18 || "Over 18 Allowed"],
     step: -1,
-    imageUrl: "",
+    profileImageUrl: "",
+    profileBackgroundImageUrl: "",
     email: "",
     chipColor: "default",
     PictureUrl: null,
+    displayName: auth.currentUser.displayName,
+    description: "",
+    myFileUrl: "",
+    urlImageProfile: "",
+    file: null,
+    urlImageBackgroundProfile: "",
+    cardColor: "white",
+
   }),
   mounted() {
     console.log(auth.currentUser);
     this.email = auth.currentUser.email;
     this.CheckInformationStatus();
+
   },
   created() {
     console.log(this.email);
@@ -225,21 +318,42 @@ export default {
       if (this.step > 1) this.step = this.step - 1;
     },
 
-    UploadImageToStorage() {
-      console.log("uplodaing..." + this.imageUrl);
+    UploadProfileImageToStorage() {
+      console.log("uplodaing..." + this.profileImageUrl);
       const storageRef = ref(
           storage,
-          "Users/" + this.email + "/ProfilePicture/profile"
+          "Users/" + auth.currentUser.displayName + "/ProfilePicture/profile"
       );
-      uploadBytes(storageRef, this.imageUrl).then(console.log("done!"));
+      uploadBytes(storageRef, this.profileImageUrl).then(console.log("done!"));
+      console.log(this.profileImageUrl);
     },
+
+    UploadProfileBackgroundImageToStorage() {
+      console.log("uplodaing..." + this.profileBackgroundImageUrl);
+      const storageRef = ref(
+          storage,
+          "Users/" + auth.currentUser.displayName + "/ProfileBacgroundImage/BackgroundImageProfile"
+      );
+      uploadBytes(storageRef, this.profileBackgroundImageUrl).then(console.log("done!"));
+      console.log(this.profileBackgroundImageUrl);
+    },
+
+    onFileChangeProfileImage(event) {
+      this.file = event.target.files[0];
+      this.urlImageProfile = URL.createObjectURL(this.file);
+    },
+    onFileChangeProfileBackground(event) {
+      this.file = event.target.files[0];
+      this.urlImageBackgroundProfile = URL.createObjectURL(this.file);
+    },
+
     CheckInformationStatus() {
 
 
       const docRef = doc(db,
           "Users",
           "UserNames",
-          this.email,
+          "test",
           "Information");
 
       const docSnap = getDoc(docRef);
@@ -256,7 +370,6 @@ export default {
         console.log("No such document!");
       }
       this.step = 1;
-      console.log("asdasd");
     },
 
     async addInfo() {
@@ -271,14 +384,14 @@ export default {
         if (el.isActive) FavoriteMovieType.push(el.label);
       });
 
-      const reff = doc(
+      let reff = doc(
           db,
           "Users",
           "UserNames",
-          this.email,
+          auth.currentUser.displayName,
           "Information"
       );
-      const InformationData = {
+      let InformationData = {
         UserGender: this.UserGender,
         UserAttractedToGender: this.UserAttractedToGender,
         age: this.age,
@@ -290,9 +403,24 @@ export default {
       };
 
       await updateDoc(reff, InformationData);
-      this.$router.push("/");
-    },
+// Update Profile Data
+      reff = doc(
+          db,
+          "Users",
+          "UserNames",
+          auth.currentUser.displayName,
+          "Information",
+          "Profile",
+          "Data"
+      );
+      InformationData = {
+        ProfileDescription: this.description,
+        ProfileCardColor: this.cardColor,
+      };
 
+      await updateDoc(reff, InformationData);
+      await this.$router.push("/");
+    },
 
     checkedMusic(index) {
       console.log(this.musicType[index].isActive);
@@ -305,22 +433,10 @@ export default {
     },
 
     async GetDisplayName() {
-      const docRef = doc(
-          db,
-          "Users",
-          "UserNames",
-          auth.currentUser.email,
-          "Information"
-      );
-
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        this.displayName = docSnap.data().displayName
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("DisplayName Error");
-      }
+      this.displayName = auth.currentUser.displayName;
+    },
+    colorOfCard(color) {
+      this.cardColor = color;
     },
   },
 };
@@ -339,6 +455,15 @@ export default {
   text-align: center;
   background-color: white;
 }
+
+input {
+  width: 100px;
+  height: 100px;
+  border: solid 1px black;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
 
 * {
   background-color: white;

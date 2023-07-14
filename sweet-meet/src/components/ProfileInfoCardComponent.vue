@@ -1,6 +1,6 @@
 <template>
-  <v-card width="100%">
-    <v-img height="300px" src="https://cdn.pixabay.com/photo/2020/07/12/07/47/bee-5396362_1280.jpg">
+  <v-card :color="this.cardColor" width="500px" >
+    <v-img height="300px" cover :src="this.backgroundImage">
 
 
       <v-app-bar flat color="rgba(0, 0, 0, 0)">
@@ -8,12 +8,11 @@
       </v-app-bar>
 
       <v-card-title class="white--text ">
-
         <v-avatar size="100" class="ml-10">
-          <img alt="user" src="https://cdn.pixabay.com/photo/2020/06/24/19/12/cabbage-5337431_1280.jpg"/>
+          <v-img alt="user" :src="this.profilePicture"></v-img>
         </v-avatar>
 
-        <p class="ml-3 d-inline">{{ this.firstName }} {{ this.secondName }}</p>
+        <p class="ml-3 d-inline">{{ this.firstName }}</p>
 
       </v-card-title>
 
@@ -37,22 +36,22 @@
 
 </template>
 <script>
-import { mdiAccount } from "@mdi/js";
+
 
 export default {
   name: 'ProfileInfoCard',
 
   data: () => ({
-    icons: {
-      mdiAccount
-    }
+
   }),
 
   props: {
     profileDescription: "",
     firstName: "",
-    secondName: "",
     userAdmin: false,
+    profilePicture: "",
+    backgroundImage: "",
+    cardColor: "white",
   },
 
   methods: {}

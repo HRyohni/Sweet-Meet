@@ -7,7 +7,6 @@
             <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
           </v-avatar>
           <p class="d-inline ma-2">{{ displayName }}</p>
-          <p>Home</p>
           <font-awesome-icon icon="fa-regular fa-bell" class="d-block mt-4"/>
           <font-awesome-icon icon="fa-regular fa-heart" class="d-block mt-4"/>
           <font-awesome-icon
@@ -65,10 +64,9 @@
                   :key="n"
               >
                 <div class="d-inline">
-                  <v-avatar size="3vw" class="ma-1">
-                    <h1>asdasd</h1>
+                  <v-avatar color="green" size="3vw" class="ma-1">
+
                   </v-avatar>
-                  <h1 class="ma"
 
                   <p class="d-flex justify-center">Leo m</p>
                 </div>
@@ -116,7 +114,7 @@ export default {
       userInfo: null,
       userEmail: null,
 
-      drag: 2,
+      drag: 4,
       extend: false,
       scrollInvoked: 0,
       widnowHeight: window.innerHeight,
@@ -141,12 +139,12 @@ export default {
   methods: {
     async Debugging() {
       // Create a reference to the file whose metadata we want to retrieve
-      debugger;
+
       // TODO: SETUP STORAGE IMPORT IMAGE
       const storage = getStorage();
       const pathReference = ref(
           storage,
-          "Users" + "/matosevic.leo@gmail.com/" + "ProfilePicture/profile.png"
+          "Users" + auth.currentUser.displayName + "ProfilePicture/profile.png"
       );
       console.log(pathReference);
     },
@@ -163,7 +161,7 @@ export default {
           db,
           "Users",
           "UserNames",
-          auth.currentUser.email,
+          auth.currentUser.displayName,
           "Information"
       );
       const docSnap = await getDoc(docRef);
@@ -201,7 +199,7 @@ export default {
     },
     async addData() {
       await setDoc(
-          doc(db, "Users", "UserNames", auth.currentUser.email, "testing"),
+          doc(db, "Users", "UserNames", auth.currentUser.displayName, "testing"),
           {
             name: "Los Angeles",
             state: "CA",

@@ -130,6 +130,9 @@ export default {
         displayName: firstName,
         AuthorisationType: "USER",
       });
+      await setDoc(doc(db, "Users", "UserNames", firstName, "Information","Profile","Data"), {
+
+      });
     },
     registerUser() {
       const email = this.email;
