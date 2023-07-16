@@ -1,18 +1,19 @@
 <template>
   <div class="data d-flex  justify-center">
 
-    <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10" v-if="step == 1">
-      <v-progress-linear class="mt-5 mb-3" value="50"></v-progress-linear>
+    <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10" v-if="step===1">
+      <v-progress-linear class="mt-5 mb-3" value="14"></v-progress-linear>
       <h1>Introduce yourself</h1>
       <div class="d-inline">
         <v-row>
           <v-col class="ma-2">
             <h3>First Name</h3>
-            <v-text-field outlined placeholder="First Name"></v-text-field>
+            <v-text-field outlined v-model="firstName" placeholder="First Name"></v-text-field>
           </v-col>
+
           <v-col class="ma-2">
             <h3>Second Name</h3>
-            <v-text-field outlined placeholder="First Name"></v-text-field>
+            <v-text-field outlined v-model="secondName" placeholder="First Name"></v-text-field>
           </v-col>
         </v-row>
 
@@ -24,6 +25,7 @@
                 :items="this.countries"
                 label="Pick Country"
                 v-model="this.countriesPick"
+
             ></v-select>
           </v-col>
           <v-col class="ma-2">
@@ -31,7 +33,7 @@
             <v-text-field outlined placeholder="First Name"></v-text-field>
           </v-col>
         </v-row>
-        <phone-number @phone-number="handlePhoneNumber" />
+        <phone-number @phone-number="handlePhoneNumber"/>
         <p>Retrieved Phone Number: {{ retrievedPhoneNumber }}</p>
 
 
@@ -45,7 +47,7 @@
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
-      <v-progress-linear class="mt-5 mb-3" value="50"></v-progress-linear>
+      <v-progress-linear class="mt-5 mb-3" value="28"></v-progress-linear>
       <h3>What is yor Gender?</h3>
       <v-select
           :items="genders"
@@ -65,42 +67,61 @@
           hide-details="auto"
           v-model="age"
       ></v-text-field>
-
-      <v-btn class="ma-5 white--text d-flex justify-end" color="red" @click="nextStep"> next</v-btn>  
-    </v-card>
-
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
-      <v-progress-linear class="mt-5 mb-3" value="50"></v-progress-linear>
-      <h3>Add some information you want to add</h3>
-      <h3>{{ firstQuestion }}</h3>
-      <v-select
-          :items="this.questions"
-          label="Pick Question no.1"
-          v-model="firstQuestion"
-      ></v-select>
-      <v-text-field></v-text-field>
-      <v-divider class="mt-5"></v-divider>
-
-      <h3>{{ firstQuestion }}</h3>
-      <v-select
-          :items="this.questions"
-          label="Pick Question no.2"
-          v-model="firstQuestion"
-      ></v-select>
-      <v-text-field></v-text-field>
-      <v-divider class="mt-5"></v-divider>
-      <h3>{{ firstQuestion }}</h3>
-      <v-select
-          :items="this.questions"
-          label="Pick Question no.3"
-          v-model="firstQuestion"
-      ></v-select>
-      <v-text-field></v-text-field>
-
-      <v-btn class="ma-5" @click="nextStep"> next</v-btn>
+      <v-btn class="ma-5" @click="backStep"> back</v-btn>
+      <v-btn class="ma-5 white--text d-flex justify-end" color="red" @click="nextStep"> next</v-btn>
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 3">
+      <v-progress-linear class="mt-5 mb-3" value="42"></v-progress-linear>
+      <h3>Add some information you want to add</h3>
+      <v-select
+          :items="this.questions"
+          label="Pick Question no.1"
+          v-model="question1"
+          outlined
+      ></v-select>
+
+      <v-text-field outlined v-model="answer1"></v-text-field>
+      <v-divider class="mt-5"></v-divider>
+
+      <v-select
+          outlined
+          :items="this.questions"
+          label="Pick Question no.2"
+          v-model="question2"
+      ></v-select>
+      <v-text-field outlined v-model="answer2"></v-text-field>
+      <v-divider class="mt-5"></v-divider>
+
+      <v-select
+          outlined
+          :items="this.questions"
+          label="Pick Question no.3"
+          v-model="question3"
+      ></v-select>
+      <v-text-field outlined v-model="answer3"></v-text-field>
+      <v-btn class="ma-5" @click="backStep"> back</v-btn>
+      <v-btn class="ma-5" @click="appendQuestionsAndAnswers(), nextStep()"> next</v-btn>
+    </v-card>
+
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
+      <v-progress-linear class="mt-5 mb-3" value="56"></v-progress-linear>
+      <v-card-title>Chose your interests</v-card-title>
+      <v-chip
+          class="ml-3 mt-3 d-inline-flex justify-center"
+          link
+          outlined
+          light
+          :class="{ green: inter.isActive }"
+          v-for="(inter, index) in interests"
+          :key="index"
+          v-model="interest"
+          @click="checkedElement(interests,index)"
+      >{{ inter.label }}
+      </v-chip>
+
+      <v-spacer></v-spacer>
+      <v-divider class="mt-12"></v-divider>
       <v-card-title>Chose your music taste</v-card-title>
       <v-chip
           class="ml-3 mt-3"
@@ -111,10 +132,10 @@
           v-for="(music, index) in musicType"
           :key="index"
           v-model="musics"
-          @click="checkedMusic(index)"
+          @click="checkedElement(musicType,index)"
       >{{ music.label }}
-      </v-chip
-      >
+      </v-chip>
+
       <v-spacer></v-spacer>
       <v-divider class="mt-12"></v-divider>
 
@@ -127,18 +148,16 @@
           :class="{ green: movie.isActive }"
           v-for="(movie, index) in movieType"
           :key="index"
-          @click="checkedMovie(index)"
+          @click="checkedElement(movieType,index)"
       >{{ movie.label }}
-      </v-chip
-      >
-
-
+      </v-chip>
       <v-spacer></v-spacer>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 5">
+      <v-progress-linear class="mt-5 mb-3" value="70"></v-progress-linear>
       <v-card-title>Location</v-card-title>
 
       <div id="app">
@@ -158,6 +177,7 @@
               :draggable="true"
               @drag="handleMarkerDrag"
               @click="panToMarker"
+
           />
         </GmapMap>
         <v-btn @click="geolocate"> Detect Location</v-btn>
@@ -167,7 +187,8 @@
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 5">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 6">
+      <v-progress-linear class="mt-5 mb-3" value="84"></v-progress-linear>
       <v-card-title> Setup your profile picture</v-card-title>
 
       <v-file-input @change="onFileChangeProfileImage" :ref="this.myFileUrl" type="file"
@@ -177,38 +198,48 @@
     </v-card>
 
     <!--            SETUP PROFILE DESCRIPTION-->
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 6">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 7">
+      <v-progress-linear class="mt-5 mb-3" value="100"></v-progress-linear>
       <v-card-title> Setup your profile Description</v-card-title>
-      <p>change profile</p>
-      <input type="file" @change="onFileChangeProfileImage"/>
-      <p>chnage background image</p>
-      <input @change="this.onFileChangeProfileBackground" type="file" :v-model="this.profileBackgroundImageUrl"></input>
 
-      <v-img width="200px" v-if="this.urlImageProfile" :src="this.urlImageProfile"></v-img>
-      <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <profile-info-card :first-name="this.displayName"
-                         :profile-picture="this.urlImageProfile"
-                         :profile-description="description"
-                         :background-image="this.urlImageBackgroundProfile"
-                         :card-color="this.cardColor"
+      <v-btn>
+        <label class="custom-file-upload">
+          Change Profile Image
+          <input type="file" @change="onFileChangeProfileImage"/>
 
+        </label>
+      </v-btn>
+      <v-btn>
+
+        <label class="custom-file-upload">
+          Change Profile background Image
+          <input @change="this.onFileChangeProfileBackground" type="file" :v-model="this.profileBackgroundImageUrl"></input>
+        </label>
+      </v-btn>
+
+
+
+      <profile-info-card
+          :display-name="this.displayName"
+          :first-name ="this.firstName"
+          :second-name="this.secondName"
+          :profile-picture="this.urlImageProfile"
+          :profile-description="description"
+          :background-image="this.urlImageBackgroundProfile"
+          :card-color="this.cardColor"
       ></profile-info-card>
-
       <div class="ma-4">
         <p>Pick Color:</p>
         <v-btn @click="colorOfCard('white')" class="ma-2" color="white"></v-btn>
         <v-btn @click="colorOfCard('blue')" class="ma-2" color="blue"></v-btn>
         <v-btn @click="colorOfCard('red')" class="ma-2" color="red"></v-btn>
-        <v-btn @click="colorOfCard('yellow')" class="ma-2" color="yellow"></v-btn>
         <v-btn @click="colorOfCard('green')" class="ma-2" color="green"></v-btn>
       </div>
+      <v-text-field label="Description" outlined class="mt-10" v-model="description"></v-text-field>
 
-
-      <p>Description: </p>
-      <v-text-field class="mt-10" v-model="description"></v-text-field>
-
+      <v-btn class="ma-5" @click="backStep"> back</v-btn>
       <v-btn class="ma-5" color="primary"
-             @click="UploadProfileImageToStorage(),UploadProfileBackgroundImageToStorage(), addInfo()">Done
+      @click="UploadProfileImageToStorage(),UploadProfileBackgroundImageToStorage(), addInfo()">Done
       </v-btn>
     </v-card>
 
@@ -218,13 +249,10 @@
 <script>
 
 import {auth, db, getDoc, storage} from "../../firebase.js";
-
 import {ref, uploadBytes} from "firebase/storage";
 import {doc, updateDoc} from "firebase/firestore";
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
 import PhoneNumber from "@/components/PhoneNumber.vue";
-
-import VuePhoneNumberInput from 'vue-phone-number-input';
 import 'vue-phone-number-input/dist/vue-phone-number-input.css';
 
 
@@ -240,11 +268,28 @@ export default {
     google: null,
 
     genders: ["Male", "Female", "other"],
+
     UserGender: "",
     UserAttractedToGender: "",
     age: null,
-    musics: null,
 
+    musics: null,
+    interest: null,
+
+    firstName: "",
+    secondName: "",
+    country: "",
+    city: "",
+
+    question1: "",
+    question2: "",
+    question3: "",
+
+    answer1: "",
+    answer2: "",
+    answer3: "",
+
+    answerdQuestions: [{}],
     musicType: [
       {label: "Jazz", isActive: false},
       {label: "Folk music", isActive: false},
@@ -296,6 +341,7 @@ export default {
       "Do you play any musical instruments or have any artistic talents?",
       "Are there any new skills or subjects you are interested in learning more about?"
     ],
+
     countries: [
       "Afghanistan",
       "Albania",
@@ -493,6 +539,90 @@ export default {
       "Zambia",
       "Zimbabwe"
     ],
+
+    interests: [
+      {label: "Traveling", isActive: false},
+      {label: "Reading", isActive: false},
+      {label: "Cooking", isActive: false},
+      {label: "Hiking", isActive: false},
+      {label: "Photography", isActive: false},
+      {label: "Music", isActive: false},
+      {label: "Painting", isActive: false},
+      {label: "Writing", isActive: false},
+      {label: "Fitness", isActive: false},
+      {label: "Yoga", isActive: false},
+      {label: "Dancing", isActive: false},
+      {label: "Swimming", isActive: false},
+      {label: "Cycling", isActive: false},
+      {label: "Gaming", isActive: false},
+      {label: "Movies", isActive: false},
+      {label: "Fashion", isActive: false},
+      {label: "Soccer", isActive: false},
+      {label: "Basketball", isActive: false},
+      {label: "Tennis", isActive: false},
+      {label: "Camping", isActive: false},
+      {label: "Gardening", isActive: false},
+      {label: "Dogs", isActive: false},
+      {label: "Cats", isActive: false},
+      {label: "Food and dining", isActive: false},
+      {label: "Art", isActive: false},
+      {label: "Volunteering", isActive: false},
+      {label: "DIY projects", isActive: false},
+      {label: "Meditation", isActive: false},
+      {label: "Acting", isActive: false},
+      {label: "Singing", isActive: false},
+      {label: "Environmental activism", isActive: false},
+      {label: "Wine making", isActive: false},
+      {label: "Creative writing", isActive: false},
+      {label: "Calligraphy", isActive: false},
+      {label: "Car restoration", isActive: false},
+      {label: "Film-making", isActive: false},
+      {label: "Fashion blogging", isActive: false},
+      {label: "CrossFit", isActive: false},
+      {label: "Knitting", isActive: false},
+      {label: "Beekeeping", isActive: false},
+      {label: "Organic farming", isActive: false},
+      {label: "Scuba diving", isActive: false},
+      {label: "Magic tricks", isActive: false},
+      {label: "Baking", isActive: false},
+      {label: "Birdwatching", isActive: false},
+      {label: "Archery", isActive: false},
+      {label: "Skydiving", isActive: false},
+      {label: "Stand-up paddleboarding", isActive: false},
+      {label: "Fitness coaching", isActive: false},
+      {label: "Weightlifting", isActive: false},
+      {label: "Martial arts", isActive: false},
+      {label: "Woodworking", isActive: false},
+      {label: "Wine and food pairing", isActive: false},
+      {label: "Flower arranging", isActive: false},
+      {label: "Philosophy", isActive: false},
+      {label: "DIY home decor", isActive: false},
+      {label: "Jazz music", isActive: false},
+      {label: "Snowboarding", isActive: false},
+      {label: "Photography editing", isActive: false},
+      {label: "Geocaching", isActive: false},
+      {label: "Fashion styling", isActive: false},
+      {label: "Cosplay", isActive: false},
+      {label: "Book club", isActive: false},
+      {label: "Wine collecting", isActive: false},
+      {label: "Horseback riding", isActive: false},
+      {label: "Pilates", isActive: false},
+      {label: "Motorcycling", isActive: false},
+      {label: "Painting landscapes", isActive: false},
+      {label: "Graphic novels", isActive: false},
+      {label: "Singing in a choir", isActive: false},
+      {label: "Pottery throwing", isActive: false},
+      {label: "Leatherworking", isActive: false},
+      {label: "Classic literature", isActive: false},
+      {label: "Jazz dancing", isActive: false},
+      {label: "Film photography", isActive: false},
+      {label: "Scenic drives", isActive: false},
+      {label: "Fine dining", isActive: false},
+      {label: "Salsa dancing", isActive: false},
+      {label: "Tai Chi", isActive: false}
+    ],
+
+
     countriesPick: "",
     cityPick: "",
     retrievedPhoneNumber: '',
@@ -512,17 +642,14 @@ export default {
     urlImageProfile: "",
     file: null,
     urlImageBackgroundProfile: "",
-    cardColor: "white",
+    cardColor: "primary",
 
   }),
   mounted() {
-    console.log(auth.currentUser);
     this.email = auth.currentUser.email;
-    this.CheckInformationStatus();
 
   },
   created() {
-    console.log(this.email);
     this.step = 1;
   },
   methods: {
@@ -542,16 +669,16 @@ export default {
     },
     //Moves the map view port to marker
     panToMarker() {
-      /* this.$refs.mapRef.panTo(this.marker.position);
+      this.$refs.mapRef.panTo(this.marker.position);
       this.$refs.mapRef.$mapPromise.then((map) => {
-        map.setZoom(10000);
-      });*/
+
+        console.log(map);
+      });
     },
 
     //Moves the marker to click position on the map
     handleMapClick(e) {
       this.marker.position = {lat: e.latLng.lat(), lng: e.latLng.lng()};
-      console.log(e);
     },
 
     // TODO: https://github.com/pespantelis/vue-location-picker google maps
@@ -596,42 +723,15 @@ export default {
       this.retrievedPhoneNumber = phoneNumber;
     },
 
-    CheckInformationStatus() {
-
-
-      const docRef = doc(db,
-          "Users",
-          "UserNames",
-          "test",
-          "Information");
-
-      const docSnap = getDoc(docRef);
-
-      if (docSnap) {
-        if (docSnap.data().InformationComplete) {
-          console.log("information done!");
-          this.$router.push("/");
-        }
-
-
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("No such document!");
-      }
-      this.step = 1;
-    },
-
     async addInfo() {
       // for music
-      let FavoriteMusicType = [];
       this.musicType.forEach((el) => {
         if (el.isActive) FavoriteMusicType.push(el.label);
       });
-      // for movies
-      let FavoriteMovieType = [];
-      this.movieType.forEach((el) => {
-        if (el.isActive) FavoriteMovieType.push(el.label);
-      });
+
+      let FavoriteMusicType = this.extractActiveElementsFromArray(this.musicType);
+      let FavoriteMovieType = this.extractActiveElementsFromArray(this.movieType);
+      let FavoriteInterestType = this.extractActiveElementsFromArray(this.interest);
 
       let reff = doc(
           db,
@@ -640,18 +740,23 @@ export default {
           auth.currentUser.displayName,
           "Information"
       );
+
+
       let InformationData = {
+        FirstName: this.firstName,
         UserGender: this.UserGender,
         UserAttractedToGender: this.UserAttractedToGender,
         age: this.age,
         lat: this.marker.position.lat,
         lng: this.marker.position.lng,
+        AnswerQuestions: this.answerdQuestions,
         FavMusicType: FavoriteMusicType,
         FavMovieType: FavoriteMovieType,
+        FavInterestType: FavoriteInterestType,
         InformationComplete: true,
       };
-
       await updateDoc(reff, InformationData);
+
 // Update Profile Data
       reff = doc(
           db,
@@ -671,24 +776,35 @@ export default {
       await this.$router.push("/");
     },
 
-    checkedMusic(index) {
-      console.log(this.musicType[index].isActive);
-      this.musicType[index].isActive = !this.musicType[index].isActive;
+    checkedElement(elemType, index) {
+      elemType[index].isActive = !elemType[index].isActive;
     },
 
-    checkedMovie(index) {
-      //this.musicType[index].isActive = !this.musicType[index].isActive;
-      this.movieType[index].isActive = !this.movieType[index].isActive;
-    },
-
-    async GetDisplayName() {
-      this.displayName = auth.currentUser.displayName;
-    },
     colorOfCard(color) {
       this.cardColor = color;
     },
+
+    extractActiveElementsFromArray(elem) {
+      let favoriteChip = [];
+      elem.forEach((el) => {
+        if (el.isActive) favoriteChip.push(el.label);
+      });
+      return favoriteChip;
+
+    },
+    appendQuestionsAndAnswers() {
+      this.answerdQuestions.question1 = this.question1;
+      this.answerdQuestions.question2 = this.question2;
+      this.answerdQuestions.question3 = this.question3;
+
+      this.answerdQuestions.answer1 = this.answer1;
+      this.answerdQuestions.answer2 = this.answer2;
+      this.answerdQuestions.answer3 = this.answer3;
+    }
+
   },
-};
+}
+;
 </script>
 
 <style scoped>
@@ -706,13 +822,17 @@ export default {
 }
 
 input {
-  width: 100px;
-  height: 100px;
-  border: solid 1px black;
-  border-radius: 5px;
-  object-fit: cover;
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+
 }
 
+input[type="file"] {
+  display: none;
+  background-color: red;
+}
 
 * {
   background-color: white;

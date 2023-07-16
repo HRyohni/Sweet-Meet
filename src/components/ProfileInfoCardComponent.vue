@@ -1,5 +1,5 @@
 <template>
-  <v-card :color="this.cardColor" width="500px" >
+  <v-card :color="this.cardColor"  >
     <v-img height="300px" cover :src="this.backgroundImage">
 
 
@@ -12,21 +12,28 @@
           <v-img alt="user" :src="this.profilePicture"></v-img>
         </v-avatar>
 
-        <p class="ml-3 d-inline">{{ this.firstName }}</p>
+        <h5 class="ml-3  d-inline">{{ this.displayName+'asdasdssss2s' }}</h5>
+
+
+        <v-card-text>
+          <p class="ml-3 d-inline   " >{{ this.firstName+" "+this.secondName }}</p>
+        </v-card-text>
 
       </v-card-title>
+
+
 
     </v-img>
     <v-btn v-if="userAdmin"  style="font-size:10px" class="align-center">edit profile picture</v-btn>
     <v-icon icon="mdi-information"></v-icon>
     <v-card-text>
 
-      <div class="font-weight-bold ml-8 mb-2"><b>About Me:</b></div>
+      <div class="font-weight-bold ml-8 mb-2 white--text"><b>About Me:</b></div>
       <div>
-        <h5>
+        <h4 class="white--text">
           {{ profileDescription }}
 
-        </h5>
+        </h4>
         <v-btn v-if="userAdmin" class="d-inline  mt-5  font-weight-light pa-1 " style="font-size: 1em">Edit</v-btn>
       </div>
 
@@ -35,6 +42,7 @@
 
 
 </template>
+
 <script>
 
 
@@ -47,7 +55,9 @@ export default {
 
   props: {
     profileDescription: "",
+    displayName: "",
     firstName: "",
+    secondName: "",
     userAdmin: false,
     profilePicture: "",
     backgroundImage: "",
