@@ -1,8 +1,50 @@
 <template>
   <div class="data d-flex  justify-center">
 
+    <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10" v-if="step == 1">
+      <v-progress-linear class="mt-5 mb-3" value="50"></v-progress-linear>
+      <h1>Introduce yourself</h1>
+      <div class="d-inline">
+        <v-row>
+          <v-col class="ma-2">
+            <h3>First Name</h3>
+            <v-text-field outlined placeholder="First Name"></v-text-field>
+          </v-col>
+          <v-col class="ma-2">
+            <h3>Second Name</h3>
+            <v-text-field outlined placeholder="First Name"></v-text-field>
+          </v-col>
+        </v-row>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 1">
+        <v-row>
+          <v-col class="ma-2">
+            <h3>Country</h3>
+            <v-select
+                outlined
+                :items="this.countries"
+                label="Pick Country"
+                v-model="this.countriesPick"
+            ></v-select>
+          </v-col>
+          <v-col class="ma-2">
+            <h3>City</h3>
+            <v-text-field outlined placeholder="First Name"></v-text-field>
+          </v-col>
+        </v-row>
+        <phone-number @phone-number="handlePhoneNumber" />
+        <p>Retrieved Phone Number: {{ retrievedPhoneNumber }}</p>
+
+
+        <div>
+          <v-btn class="ma-5 white--text d-flex justify-end" color="red" @click="nextStep"> next</v-btn>
+
+        </div>
+      </div>
+
+
+    </v-card>
+
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
       <v-progress-linear class="mt-5 mb-3" value="50"></v-progress-linear>
       <h3>What is yor Gender?</h3>
       <v-select
@@ -10,7 +52,7 @@
           label="Pick Gender"
           v-model="UserGender"
       ></v-select>
-      <h3>What are you atracted to?</h3>
+      <h3>What are you attracted to?</h3>
 
       <v-select
           :items="genders"
@@ -24,7 +66,7 @@
           v-model="age"
       ></v-text-field>
 
-      <v-btn class="ma-5" @click="nextStep"> next</v-btn>
+      <v-btn class="ma-5 white--text d-flex justify-end" color="red" @click="nextStep"> next</v-btn>  
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
@@ -45,15 +87,15 @@
           label="Pick Question no.2"
           v-model="firstQuestion"
       ></v-select>
-      <v-text-field> </v-text-field>
-  <v-divider class="mt-5"></v-divider>
+      <v-text-field></v-text-field>
+      <v-divider class="mt-5"></v-divider>
       <h3>{{ firstQuestion }}</h3>
       <v-select
           :items="this.questions"
           label="Pick Question no.3"
           v-model="firstQuestion"
       ></v-select>
-      <v-text-field> </v-text-field>
+      <v-text-field></v-text-field>
 
       <v-btn class="ma-5" @click="nextStep"> next</v-btn>
     </v-card>
@@ -89,6 +131,7 @@
       >{{ movie.label }}
       </v-chip
       >
+
 
       <v-spacer></v-spacer>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
@@ -173,19 +216,24 @@
 </template>
 
 <script>
-import {faMapMarked} from "@fortawesome/free-solid-svg-icons";
-import {auth, db, storage, getDoc} from "../../firebase.js";
-import {ref, uploadBytes} from "firebase/storage";
 
+import {auth, db, getDoc, storage} from "../../firebase.js";
+
+import {ref, uploadBytes} from "firebase/storage";
 import {doc, updateDoc} from "firebase/firestore";
-import {onMounted} from 'vue';
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
+import PhoneNumber from "@/components/PhoneNumber.vue";
+
+import VuePhoneNumberInput from 'vue-phone-number-input';
+import 'vue-phone-number-input/dist/vue-phone-number-input.css';
+
 
 export default {
-  components: {ProfileInfoCard},
+  components: {PhoneNumber, ProfileInfoCard},
   data: () => ({
     marker: {position: {lat: 10, lng: 10}},
     center: {lat: 10, lng: 10},
+
     mapOptions: {
       disableDefaultUI: true,
     },
@@ -236,7 +284,7 @@ export default {
       {label: "Crime", isActive: false},
     ],
 
-     questions : [
+    questions: [
       "What are your favorite hobbies or interests?",
       "Are you involved in any clubs or organizations? Which ones and what do you do there?",
       "What kind of books, movies, or TV shows do you enjoy?",
@@ -248,8 +296,206 @@ export default {
       "Do you play any musical instruments or have any artistic talents?",
       "Are there any new skills or subjects you are interested in learning more about?"
     ],
-
-
+    countries: [
+      "Afghanistan",
+      "Albania",
+      "Algeria",
+      "Andorra",
+      "Angola",
+      "Antigua and Barbuda",
+      "Argentina",
+      "Armenia",
+      "Australia",
+      "Austria",
+      "Azerbaijan",
+      "Bahamas",
+      "Bahrain",
+      "Bangladesh",
+      "Barbados",
+      "Belarus",
+      "Belgium",
+      "Belize",
+      "Benin",
+      "Bhutan",
+      "Bolivia",
+      "Bosnia and Herzegovina",
+      "Botswana",
+      "Brazil",
+      "Brunei",
+      "Bulgaria",
+      "Burkina Faso",
+      "Burundi",
+      "Côte d'Ivoire",
+      "Cabo Verde",
+      "Cambodia",
+      "Cameroon",
+      "Canada",
+      "Central African Republic",
+      "Chad",
+      "Chile",
+      "China",
+      "Colombia",
+      "Comoros",
+      "Congo (Congo-Brazzaville)",
+      "Costa Rica",
+      "Croatia",
+      "Cuba",
+      "Cyprus",
+      "Czechia (Czech Republic)",
+      "Democratic Republic of the Congo",
+      "Denmark",
+      "Djibouti",
+      "Dominica",
+      "Dominican Republic",
+      "Ecuador",
+      "Egypt",
+      "El Salvador",
+      "Equatorial Guinea",
+      "Eritrea",
+      "Estonia",
+      "Eswatini (fmr. Swaziland)",
+      "Ethiopia",
+      "Fiji",
+      "Finland",
+      "France",
+      "Gabon",
+      "Gambia",
+      "Georgia",
+      "Germany",
+      "Ghana",
+      "Greece",
+      "Grenada",
+      "Guatemala",
+      "Guinea",
+      "Guinea-Bissau",
+      "Guyana",
+      "Haiti",
+      "Holy See",
+      "Honduras",
+      "Hungary",
+      "Iceland",
+      "India",
+      "Indonesia",
+      "Iran",
+      "Iraq",
+      "Ireland",
+      "Israel",
+      "Italy",
+      "Jamaica",
+      "Japan",
+      "Jordan",
+      "Kazakhstan",
+      "Kenya",
+      "Kiribati",
+      "Kuwait",
+      "Kyrgyzstan",
+      "Laos",
+      "Latvia",
+      "Lebanon",
+      "Lesotho",
+      "Liberia",
+      "Libya",
+      "Liechtenstein",
+      "Lithuania",
+      "Luxembourg",
+      "Madagascar",
+      "Malawi",
+      "Malaysia",
+      "Maldives",
+      "Mali",
+      "Malta",
+      "Marshall Islands",
+      "Mauritania",
+      "Mauritius",
+      "Mexico",
+      "Micronesia",
+      "Moldova",
+      "Monaco",
+      "Mongolia",
+      "Montenegro",
+      "Morocco",
+      "Mozambique",
+      "Myanmar (formerly Burma)",
+      "Namibia",
+      "Nauru",
+      "Nepal",
+      "Netherlands",
+      "New Zealand",
+      "Nicaragua",
+      "Niger",
+      "Nigeria",
+      "North Korea",
+      "North Macedonia",
+      "Norway",
+      "Oman",
+      "Pakistan",
+      "Palau",
+      "Palestine State",
+      "Panama",
+      "Papua New Guinea",
+      "Paraguay",
+      "Peru",
+      "Philippines",
+      "Poland",
+      "Portugal",
+      "Qatar",
+      "Romania",
+      "Russia",
+      "Rwanda",
+      "Saint Kitts and Nevis",
+      "Saint Lucia",
+      "Saint Vincent and the Grenadines",
+      "Samoa",
+      "San Marino",
+      "Sao Tome and Principe",
+      "Saudi Arabia",
+      "Senegal",
+      "Serbia",
+      "Seychelles",
+      "Sierra Leone",
+      "Singapore",
+      "Slovakia",
+      "Slovenia",
+      "Solomon Islands",
+      "Somalia",
+      "South Africa",
+      "South Korea",
+      "South Sudan",
+      "Spain",
+      "Sri Lanka",
+      "Sudan",
+      "Suriname",
+      "Sweden",
+      "Switzerland",
+      "Syria",
+      "Tajikistan",
+      "Tanzania",
+      "Thailand",
+      "Timor-Leste",
+      "Togo",
+      "Tonga",
+      "Trinidad and Tobago",
+      "Tunisia",
+      "Turkey",
+      "Turkmenistan",
+      "Tuvalu",
+      "Uganda",
+      "Ukraine",
+      "United Arab Emirates",
+      "United Kingdom",
+      "United States of America",
+      "Uruguay",
+      "Uzbekistan",
+      "Vanuatu",
+      "Venezuela",
+      "Vietnam",
+      "Yemen",
+      "Zambia",
+      "Zimbabwe"
+    ],
+    countriesPick: "",
+    cityPick: "",
+    retrievedPhoneNumber: '',
 
     selected: false,
     value: 30,
@@ -345,6 +591,9 @@ export default {
     onFileChangeProfileBackground(event) {
       this.file = event.target.files[0];
       this.urlImageBackgroundProfile = URL.createObjectURL(this.file);
+    },
+    handlePhoneNumber(phoneNumber) {
+      this.retrievedPhoneNumber = phoneNumber;
     },
 
     CheckInformationStatus() {

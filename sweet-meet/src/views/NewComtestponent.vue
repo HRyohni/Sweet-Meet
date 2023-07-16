@@ -7,4 +7,4 @@
 <script>
 export default {
   name: 'NewComtestponent'
-}</script>
+}/script>
