@@ -24,17 +24,16 @@
                 outlined
                 :items="this.countries"
                 label="Pick Country"
-                v-model="this.countriesPick"
+                v-model="countriesPick"
 
             ></v-select>
           </v-col>
           <v-col class="ma-2">
             <h3>City</h3>
-            <v-text-field outlined placeholder="First Name"></v-text-field>
+            <v-text-field outlined placeholder="City name" v-model="city"></v-text-field>
           </v-col>
         </v-row>
         <phone-number @phone-number="handlePhoneNumber"/>
-        <p>Retrieved Phone Number: {{ retrievedPhoneNumber }}</p>
 
 
         <div>
@@ -68,12 +67,12 @@
           v-model="age"
       ></v-text-field>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <v-btn class="ma-5 white--text d-flex justify-end" color="red" @click="nextStep"> next</v-btn>
+      <v-btn class="ma-5 white--text " color="red" @click="nextStep"> next</v-btn>
     </v-card>
 
     <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 3">
       <v-progress-linear class="mt-5 mb-3" value="42"></v-progress-linear>
-      <h3>Add some information you want to add</h3>
+      <h3 class="ma-6">Add some information you want to add</h3>
       <v-select
           :items="this.questions"
           label="Pick Question no.1"
@@ -163,7 +162,7 @@
       <div id="app">
         <GmapMap
             :center="center"
-            :zoom="18"
+            :zoom="3"
             map-style-id="roadmap"
             :options="mapOptions"
             style="width: 100vmin; height: 50vmin"
@@ -180,28 +179,18 @@
 
           />
         </GmapMap>
-        <v-btn @click="geolocate"> Detect Location</v-btn>
-        <p>Selected Position: {{ marker.position }}</p>
+        <v-btn class="ma-5" @click="geolocate"> Detect Location</v-btn>
+        <!--        <p>Selected Position: {{ marker }}</p>-->
       </div>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
       <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 6">
-      <v-progress-linear class="mt-5 mb-3" value="84"></v-progress-linear>
-      <v-card-title> Setup your profile picture</v-card-title>
-
-      <v-file-input @change="onFileChangeProfileImage" :ref="this.myFileUrl" type="file"
-                    v-model="profileImageUrl"></v-file-input>
-      <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
-    </v-card>
 
     <!--            SETUP PROFILE DESCRIPTION-->
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 7">
+    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step === 6">
       <v-progress-linear class="mt-5 mb-3" value="100"></v-progress-linear>
       <v-card-title> Setup your profile Description</v-card-title>
-
       <v-btn>
         <label class="custom-file-upload">
           Change Profile Image
@@ -209,19 +198,21 @@
 
         </label>
       </v-btn>
-      <v-btn>
 
+
+      Change Profile background Image
+
+      <v-btn>
         <label class="custom-file-upload">
-          Change Profile background Image
-          <input @change="this.onFileChangeProfileBackground" type="file" :v-model="this.profileBackgroundImageUrl"></input>
+          Change Profile Image
+          <input @change="this.onFileChangeProfileBackground" type="file">
+
         </label>
       </v-btn>
 
-
-
       <profile-info-card
           :display-name="this.displayName"
-          :first-name ="this.firstName"
+          :first-name="this.firstName"
           :second-name="this.secondName"
           :profile-picture="this.urlImageProfile"
           :profile-description="description"
@@ -239,7 +230,7 @@
 
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
       <v-btn class="ma-5" color="primary"
-      @click="UploadProfileImageToStorage(),UploadProfileBackgroundImageToStorage(), addInfo()">Done
+             @click="UplodaAllDataToFirebase()">Done
       </v-btn>
     </v-card>
 
@@ -249,7 +240,7 @@
 <script>
 
 import {auth, db, getDoc, storage} from "../../firebase.js";
-import {ref, uploadBytes} from "firebase/storage";
+import {getDownloadURL, ref, uploadBytes} from "firebase/storage";
 import {doc, updateDoc} from "firebase/firestore";
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
 import PhoneNumber from "@/components/PhoneNumber.vue";
@@ -289,7 +280,7 @@ export default {
     answer2: "",
     answer3: "",
 
-    answerdQuestions: [{}],
+    answerdQuestions: [],
     musicType: [
       {label: "Jazz", isActive: false},
       {label: "Folk music", isActive: false},
@@ -639,10 +630,13 @@ export default {
     displayName: auth.currentUser.displayName,
     description: "",
     myFileUrl: "",
+    myBackgroundImageFileUrl: "",
     urlImageProfile: "",
     file: null,
     urlImageBackgroundProfile: "",
     cardColor: "primary",
+    downloadProfilePictureUrl: "",
+    downloadProfileBackgroundPictureUrl: "",
 
   }),
   mounted() {
@@ -679,6 +673,7 @@ export default {
     //Moves the marker to click position on the map
     handleMapClick(e) {
       this.marker.position = {lat: e.latLng.lat(), lng: e.latLng.lng()};
+      console.log(this.marker);
     },
 
     // TODO: https://github.com/pespantelis/vue-location-picker google maps
@@ -692,46 +687,91 @@ export default {
     },
 
     UploadProfileImageToStorage() {
-      console.log("uplodaing..." + this.profileImageUrl);
+      console.log(this.profileImageUrl, "<----");
+      console.log("uploading profile image");
+
+      // Assuming you have imported the necessary functions and objects
       const storageRef = ref(
           storage,
           "Users/" + auth.currentUser.displayName + "/ProfilePicture/profile"
       );
-      uploadBytes(storageRef, this.profileImageUrl).then(console.log("done!"));
+
+      // Upload the image to Firebase Storage
+      uploadBytes(storageRef, this.profileImageUrl).then((snapshot) => {
+        console.log("Upload complete!");
+
+        // Get the download URL of the uploaded image
+        getDownloadURL(snapshot.ref).then((url) => {
+          this.downloadProfilePictureUrl = url;
+        }).catch((error) => {
+          console.error("Error getting download URL:", error);
+        });
+      }).catch((error) => {
+        console.error("Error uploading image:", error);
+      });
+
       console.log(this.profileImageUrl);
     },
 
+
     UploadProfileBackgroundImageToStorage() {
-      console.log("uplodaing..." + this.profileBackgroundImageUrl);
+      // Assuming you have imported the necessary functions and objects
       const storageRef = ref(
           storage,
           "Users/" + auth.currentUser.displayName + "/ProfileBacgroundImage/BackgroundImageProfile"
       );
-      uploadBytes(storageRef, this.profileBackgroundImageUrl).then(console.log("done!"));
-      console.log(this.profileBackgroundImageUrl);
+
+      // Upload the image to Firebase Storage
+      uploadBytes(storageRef, this.profileBackgroundImageUrl).then((snapshot) => {
+        console.log("Upload complete!");
+
+        // Get the download URL of the uploaded image
+        getDownloadURL(snapshot.ref).then((url) => {
+          console.log("Download URL:", url);
+          this.downloadProfileBackgroundPictureUrl = url;
+          console.log(this.downloadProfileBackgroundPictureUrl);
+          this.addInfo();
+        }).catch((error) => {
+          console.error("Error getting download URL:", error);
+        });
+      }).catch((error) => {
+        console.error("Error uploading image:", error);
+      });
+
     },
+
 
     onFileChangeProfileImage(event) {
       this.file = event.target.files[0];
       this.urlImageProfile = URL.createObjectURL(this.file);
+      this.profileImageUrl = this.file;
     },
     onFileChangeProfileBackground(event) {
+
       this.file = event.target.files[0];
       this.urlImageBackgroundProfile = URL.createObjectURL(this.file);
+      this.profileBackgroundImageUrl = this.file;
     },
     handlePhoneNumber(phoneNumber) {
       this.retrievedPhoneNumber = phoneNumber;
     },
 
     async addInfo() {
+      setTimeout(function () {
+        this.UploadProfileImageToStorage();
+        this.UploadProfileBackgroundImageToStorage();
+
+      }, 10000);
+      console.log("done");
       // for music
-      this.musicType.forEach((el) => {
-        if (el.isActive) FavoriteMusicType.push(el.label);
-      });
+      //  this.musicType.forEach((el) => {
+      //    if (el.isActive) FavoriteMusicType.push(el.label);
+      // });
 
       let FavoriteMusicType = this.extractActiveElementsFromArray(this.musicType);
       let FavoriteMovieType = this.extractActiveElementsFromArray(this.movieType);
-      let FavoriteInterestType = this.extractActiveElementsFromArray(this.interest);
+      let FavoriteInterestType = this.extractActiveElementsFromArray(this.interests);
+
 
       let reff = doc(
           db,
@@ -744,6 +784,10 @@ export default {
 
       let InformationData = {
         FirstName: this.firstName,
+        SecondName: this.secondName,
+        Country: this.countriesPick,
+        City: this.city,
+        PhoneNumber: this.retrievedPhoneNumber,
         UserGender: this.UserGender,
         UserAttractedToGender: this.UserAttractedToGender,
         age: this.age,
@@ -756,6 +800,7 @@ export default {
         InformationComplete: true,
       };
       await updateDoc(reff, InformationData);
+      this.answerdQuestions = [];
 
 // Update Profile Data
       reff = doc(
@@ -770,6 +815,9 @@ export default {
       InformationData = {
         ProfileDescription: this.description,
         ProfileCardColor: this.cardColor,
+        ProfilePictureUrl: this.downloadProfilePictureUrl,
+        ProfileBackgroundPicture: this.downloadProfileBackgroundPictureUrl,
+        Followers: "",
       };
 
       await updateDoc(reff, InformationData);
@@ -785,6 +833,7 @@ export default {
     },
 
     extractActiveElementsFromArray(elem) {
+
       let favoriteChip = [];
       elem.forEach((el) => {
         if (el.isActive) favoriteChip.push(el.label);
@@ -793,14 +842,21 @@ export default {
 
     },
     appendQuestionsAndAnswers() {
-      this.answerdQuestions.question1 = this.question1;
-      this.answerdQuestions.question2 = this.question2;
-      this.answerdQuestions.question3 = this.question3;
+      this.answerdQuestions.push(this.question1);
+      this.answerdQuestions.push(this.answer1);
 
-      this.answerdQuestions.answer1 = this.answer1;
-      this.answerdQuestions.answer2 = this.answer2;
-      this.answerdQuestions.answer3 = this.answer3;
-    }
+      this.answerdQuestions.push(this.question2);
+      this.answerdQuestions.push(this.answer2);
+
+      this.answerdQuestions.push(this.question3);
+      this.answerdQuestions.push(this.answer3);
+    },
+
+    async UplodaAllDataToFirebase() {
+      await this.UploadProfileImageToStorage()
+      await this.UploadProfileBackgroundImageToStorage();
+
+    },
 
   },
 }

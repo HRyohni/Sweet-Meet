@@ -9,14 +9,13 @@
 
       <v-card-title class="white--text ">
         <v-avatar size="100" class="ml-10">
-          <v-img alt="user" :src="this.profilePicture"></v-img>
+          <v-img class="elevation-10" alt="user" :src="this.profilePicture"></v-img>
         </v-avatar>
 
-        <h5 class="ml-3  d-inline">{{ this.displayName+'asdasdssss2s' }}</h5>
-
+        <h1 class="ml-3  d-inline">{{ this.displayName }}</h1>
 
         <v-card-text>
-          <p class="ml-3 d-inline   " >{{ this.firstName+" "+this.secondName }}</p>
+          <h3 class="ml-3 d-inline   " >{{ this.firstName+" "+this.secondName }}</h3>
         </v-card-text>
 
       </v-card-title>
@@ -24,7 +23,7 @@
 
 
     </v-img>
-    <v-btn v-if="userAdmin"  style="font-size:10px" class="align-center">edit profile picture</v-btn>
+<!--    <v-btn v-if="userAdmin"  style="font-size:10px" class="align-center">edit profile picture</v-btn>-->
     <v-icon icon="mdi-information"></v-icon>
     <v-card-text>
 
@@ -34,7 +33,7 @@
           {{ profileDescription }}
 
         </h4>
-        <v-btn v-if="userAdmin" class="d-inline  mt-5  font-weight-light pa-1 " style="font-size: 1em">Edit</v-btn>
+        <v-btn v-if="userAdmin" class="d-inline  mt-5  font-weight-light pa-1  " style="font-size: 1em">Edit</v-btn>
       </div>
 
     </v-card-text>

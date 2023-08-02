@@ -4,8 +4,16 @@
     <!--                                       Profile info card for more information about profile -->
     <div class="TopSelection">
 
-      <ProfileInfoCard profile-description="this is test" :user-admin="this.userAdmin" :first-name="this.userUrlName"
-                       second-name="test"/>
+      <ProfileInfoCard :profile-description="this.profileDescription"
+                       :card-color="this.profileCardColor"
+                       :user-admin="this.userAdmin"
+                       :display-name="userUrlName"
+                       :first-name="this.firstName"
+                       :second-name="this.secondName"
+                       :background-image="this.profileBackgroundPicture"
+                       :profile-picture="this.profilePicture"
+      />
+
       <div class="text-center">
 
 
@@ -50,7 +58,22 @@
       </v-col>
 
       <!--                                      Settings and other stuf-->
-      <v-col style="color: gray" class="ma-10">
+      <v-col style="color: gray" class="ma-5" cols="2">
+        <h1>Interests </h1>
+        <div  v-for="item in interests">
+          <v-chip class="d-inline-flex">{{ item }}</v-chip>
+        </div>
+
+           <h1>movies </h1>
+        <div  v-for="item in interests">
+          <v-chip class="d-inline-flex">{{ item }}</v-chip>
+        </div>
+
+           <h1>music </h1>
+        <div  v-for="item in interests">
+          <v-chip class="d-inline-flex">{{ item }}</v-chip>
+        </div>
+
 
       </v-col>
 
@@ -67,6 +90,7 @@ import {auth, db, doc, getDoc, email} from "../../firebase.js";
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
 import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue";
 
+import {getStorage, ref} from "firebase/storage";
 
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {collection, getDocs} from "firebase/firestore";
@@ -83,17 +107,23 @@ export default {
   },
 
   data: () => ({
+    //Profile User Data
+    firstName: "",
+    secondName: "",
+    profileCardColor: "blue",
+    profileDescription: "Loading..",
+    profilePicture: "",
+    profileBackgroundPicture: "",
+    interests: null,
     // Overley
     overlay: false,
     // User Id Site
     userUrlName: "",
 
-
     // Firebase Data
     auth: null,
     userLoginStatus: null,
     userEmail: null,
-
 
     // User Information
     userAllInformation: null,
@@ -111,8 +141,6 @@ export default {
 
 
   async mounted() {
-
-
     await onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log(auth);
@@ -120,6 +148,7 @@ export default {
         this.checkLoginStatus();
         this.setUserUrlName();
         this.setUserEditProfileIfAdmin();
+        this.getUserData();
         this.overlay = true;
       }
     });
@@ -154,7 +183,25 @@ export default {
             this.userAdmin = false;
         },
 
-        getUserData() {
+        async getUserData() {
+          const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.userUrlName));
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            this.firstName = doc.data()["FirstName"]
+            this.secondName = doc.data()["SecondName"]
+            this.interests = doc.data()["FavInterestType"]
+          });
+
+          const querySnapshot2 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Information", "Profile"));
+          querySnapshot2.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            this.profileCardColor = doc.data()["ProfileCardColor"];
+            this.profileDescription = doc.data()["ProfileDescription"];
+            this.profilePicture = doc.data()["ProfilePictureUrl"];
+            this.profileBackgroundPicture = doc.data()["ProfileBackgroundPicture"];
+
+          });
+
         },
 
 

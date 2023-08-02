@@ -2,7 +2,6 @@
   <div className="m-10">
     <h3>Phone Number</h3>
     <VuePhoneNumberInput v-model="phoneNumber"/>
-    <p className="grey--text">{{ phoneNumber }}</p>
   </div>
 </template>
 
