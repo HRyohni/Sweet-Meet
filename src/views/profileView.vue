@@ -1,8 +1,8 @@
 <template>
-  <v-container v-if="true">
+  <v-container class="mt-10">
 
     <!--                                       Profile info card for more information about profile -->
-    <div class="TopSelection">
+    <div v-if="userExists" >
 
       <ProfileInfoCard :profile-description="this.profileDescription"
                        :card-color="this.profileCardColor"
@@ -14,7 +14,8 @@
                        :profile-picture="this.profilePicture"
       />
 
-      <div class="text-center">
+
+      <div v-if="" class="text-center">
 
 
         <v-overlay
@@ -34,23 +35,43 @@
 
 
     <v-col>
+
       <div class="profileinfo">
       </div>
     </v-col>
+    <div v-if="!userExists">
+      <h1 class="align-center d-md-flex">User Does not exsists</h1>
+    </div>
 
-
-    <v-row class="BottomSite ">
+    <v-row v-if="userExists && profilePrivate" class="BottomSite">
 
       <!--                                 TODO: fix nameing id with site      Follow Suggestion system-->
-      <v-col>
-        <v-row justify="space-around" class="ma-12">
-          <FollowSugestionComponent/>
-        </v-row>
+      <v-col cols="3">
+        <FollowSugestionComponent/>
+        <v-card elevation="12" class="pa-3 mt-3 white--text" :color="this.profileCardColor">
+          <v-card-title class="white--text" >Information</v-card-title>
+          <h3 class="d-inline">{{ this.firstName }} {{ this.secondName }}</h3>
+          <h3 class="d-inline"> {{ this.age }}</h3>
+          <v-row>
+            <v-col>
+              <h5>Sex:</h5>
+              <h5>from:</h5>
+              <h5>Sexual orientation:</h5>
+            </v-col>
+            <v-col>
+              <h5>{{ this.gender }}</h5>
+              <h5>{{ this.country }}</h5>
+              <h5>{{ this.sexualOrientation }}</h5>
+            </v-col>
+          </v-row>
+        </v-card>
+
+
       </v-col>
 
       <!--                                   Sweet Card profile images-->
       <v-col>
-        <v-card class="ma-5 pa-3">
+        <v-card class="ma-1 pa-3">
           <sweet-card></sweet-card>
           <sweet-card></sweet-card>
           <sweet-card></sweet-card>
@@ -60,18 +81,20 @@
       <!--                                      Settings and other stuf-->
       <v-col style="color: gray" class="ma-5" cols="2">
         <h1>Interests </h1>
-        <div  v-for="item in interests">
-          <v-chip class="d-inline-flex">{{ item }}</v-chip>
+        <div class="d-inline" v-for="item in interests">
+          <v-chip color="primary" class=" ma-1 pa-2">{{ item }}</v-chip>
         </div>
 
-           <h1>movies </h1>
-        <div  v-for="item in interests">
-          <v-chip class="d-inline-flex">{{ item }}</v-chip>
+
+        <h1>movies </h1>
+        <div class="d-inline" v-for="item in movies">
+          <v-chip color="red" class="ma-1 pa-2 ">{{ item }}</v-chip>
         </div>
 
-           <h1>music </h1>
-        <div  v-for="item in interests">
-          <v-chip class="d-inline-flex">{{ item }}</v-chip>
+
+        <h1>music </h1>
+        <div class="d-inline" v-for="item in music">
+          <v-chip color="green" class="ma-1 pa-2">{{ item }}</v-chip>
         </div>
 
 
@@ -110,13 +133,24 @@ export default {
     //Profile User Data
     firstName: "",
     secondName: "",
+    country: "",
+    sexualOrientation: "",
+    age: "",
+    gender: "",
+
+
     profileCardColor: "blue",
     profileDescription: "Loading..",
     profilePicture: "",
     profileBackgroundPicture: "",
     interests: null,
-    // Overley
+    music: null,
+    movies: null,
+
+    // Overly
     overlay: false,
+    userExists: false,
+    profilePrivate: true, // profile private TODO: make profile private system
     // User Id Site
     userUrlName: "",
 
@@ -132,30 +166,38 @@ export default {
 
   }),
   watch: {
-    overlay(val) {
-      val && setTimeout(() => {
-        this.overlay = false
-      }, 300)
-    },
+     overlay(val) {
+       val && setTimeout(() => {
+         this.overlay = false
+       }, 1000)
+     },
   },
 
 
   async mounted() {
     await onAuthStateChanged(auth, (user) => {
+
       if (user) {
-        console.log(auth);
+
         this.userEmail = auth.currentUser.email;
+        this.checkUserExists();
         this.checkLoginStatus();
         this.setUserUrlName();
         this.setUserEditProfileIfAdmin();
         this.getUserData();
         this.overlay = true;
+
+
+
       }
     });
   },
 
   methods:
       {
+        async checkUserExists() {
+
+        },
 
         async checkLoginStatus() {
           await onAuthStateChanged(auth, (user) => {
@@ -187,9 +229,15 @@ export default {
           const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.userUrlName));
           querySnapshot.forEach((doc) => {
             // doc.data() is never undefined for query doc snapshots
-            this.firstName = doc.data()["FirstName"]
-            this.secondName = doc.data()["SecondName"]
-            this.interests = doc.data()["FavInterestType"]
+            this.firstName = doc.data()["FirstName"];
+            this.secondName = doc.data()["SecondName"];
+            this.interests = doc.data()["FavInterestType"];
+            this.movies = doc.data()["FavMovieType"];
+            this.music = doc.data()["FavMusicType"];
+            this.country = doc.data()["Country"];
+            this.sexualOrientation = doc.data()["UserAttractedToGender"];
+            this.age = doc.data()["age"];
+            this.gender = doc.data()["UserGender"];
           });
 
           const querySnapshot2 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Information", "Profile"));
@@ -199,7 +247,7 @@ export default {
             this.profileDescription = doc.data()["ProfileDescription"];
             this.profilePicture = doc.data()["ProfilePictureUrl"];
             this.profileBackgroundPicture = doc.data()["ProfileBackgroundPicture"];
-
+            this.userExists = true;
           });
 
         },
@@ -215,11 +263,6 @@ export default {
 }
 
 
-.TopSelection {
-  width: 100%;
-  height: 250px;
-  background-color: #000000;
-}
 
 .BottomSite {
 

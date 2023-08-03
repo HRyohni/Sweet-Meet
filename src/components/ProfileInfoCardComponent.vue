@@ -8,11 +8,11 @@
       </v-app-bar>
 
       <v-card-title class="white--text ">
-        <v-avatar size="100" class="ml-10">
+        <v-avatar size="100" class="ml-10 mx-auto text-md-h3">
           <v-img class="elevation-10" alt="user" :src="this.profilePicture"></v-img>
         </v-avatar>
 
-        <h1 class="ml-3  d-inline">{{ this.displayName }}</h1>
+        <div class="ml-3  text-lg-h3  d-inline">{{ this.displayName }}</div>
 
         <v-card-text>
           <h3 class="ml-3 d-inline   " >{{ this.firstName+" "+this.secondName }}</h3>
@@ -60,7 +60,7 @@ export default {
     userAdmin: false,
     profilePicture: "",
     backgroundImage: "",
-    cardColor: "white",
+    cardColor: "",
   },
 
   methods: {}
