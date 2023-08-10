@@ -2,7 +2,7 @@
   <v-container class="mt-10">
 
     <!--                                       Profile info card for more information about profile -->
-    <div v-if="userExists" >
+    <div v-if="userExists">
 
       <ProfileInfoCard :profile-description="this.profileDescription"
                        :card-color="this.profileCardColor"
@@ -28,11 +28,10 @@
               size="64"
           ></v-progress-circular>
         </v-overlay>
+
       </div>
 
-
     </div>
-
 
     <v-col>
 
@@ -49,7 +48,7 @@
       <v-col cols="3">
         <FollowSugestionComponent/>
         <v-card elevation="12" class="pa-3 mt-3 white--text" :color="this.profileCardColor">
-          <v-card-title class="white--text" >Information</v-card-title>
+          <v-card-title class="white--text">Information</v-card-title>
           <h3 class="d-inline">{{ this.firstName }} {{ this.secondName }}</h3>
           <h3 class="d-inline"> {{ this.age }}</h3>
           <v-row>
@@ -68,14 +67,29 @@
 
 
       </v-col>
-
       <!--                                   Sweet Card profile images-->
-      <v-col>
-        <v-card class="ma-1 pa-3">
-          <sweet-card></sweet-card>
-          <sweet-card></sweet-card>
-          <sweet-card></sweet-card>
-        </v-card>
+      <v-col cols="6">
+
+        <div
+            v-for="(object, index) in AllPostsAndInformation"
+            :key="index"
+
+        >
+          <p>{{object.post.PostUrl}}</p>
+
+        </div>
+
+
+        <sweet-card
+            v-for="(data, index) in AllPostsAndInformation"
+            :key="index"
+            :debug-mod="false"
+            :number-of-likes-on-post="data.post.NumberOfLikesOnPost"
+            :number-of-comments-on-post="data.post.NumberOfCommentsOnPost"
+            :image-url="data.post.PostUrl"
+        >
+
+        </sweet-card>
       </v-col>
 
       <!--                                      Settings and other stuf-->
@@ -119,10 +133,6 @@ import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {collection, getDocs} from "firebase/firestore";
 
 export default {
-
-  // Mixin Classes
-
-
   components: {
     FollowSugestionComponent,
     ProfileInfoCard,
@@ -137,6 +147,7 @@ export default {
     sexualOrientation: "",
     age: "",
     gender: "",
+    AllPostsAndInformation: [],
 
 
     profileCardColor: "blue",
@@ -166,11 +177,11 @@ export default {
 
   }),
   watch: {
-     overlay(val) {
-       val && setTimeout(() => {
-         this.overlay = false
-       }, 1000)
-     },
+    overlay(val) {
+      val && setTimeout(() => {
+        this.overlay = false
+      }, 1000)
+    },
   },
 
 
@@ -186,9 +197,6 @@ export default {
         this.setUserEditProfileIfAdmin();
         this.getUserData();
         this.overlay = true;
-
-
-
       }
     });
   },
@@ -212,17 +220,12 @@ export default {
           });
         },
 
-
         setUserUrlName() {
           this.userUrlName = this.$route.params["id"];
         },
 
-
         async setUserEditProfileIfAdmin() {
-          if (auth.currentUser.displayName === this.userUrlName)
-            this.userAdmin = true;
-          else
-            this.userAdmin = false;
+          this.userAdmin = auth.currentUser.displayName === this.userUrlName;
         },
 
         async getUserData() {
@@ -250,6 +253,14 @@ export default {
             this.userExists = true;
           });
 
+          const querySnapshot3 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Posts", "UserPosts"));
+          querySnapshot3.forEach((doc) => {
+            console.log(doc.data());
+            this.AllPostsAndInformation.push( {post: doc.data()});
+          });
+
+          console.log(this.AllPostsAndInformation);
+
         },
 
 
@@ -261,7 +272,6 @@ export default {
 .profileinfo {
 
 }
-
 
 
 .BottomSite {

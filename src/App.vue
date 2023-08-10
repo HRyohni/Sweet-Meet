@@ -12,13 +12,26 @@
         </v-col>
         <v-col style="text-align: right; font-size: 3vh" class="pa-5">
           <v-btn
+              class="ma-2"
+              v-if="userLoginStatus"
+              @click="addPost()"
+              color="dark"
+              elevation="12"
+          >Add Post
+          </v-btn>
+          <v-btn
+              v-if="!userLoginStatus"
+              color="dark"
+
+              outlined
+              @click="RegisterPage()"
+          <v-btn
               v-if="userLoginStatus"
               @click="SignOut()"
               color="red"
               elevation="12"
           >Sign Out
-          </v-btn
-          >
+          </v-btn>
           <v-btn
               v-if="!userLoginStatus"
               color="primary"
@@ -106,6 +119,11 @@ export default {
     RegisterPage() {
       this.$router.push("/register");
     },
+
+    addPost() {
+      this.$router.push("/addPost");
+    },
+
     async GetDisplayName(LoginState) {
       if (!LoginState)
         return null;

@@ -7,6 +7,7 @@ import login from '../views/LoginView.vue';
 import register from '../views/RegisterView.vue';
 import info from '../views/infoView.vue';
 import landingPage from '../views/landingPageView.vue'
+import addPostView from "@/views/AddPostView.vue";
 
 
 Vue.use(VueRouter)
@@ -21,6 +22,12 @@ const routes = [
         path: '/',
         name: 'landingPage',
         component: landingPage
+    },
+
+    {
+        path: '/addPost',
+        name: 'addpost',
+        component: addPostView
     },
 
     {

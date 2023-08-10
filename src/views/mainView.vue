@@ -1,5 +1,5 @@
 <template>
-  <div class="mainbar">
+  <div class="mainbar mt-10">
     <v-container class="bg-surface-variant">
       <v-row no-gutters class="justify-center">
         <v-col class="d-block" cols="1">
@@ -87,7 +87,7 @@
         </v-col>
         <v-col style="text-align: center" cols="3">
           <h1>Feed</h1>
-          <sweet-card class="ma-5"></sweet-card>
+          <sweet-card class="ma-5" ></sweet-card>
         </v-col>
       </v-row>
     </v-container>

@@ -49,7 +49,6 @@ export default {
   name: 'ProfileInfoCard',
 
   data: () => ({
-
   }),
 
   props: {

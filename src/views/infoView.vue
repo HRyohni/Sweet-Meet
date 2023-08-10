@@ -206,7 +206,6 @@
         <label class="custom-file-upload">
           Change Profile Image
           <input @change="this.onFileChangeProfileBackground" type="file">
-
         </label>
       </v-btn>
 
@@ -532,6 +531,7 @@ export default {
     ],
 
     interests: [
+
       {label: "Traveling", isActive: false},
       {label: "Reading", isActive: false},
       {label: "Cooking", isActive: false},
@@ -640,6 +640,7 @@ export default {
 
   }),
   mounted() {
+    this.interests
     this.email = auth.currentUser.email;
 
   },
@@ -687,7 +688,6 @@ export default {
     },
 
     UploadProfileImageToStorage() {
-      console.log(this.profileImageUrl, "<----");
       console.log("uploading profile image");
 
       // Assuming you have imported the necessary functions and objects
