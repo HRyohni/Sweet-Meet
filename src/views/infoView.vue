@@ -771,8 +771,6 @@ export default {
       let FavoriteMusicType = this.extractActiveElementsFromArray(this.musicType);
       let FavoriteMovieType = this.extractActiveElementsFromArray(this.movieType);
       let FavoriteInterestType = this.extractActiveElementsFromArray(this.interests);
-
-
       let reff = doc(
           db,
           "Users",
@@ -780,8 +778,6 @@ export default {
           auth.currentUser.displayName,
           "Information"
       );
-
-
       let InformationData = {
         FirstName: this.firstName,
         SecondName: this.secondName,

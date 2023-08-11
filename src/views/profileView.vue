@@ -4,15 +4,19 @@
     <!--                                       Profile info card for more information about profile -->
     <div v-if="userExists">
 
-      <ProfileInfoCard :profile-description="this.profileDescription"
-                       :card-color="this.profileCardColor"
-                       :user-admin="this.userAdmin"
-                       :display-name="userUrlName"
-                       :first-name="this.firstName"
-                       :second-name="this.secondName"
-                       :background-image="this.profileBackgroundPicture"
-                       :profile-picture="this.profilePicture"
+
+      <ProfileInfoCard
+          v-if="userUrlName != null"
+          :profile-description="this.profileDescription"
+          :card-color="this.profileCardColor"
+          :user-admin="this.userAdmin"
+          :display-name="userUrlName"
+          :first-name="this.firstName"
+          :second-name="this.secondName"
+          :background-image="this.profileBackgroundPicture"
+          :profile-picture="this.profilePicture"
       />
+
 
 
       <div v-if="" class="text-center">
@@ -30,11 +34,9 @@
         </v-overlay>
 
       </div>
-
     </div>
 
     <v-col>
-
       <div class="profileinfo">
       </div>
     </v-col>
@@ -64,32 +66,16 @@
             </v-col>
           </v-row>
         </v-card>
-
-
       </v-col>
-      <!--                                   Sweet Card profile images-->
+      <!--Sweet Card profile images-->
       <v-col cols="6">
-
-        <div
-            v-for="(object, index) in AllPostsAndInformation"
-            :key="index"
-
-        >
-          <p>{{object.post.PostUrl}}</p>
-
-        </div>
-
-
         <sweet-card
-            v-for="(data, index) in AllPostsAndInformation"
+            v-for="(data, index) in AllPostsIdNames"
             :key="index"
-            :debug-mod="false"
-            :number-of-likes-on-post="data.post.NumberOfLikesOnPost"
-            :number-of-comments-on-post="data.post.NumberOfCommentsOnPost"
-            :image-url="data.post.PostUrl"
-        >
-
-        </sweet-card>
+            :post-i-d="data"
+            :user-name="userUrlName"
+            :is-swipe-locked="true"
+        ></sweet-card>
       </v-col>
 
       <!--                                      Settings and other stuf-->
@@ -98,22 +84,16 @@
         <div class="d-inline" v-for="item in interests">
           <v-chip color="primary" class=" ma-1 pa-2">{{ item }}</v-chip>
         </div>
-
-
         <h1>movies </h1>
         <div class="d-inline" v-for="item in movies">
           <v-chip color="red" class="ma-1 pa-2 ">{{ item }}</v-chip>
         </div>
 
-
         <h1>music </h1>
         <div class="d-inline" v-for="item in music">
           <v-chip color="green" class="ma-1 pa-2">{{ item }}</v-chip>
         </div>
-
-
       </v-col>
-
 
     </v-row>
   </v-container>
@@ -131,6 +111,7 @@ import {getStorage, ref} from "firebase/storage";
 
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {collection, getDocs} from "firebase/firestore";
+import logger from "@fortawesome/vue-fontawesome/src/logger";
 
 export default {
   components: {
@@ -147,7 +128,7 @@ export default {
     sexualOrientation: "",
     age: "",
     gender: "",
-    AllPostsAndInformation: [],
+    AllPostsIdNames: [],
 
 
     profileCardColor: "blue",
@@ -183,28 +164,24 @@ export default {
       }, 1000)
     },
   },
-
-
-  async mounted() {
+  async created() {
+    this.setUserUrlName();
     await onAuthStateChanged(auth, (user) => {
-
       if (user) {
-
         this.userEmail = auth.currentUser.email;
         this.checkUserExists();
         this.checkLoginStatus();
-        this.setUserUrlName();
         this.setUserEditProfileIfAdmin();
         this.getUserData();
-        this.overlay = true;
+        this.overlay = false; // TODO: should be True
       }
     });
   },
 
+
   methods:
       {
         async checkUserExists() {
-
         },
 
         async checkLoginStatus() {
@@ -219,9 +196,9 @@ export default {
 
           });
         },
-
         setUserUrlName() {
           this.userUrlName = this.$route.params["id"];
+
         },
 
         async setUserEditProfileIfAdmin() {
@@ -229,6 +206,11 @@ export default {
         },
 
         async getUserData() {
+          if (this.userUrlName == null) {
+            console.log("error with user url name");
+            return "error";
+          }
+
           const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.userUrlName));
           querySnapshot.forEach((doc) => {
             // doc.data() is never undefined for query doc snapshots
@@ -243,6 +225,7 @@ export default {
             this.gender = doc.data()["UserGender"];
           });
 
+
           const querySnapshot2 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Information", "Profile"));
           querySnapshot2.forEach((doc) => {
             // doc.data() is never undefined for query doc snapshots
@@ -250,21 +233,24 @@ export default {
             this.profileDescription = doc.data()["ProfileDescription"];
             this.profilePicture = doc.data()["ProfilePictureUrl"];
             this.profileBackgroundPicture = doc.data()["ProfileBackgroundPicture"];
-            this.userExists = true;
+            this.getPostIDs().then(r =>this.userExists = true);
+
           });
 
-          const querySnapshot3 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Posts", "UserPosts"));
-          querySnapshot3.forEach((doc) => {
-            console.log(doc.data());
-            this.AllPostsAndInformation.push( {post: doc.data()});
-          });
+          // to fetch post ids
 
-          console.log(this.AllPostsAndInformation);
+
 
         },
 
 
+        async getPostIDs() {
+          const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Posts", "UserPosts"));
+          this.AllPostsIdNames = collectionSnapshot.docs.map(doc => doc.id);
+        },
       }
+
+
 };
 </script>
 
