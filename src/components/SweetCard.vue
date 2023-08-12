@@ -36,6 +36,8 @@
 
         </div>
       </v-scroll-y-transition>
+
+
       <!--      image section-->
       <v-scroll-y-transition style="background-color: aqua;">
 
@@ -69,30 +71,52 @@
 
             <!--    COMMENTS SYSTEM-->
             <v-expand-transition>
+
               <div class="pa-5" v-if="isCommentWindowOpen"
-                   style=" font-size: 50px; background-color: #9aa7de; color: black; height: 100%">
-                <div class="d-flex mt-2">
-                  <v-avatar class="">
-                    <v-img src="https://cdn.vuetifyjs.com/images/john.jpg"></v-img>
-                  </v-avatar>
-                  <v-col class="ml-2" style="font-size: 1vw">
-                    <v-row>UserName</v-row>
-                    <v-row>you are so ugly fuck off!</v-row>
-                  </v-col>
-                </div>
-                <v-divider class="mt-2"></v-divider>
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; width: 100%" class="ma-1  d-inline" >
+                   style=" font-size: 50px; background-color: #d8dae7; color: black; height: 100%">
+
+                <!--TODO: Optimize items flickering while scrolling-->
+                <v-virtual-scroll
+                    height="50%"
+                    :items="this.exsistingCommentsOnPost[0]"
+                    item-height="100"
+                >
+                  <div class="d-flex mt-2"
+                       v-for="(data, index) in this.exsistingCommentsOnPost[0]"
+                       :key="index"
+                  >
+                    <v-avatar class="">
+                      <v-img src="https://cdn.vuetifyjs.com/images/john.jpg"></v-img>
+                    </v-avatar>
+                    <v-col class="ml-2" style="font-size: 1vw">
+
+                      <v-row>{{ data.UserName }}</v-row>
+                      <v-row>{{ data.Comment }}</v-row>
+                      <v-row>
+                        <v-divider></v-divider>
+                      </v-row>
+
+                    </v-col>
+                  </div>
+
+                </v-virtual-scroll>
+
+
+                <div style=" width: 100%" class=" d-inline">
                   <v-row>
                     <v-col>
-                      <v-text-field v-model="newComment" class="d-inline justify-end" hint="Leave a comment"></v-text-field>
+                      <v-text-field v-model="newComment" class="d-inline justify-end"
+                                    hint="Leave a comment"></v-text-field>
                     </v-col>
                     <v-col>
-                      <v-btn dark @click=" addNewComment()" >send</v-btn>
+                      <v-btn dark @click=" addNewComment()">send</v-btn>
                     </v-col>
                   </v-row>
                 </div>
 
+
               </div>
+
             </v-expand-transition>
           </div>
         </v-img>
@@ -103,7 +127,7 @@
 
 <script>
 import {Vue2InteractDraggable} from 'vue2-interact'
-import {collection, doc, getDoc, getDocs, updateDoc} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, serverTimestamp, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 import firebase from "firebase/compat/app";
 
@@ -120,6 +144,10 @@ export default {
     //comment system
     isCommentWindowOpen: false,
     newComment: "",
+    exsistingCommentsOnPost: [],
+
+
+    test1: "",
   }),
 
   props: {
@@ -177,14 +205,12 @@ export default {
       );
       const InformationData = {NumberOfLikesOnPost: this.numberOfLikesOnPost + 1};
       await updateDoc(reff, InformationData);
-      this.numberOfLikesOnPost +=1;
+      this.numberOfLikesOnPost += 1;
 
     },
 
-    async addNewComment()
-    {
-      if (this.newComment !== "")
-      {
+    async addNewComment() {
+      if (this.newComment !== "") {
         const reff = doc(
             db,
             "Users",
@@ -194,25 +220,60 @@ export default {
             "UserPosts",
             this.postID
         );
-        const InformationData = {
-          NumberOfCommentsOnPost: this.NumberOfCommentsOnPost(),
-          Comments: {
-            UserName: auth.currentUser.displayName,
-            Comment: this.newComment,
-            CommentId: new Date().getTime().toString(),
-          }
+
+        // Fetch existing data from the document
+        const docSnap = await getDoc(reff);
+        const postData = docSnap.data();
+        console.log("->", postData);
+
+        // Initialize the Comments array if it doesn't exist or is not an array
+        if (!Array.isArray(postData.Comments)) {
+          postData.Comments = [];
+        }
+
+        // Append the new comment to the existing comments
+        const newComment = {
+          UserName: auth.currentUser.displayName,
+          Comment: this.newComment,
+          CommentId: new Date(), // Use the client-generated timestamp
         };
+        postData.Comments.push(newComment);
+
+        const InformationData = {
+          NumberOfCommentsOnPost: postData.NumberOfCommentsOnPost + 1, // Update comment count
+          Comments: postData.Comments, // Update comments array
+        };
+
+        // Update the Firestore document
         await updateDoc(reff, InformationData);
-        this.numberOfCommentsOnPost = this.getDataFromFirebasePost("NumberOfCommentsOnPost");
+
+        // Update the local comment count
+        this.numberOfCommentsOnPost = postData.NumberOfCommentsOnPost + 1;
+      } else {
+        console.log("Write something before sending.");
       }
-      else
-      {
-        console.log("write something before sending");
-      }
+    },
+    async getComments() {
+      const reff = doc(
+          db,
+          "Users",
+          "UserNames",
+          this.userName,
+          "Posts",
+          "UserPosts",
+          this.postID
+      );
+
+      // Fetch existing data from the document
+      const docSnap = await getDoc(reff);
+      const postData = docSnap.data();
+      this.test1 = docSnap.data();
+      this.exsistingCommentsOnPost.push(postData.Comments)
+      console.log("->", this.exsistingCommentsOnPost[0]);
     },
 
     async getDataFromFirebasePost(DataName) {     // TODO: Fix this fucntion giving wrong output
-      const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID);
+      const docRef = doc(db, "Users", "UserNam es", this.userName, "Posts", "UserPosts", this.postID);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -224,10 +285,10 @@ export default {
     },
 
 
-
   },
   async mounted() {
     await this.getPostData();
+    await this.getComments();
   },
 };
 
