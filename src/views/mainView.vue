@@ -45,6 +45,9 @@
         </v-col>
 
         <v-col v-if="extend">
+          <v-fab-transition>
+
+
           <v-btn
               class="d-flex"
               v-for="index in 10"
@@ -53,6 +56,7 @@
           >
           </v-btn>
           <h1>MESSAAGES HERE</h1>
+          </v-fab-transition>
         </v-col>
         <v-col :cols="drag">
           <h1>Stories</h1>
@@ -81,13 +85,30 @@
                 :max-height="widnowHeight"
             >
               <span v-scroll.self="onScroll"></span>
-              <sweet-card v-for="index in 10" :key="index"></sweet-card>
+
+              <sweet-card
+                  v-for="(data, index) in AllPostsIdNames"
+                  :key="index"
+                  :post-i-d="data"
+                  user-name="yohni"
+                  :is-swipe-locked="true"
+                  :is-dating-sweet-card="false"
+              ></sweet-card>
+
             </v-card>
           </div>
         </v-col>
         <v-col style="text-align: center" cols="3">
           <h1>Feed</h1>
-          <sweet-card class="ma-5" ></sweet-card>
+          <sweet-card
+              v-for="(data, index) in AllPostsIdNames"
+              :key="index"
+              :post-i-d="data"
+              user-name="yohni"
+              :is-swipe-locked="false"
+              :is-dating-sweet-card="true"
+          ></sweet-card>
+
         </v-col>
       </v-row>
     </v-container>
@@ -96,7 +117,7 @@
 
 <script>
 import SweetCard from "@/components/SweetCard.vue";
-import {doc, getDoc, setDoc} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, setDoc} from "firebase/firestore";
 import {ref} from "firebase/database";
 import {auth, db} from "../../firebase.js";
 import {getStorage,} from "firebase/storage";
@@ -118,9 +139,13 @@ export default {
       extend: false,
       scrollInvoked: 0,
       widnowHeight: window.innerHeight,
+
+      // Sweet Cards
+      AllPostsIdNames: "",
     };
   },
   name: "main",
+
 
   components: {
     NewComtestponent,
@@ -128,12 +153,16 @@ export default {
     SweetCard,
   },
   mounted() {
+    // get data
+     this.getPostIDs()
 
     console.log(auth);
     //debugger;
     this.GetUserStatus();
     this.GetUserDataFeed();
     //this.Debugging();
+
+
 
   },
   methods: {
@@ -211,6 +240,12 @@ export default {
       if (this.extend == false) this.extend = true;
       else this.extend = false;
     },
+
+    async getPostIDs() {
+      const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", "yohni", "Posts", "UserPosts"));
+      this.AllPostsIdNames = collectionSnapshot.docs.map(doc => doc.id);
+    },
+
     onScroll() {
       this.scrollInvoked++;
     },

@@ -55,6 +55,7 @@
           <h3 class="d-inline"> {{ this.age }}</h3>
           <v-row>
             <v-col>
+
               <h5>Sex:</h5>
               <h5>from:</h5>
               <h5>Sexual orientation:</h5>
@@ -77,6 +78,8 @@
             :is-swipe-locked="true"
         ></sweet-card>
       </v-col>
+
+
 
       <!--                                      Settings and other stuf-->
       <v-col style="color: gray" class="ma-5" cols="2">

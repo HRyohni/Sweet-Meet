@@ -59,43 +59,46 @@
           <h1>MESSAAGES HERE</h1>
         </v-col>
         <v-col :cols="drag">
-          <h1>Stories</h1>
-          <div class="stories d-inline">
-            <v-row>
-              <v-col
-                class="justify-left d-flex mt-4 pa-0"
-                
-                v-for="n in 4"
-                :key="n"
+          <v-expand-transition>
+            <h1>Stories</h1>
+            <div class="stories d-inline">
+              <v-row>
+                <v-col
+                    class="justify-left d-flex mt-4 pa-0"
+
+                    v-for="n in 4"
+                    :key="n"
+                >
+                  <div class="d-inline">
+                    <v-avatar size="3vw" class="ma-1">
+                      <img
+                          src="https://cdn.vuetifyjs.com/images/john.jpg"
+                          alt="John"
+                      />
+                    </v-avatar>
+
+                    <p class="d-flex justify-center">Leo m</p>
+                  </div>
+                </v-col>
+              </v-row>
+              <h1>Posts</h1>
+              <v-btn dark elevation-10 @click="DragPosts">test</v-btn>
+
+              <v-card
+                  v-scroll.self="onScroll"
+                  class="overflow-y-auto pa-4"
+                  :max-height="widnowHeight"
               >
-                <div class="d-inline">
-                  <v-avatar size="3vw" class="ma-1">
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John"
-                    />
-                  </v-avatar>
+                <span v-scroll.self="onScroll"></span>
+                <sweet-card
+                    v-for="index in 10"
+                    :key="index"
+                    imeKorisnika="Markan"
+                ></sweet-card>
+              </v-card>
+            </div>
+          </v-expand-transition>
 
-                  <p class="d-flex justify-center">Leo m</p>
-                </div>
-              </v-col>
-            </v-row>
-            <h1>Posts</h1>
-            <v-btn dark elevation-10 @click="DragPosts">test</v-btn>
-
-            <v-card
-              v-scroll.self="onScroll"
-              class="overflow-y-auto pa-4"
-              :max-height="widnowHeight"
-            >
-              <span v-scroll.self="onScroll"></span>
-              <sweet-card
-                v-for="index in 10"
-                :key="index"
-                imeKorisnika="Markan"
-              ></sweet-card>
-            </v-card>
-          </div>
         </v-col>
         <v-col style="text-align: center" cols="3">
           <h1>Feed</h1>

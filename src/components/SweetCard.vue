@@ -2,7 +2,7 @@
 
   <v-container>
     <Vue2InteractDraggable
-
+        style="background-color: #ff7b92"
         @draggedRight="draggedRight"
         :interact-max-rotation="15"
         :interact-out-of-sight-x-coordinate="3000"
@@ -43,18 +43,18 @@
 
 
         <v-img max-height="1000" width="100%" :src="randomImageUrl(debugMod)">
-          <div class="bottomText" style="top: 0;">
+          <div  v-if="!this.isDatingSweetCard" class="bottomText" style="top: 0;">
             <v-container class="bg-surface-variant">
               <v-row no-gutters>
                 <v-col style="text-align: left;">
                   <v-avatar class="">
-                    <v-img src="https://cdn.vuetifyjs.com/images/john.jpg"></v-img>
+                    <v-img :src="this.userProfilePicture"></v-img>
                   </v-avatar>
 
                   <p style="text-align: center;" class="d-inline pa-2"> {{ userName }} </p>
                 </v-col>
 
-                <v-col class="d-inline pa-2" style="text-align: center;">
+                <v-col   class="d-inline pa-2" style="text-align: center;">
                   <p class="d-inline">likes: {{ this.numberOfLikesOnPost }} </p>
 
                   <p class="d-inline">comments: {{ numberOfCommentsOnPost }} </p>
@@ -64,7 +64,7 @@
                   <v-btn @click="openOrCloseComments()">
                     <font-awesome-icon icon="fa-regular fa-message" style=" font-size: 30px; color: white"/>
                   </v-btn>
-                  <v-btn class="ma-1" dark @click="likeBtn()">like</v-btn>
+                  <v-btn class="ma-1" :color="this.isLikedPost" @click="likeBtn()">like</v-btn>
                 </v-col>
               </v-row>
             </v-container>
@@ -86,7 +86,7 @@
                        :key="index"
                   >
                     <v-avatar class="">
-                      <v-img src="https://cdn.vuetifyjs.com/images/john.jpg"></v-img>
+                      <v-img :src="data.UserProfilePicture"></v-img>
                     </v-avatar>
                     <v-col class="ml-2" style="font-size: 1vw">
 
@@ -116,7 +116,6 @@
 
 
               </div>
-
             </v-expand-transition>
           </div>
         </v-img>
@@ -127,7 +126,7 @@
 
 <script>
 import {Vue2InteractDraggable} from 'vue2-interact'
-import {collection, doc, getDoc, getDocs, serverTimestamp, updateDoc} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 import firebase from "firebase/compat/app";
 
@@ -140,11 +139,15 @@ export default {
     // For Post Data
     imageUrl: "",
     numberOfCommentsOnPost: 0,
+    userProfilePicture: "",
 
     //comment system
     isCommentWindowOpen: false,
     newComment: "",
     exsistingCommentsOnPost: [],
+
+    // Like system
+    isLikedPost: "red",
 
 
     test1: "",
@@ -156,8 +159,9 @@ export default {
     userName: null,
     // For debugging
     debugMod: false,
-    // Dating
+    // Dating system
     isSwipeLocked: true,
+    isDatingSweetCard: false,
   },
 
   name: 'SweetCard',
@@ -173,7 +177,6 @@ export default {
         console.log("Cant Find post!");
       }
 
-      console.log(this.getDataFromFirebasePost("NumberOfLikesOnPost"));
     },
 
     randomImageUrl(debugMode) {
@@ -194,6 +197,8 @@ export default {
     },
 
     async likeBtn() {
+
+      // Put +1 for likes
       const reff = doc(
           db,
           "Users",
@@ -203,9 +208,32 @@ export default {
           "UserPosts",
           this.postID
       );
-      const InformationData = {NumberOfLikesOnPost: this.numberOfLikesOnPost + 1};
-      await updateDoc(reff, InformationData);
-      this.numberOfLikesOnPost += 1;
+
+      // save post as liked on personal firebase account
+      if (!await this.isPostAlreadyLiked()) {
+        await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Posts", "LikedPosts", this.postID), {
+          LikedPost: true,
+        });
+
+        const InformationData = {NumberOfLikesOnPost: this.numberOfLikesOnPost + 1};
+        await updateDoc(reff, InformationData);
+        this.numberOfLikesOnPost += 1;
+
+        // change btn color
+        this.isLikedPost = "red";
+      } else {
+        await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Posts", "LikedPosts", this.postID), {
+          LikedPost: false,
+        });
+
+        const InformationData = {NumberOfLikesOnPost: this.numberOfLikesOnPost - 1};
+        await updateDoc(reff, InformationData);
+        this.numberOfLikesOnPost -= 1;
+
+        // change btn color
+        this.isLikedPost = "blue";
+      }
+
 
     },
 
@@ -220,22 +248,25 @@ export default {
             "UserPosts",
             this.postID
         );
+        // Get users profile picture
+        const usersProfilePictureUrl = await this.getUserProfilePicture(auth.currentUser.displayName);
 
         // Fetch existing data from the document
         const docSnap = await getDoc(reff);
         const postData = docSnap.data();
-        console.log("->", postData);
 
         // Initialize the Comments array if it doesn't exist or is not an array
         if (!Array.isArray(postData.Comments)) {
           postData.Comments = [];
         }
 
+
         // Append the new comment to the existing comments
         const newComment = {
           UserName: auth.currentUser.displayName,
           Comment: this.newComment,
           CommentId: new Date(), // Use the client-generated timestamp
+          UserProfilePicture: usersProfilePictureUrl,
         };
         postData.Comments.push(newComment);
 
@@ -253,6 +284,8 @@ export default {
         console.log("Write something before sending.");
       }
     },
+
+
     async getComments() {
       const reff = doc(
           db,
@@ -269,11 +302,10 @@ export default {
       const postData = docSnap.data();
       this.test1 = docSnap.data();
       this.exsistingCommentsOnPost.push(postData.Comments)
-      console.log("->", this.exsistingCommentsOnPost[0]);
     },
 
     async getDataFromFirebasePost(DataName) {     // TODO: Fix this fucntion giving wrong output
-      const docRef = doc(db, "Users", "UserNam es", this.userName, "Posts", "UserPosts", this.postID);
+      const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -283,12 +315,46 @@ export default {
         return null;
       }
     },
+    async isPostAlreadyLiked() {
 
+      const docRef = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Posts", "LikedPosts", this.postID);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        if (docSnap.data()["LikedPost"]) {
+          this.isLikedPost = "red"
+        } else {
+          this.isLikedPost = "blue"
+        }
+        return docSnap.data()["LikedPost"];
+      } else {
+        console.log("error");
+        return null;
+
+      }
+    },
+
+     async getUserProfilePicture(user)
+    {
+      const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile","Data");
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        return docSnap.data()["ProfilePictureUrl"];
+      } else {
+        console.log("error");
+        return null;
+
+      }
+
+    },
 
   },
   async mounted() {
     await this.getPostData();
     await this.getComments();
+    await this.isPostAlreadyLiked()
+    this.userProfilePicture = await this.getUserProfilePicture(this.userName);
   },
 };
 
