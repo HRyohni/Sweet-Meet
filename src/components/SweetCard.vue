@@ -147,7 +147,7 @@ export default {
     exsistingCommentsOnPost: [],
 
     // Like system
-    isLikedPost: "red",
+    isLikedPost: "blue",
 
 
     test1: "",

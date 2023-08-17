@@ -162,8 +162,6 @@ export default {
     this.GetUserDataFeed();
     //this.Debugging();
 
-
-
   },
   methods: {
     async Debugging() {
@@ -237,7 +235,7 @@ export default {
       );
     },
     friend() {
-      if (this.extend == false) this.extend = true;
+      if (this.extend === false) this.extend = true;
       else this.extend = false;
     },
 

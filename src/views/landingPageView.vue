@@ -1,6 +1,5 @@
 <template>
-  <main grid-list-xs >
-   <div class="mainText">
+
      <div class="pa-10 align-center align-content-center">
        <h1>Welcome to Sweet Meet</h1>
        <v-btn
@@ -20,16 +19,24 @@
       </v-card>
 
 
+
+       <MessageSystemComponent
+        user="duhan"
+        friend="yohni"
+       ></MessageSystemComponent>
+
      </div>
 
-   </div>
-  </main>
 </template>
-
 <script>
+import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
+
 export default {
     name: "landingPage",
+  components: {MessageSystemComponent},
   methods:
+
+
 {
    loginPage()
 {
@@ -37,35 +44,12 @@ export default {
 }
 
 }
-
-
 }
-
 
 
 </script>
 
 <style>
 
-.main
-{
-  text-align: center;
-  background-color: aqua;
-    height: 1000px;
-}
-
-mainText
-{
-  text-align: center;
-
-  margin: 500px ;
-  background-color: aqua;
-  height: 300px;
-  width: 300px  ;
-}
-middleText
-{
-  margin: 300px;
-  text-align: center;
-}
 </style>
+
