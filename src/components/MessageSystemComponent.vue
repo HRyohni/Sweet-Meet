@@ -3,30 +3,25 @@
 
 
     <v-row>
-      <v-col cols="2">
-        <v-card>
-          <v-card-text>
-            <h1>Username</h1>
-          </v-card-text>
-          <v-card-text>
-            <h1>Username</h1>
-          </v-card-text>
-          <v-card-text>
-            <h1>Username</h1>
-          </v-card-text>
 
-        </v-card>
-
-
-      </v-col>
       <v-col class="">
         <v-card
 
-            max-height="1000" outlined class=" messageBox pa-5 ma-3 overflow-y-auto">
+            max-height="auto" outlined class=" messageBox pa-5 ma-3 overflow-y-auto">
 
+          <div class="d-flex ">
+            <v-avatar
+                class="ma-1"
+                color="primary"
+                size="40"
+            >
+              <v-img :src="friendsAvatarUrl" ></v-img>
+            </v-avatar>
 
+            <h1>{{ this.friend }}</h1>
+          </div>
 
-          <div
+          <v-scroll-x-reverse-transition
               v-for="(message, index) in this.messageHistory"
               :key="index">
             <!--              FRIEND SEND A MESSAGE-->
@@ -36,20 +31,19 @@
 
                 class="d-flex">
               <v-avatar
-                  class="ma-1 d-flex"
-                  color="red"
+                  class="ma-1"
+                  color="primary"
                   size="40"
-              >M
+              >
+                <v-img :src="friendsAvatarUrl" ></v-img>
               </v-avatar>
 
               <div class="d-flex ">
-                <v-card style="width: 50%" elevation="3" class=" ma-3 d-flex ">
+                <v-card style="width: fit-content" elevation="3" class=" ma-1 d-flex ">
                   <v-card-text style="">
-                    <div class=" d-flex">
-                      {{message.sender}}
-                    </div>
+
                     <div class=" ">
-                      <v-row style="color: black" class="text--darken-4   ma-2">
+                      <v-row style="color: black" class="text--darken-4  ma-n1">
                         {{message.text}}
                       </v-row>
                     </div>
@@ -68,13 +62,11 @@
 
                 v-if="message.sender !== friend "
                 class="d-flex justify-end">
-              <v-card style="width: 50%" elevation="3" class=" ma-3 d-flex justify-end">
-                <v-card-text style="">
-                  <div class="justify-end d-flex">
-                    {{ message.sender }}
-                  </div>
+              <v-card style="width: fit-content; height: fit-content" elevation="3" class=" ma-3 pa-0 d-flex justify-end">
+                <v-card-text style=" height: fit-content">
+
                   <div class=" ">
-                    <v-row style="color: black" class="text--darken-4   ma-2"> {{ message.text }}
+                    <v-row style="color: black ;" class="text--darken-4 ma-n1"> {{ message.text }}
                     </v-row>
                   </div>
                 </v-card-text>
@@ -85,20 +77,35 @@
                   class="ma-1"
                   color="primary"
                   size="40"
-              >L
+              >
+                <v-img :src="usersAvatarUrl" ></v-img>
               </v-avatar>
 
             </div>
 
-          </div>
+          </v-scroll-x-reverse-transition>
 
 
           <!--              Type Message-->
 
           <v-divider></v-divider>
+          <VEmojiPicker emojis-by-row="10"  v-if="!marker" @select="selectEmoji" />
           <div class="d-flex ">
-            <v-text-field v-model="currentMessage" outlined class="ma-2"></v-text-field>
-            <v-btn class="ma-4" @click="sendMsgToFriend(currentMessage);" dark> send</v-btn>
+
+            <v-text-field
+                outlined
+                v-model="currentMessage"
+                :append-icon="marker ? 'mdi-map-marker' : 'mdi-map-marker-off'"
+                :append-outer-icon="message ? 'mdi-send' : 'mdi-microphone'"
+                filled
+                clear-icon="mdi-close-circle"
+                clearable
+                label="Message"
+                type="text"
+                @click:append="toggleMarker"
+                @click:append-outer="sendMsgToFriend(currentMessage)"
+            ></v-text-field>
+
           </div>
 
         </v-card>
@@ -116,6 +123,8 @@
 import {collection, doc, getDoc, getDocs, setDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase.js";
 import "firebase/storage";
+import { VEmojiPicker } from 'v-emoji-picker';
+import {icon} from "@fortawesome/fontawesome-svg-core";
 
 
 export default {
@@ -125,12 +134,40 @@ export default {
 
       // fetch msg history
       messageHistory: "",
+      // fetch chats avatars
+      usersAvatarUrl: "",
+      friendsAvatarUrl: "",
+
+      password: 'Password',
+      show: false,
+      message: 'Hey!',
+      marker: true,
+      iconIndex: 0,
+      icons: [
+        'mdi-emoticon',
+        'mdi-emoticon-cool',
+        'mdi-emoticon-dead',
+        'mdi-emoticon-excited',
+        'mdi-emoticon-happy',
+        'mdi-emoticon-neutral',
+        'mdi-emoticon-sad',
+        'mdi-emoticon-tongue',
+      ],
+
+
 
     };
   },
   props: {
     user: "",
     friend: "",
+  },
+  components: {
+    VEmojiPicker
+  },
+
+  updated() {
+    this.fetchMessageHistory()
   },
 
   mounted() {
@@ -144,14 +181,19 @@ export default {
     //Fetch history of messages data
     this.fetchMessageHistory()
 
+    //Fetch Chats Avatars
+    this.fetchChatsAvatars()
+
 
   },
+
   methods: {
+    icon,
 
     async checkIfFriendExists() {
       const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.friend));
       if (querySnapshot.empty) {
-        alert("error cant find user");
+        console.log("error cant find user");
         await this.$router.push("/");  // TODO: Make error handler better
       } else
         console.log("exsists!");
@@ -160,7 +202,7 @@ export default {
     async checkIfMessagesDatabaseExists() {
       const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.friend, "Friends", this.user));
       if (querySnapshot.empty) {
-        alert("user does not have history" + querySnapshot.empty);
+        console.log("user does not have history" + querySnapshot.empty);
         await this.createMessageDatabase()
         //await this.$router.push("/");  // TODO: Make error handler better
       } else {
@@ -188,6 +230,7 @@ export default {
     },
 
     async sendMsgToFriend(message) {
+      this.clearCurrentMessage();
 
       let document = doc(
           db,
@@ -241,8 +284,38 @@ export default {
       }).then("Saved locally");
     },
 
+    async fetchChatsAvatars() {
+
+      let querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.user, "Information", "Profile"));
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        this.usersAvatarUrl = doc.data()["ProfileBackgroundPicture"];
+      });
+
+      querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.friend, "Information", "Profile"));
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        this.friendsAvatarUrl = doc.data()["ProfileBackgroundPicture"];
+      });
+    },
+
+    toggleMarker () {
+      this.marker = !this.marker
+    },
+
+    clearCurrentMessage () {
+      this.currentMessage = ''
+    },
+    resetIcon () {
+      this.iconIndex = 0
+    },
+    selectEmoji(emoji) {
+      this.currentMessage += emoji["data"];
+      console.log(emoji["data"]);
+    }
 
   },
+
 
 }
 </script>
@@ -250,7 +323,7 @@ export default {
 
 
 .messageBox {
-  background-color: #e195a5;
+  background-color: #ffcccf;
   color: white;
 
 }

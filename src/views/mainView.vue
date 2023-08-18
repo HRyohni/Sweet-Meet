@@ -47,15 +47,12 @@
         <v-col v-if="extend">
           <v-fab-transition>
 
+            <MessageSystemComponent
+                user="duhan"
+                friend="yohni"
+            ></MessageSystemComponent>
 
-          <v-btn
-              class="d-flex"
-              v-for="index in 10"
-              :key="index"
-              style="width: 100%; height: 5%"
-          >
-          </v-btn>
-          <h1>MESSAAGES HERE</h1>
+
           </v-fab-transition>
         </v-col>
         <v-col :cols="drag">
@@ -125,6 +122,7 @@ import "firebase/storage";
 import {onAuthStateChanged} from "../../firebase";
 import NewComtestponent from "@/views/NewComtestponent.vue";
 import {getAuth} from "firebase/auth";
+import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
 
 export default {
   data() {
@@ -148,6 +146,7 @@ export default {
 
 
   components: {
+    MessageSystemComponent,
     NewComtestponent,
     //components
     SweetCard,

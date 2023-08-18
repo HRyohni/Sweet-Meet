@@ -22,6 +22,7 @@
     "react-chat-engine-pretty": "^0.1.8",
     "react-to-vue": "^1.0.11",
     "spotify-web-api-js": "^1.5.2",
+    "v-emoji-picker": "^2.3.3",
     "veaury": "^2.3.12",
     "vue": "^2.6.14",
     "vue-beautiful-chat": "^2.3.1",
