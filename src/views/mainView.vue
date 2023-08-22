@@ -1,115 +1,95 @@
 <template>
-  <div class="mainbar mt-10">
-    <v-container class="bg-surface-variant">
-      <v-row no-gutters class="justify-center">
-        <v-col class="d-block" cols="1">
-          <v-avatar size="30">
-            <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
-          </v-avatar>
-          <p class="d-inline ma-2">{{ displayName }}</p>
-          <font-awesome-icon icon="fa-regular fa-bell" class="d-block mt-4"/>
-          <font-awesome-icon icon="fa-regular fa-heart" class="d-block mt-4"/>
-          <font-awesome-icon
-              icon="fa-regular fa-comment"
-              class="d-block mt-4"
-          />
 
-          <v-icon large color="blue darken-2" class="d-block mt-4">
-            mdi-message-text
-          </v-icon>
+  <div class="d-flex">
+    <v-row>
+      <v-col cols="4">
+        <v-row  class="mt-10">
+          <v-col cols="2" style="width: fit-content">
+            <div class=" ml-2 mt-2">
+              <v-avatar size="50">
+                <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
+              </v-avatar>
+              <p class="d-inline ma-2">{{ displayName }}</p>
+              <div>
+                <v-btn class="d-block  mt-2" icon elevation="2" fab color="red">
+                  <v-icon>{{ notificationIcon }}</v-icon>
+                </v-btn>
 
-          <v-btn class="mt-3" @click="addData" dark elevation="12">Test</v-btn>
-        </v-col>
+                <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+                  <v-icon>{{ messageIcon }}</v-icon>
+                </v-btn>
 
-        <v-col class="d-block justify-center ml-2 mr-2" cols="1">
-          <h2 class="d-inline">messages</h2>
-          <div v-for="n in 5" :key="n" class="mt-5">
-            <v-btn class="justify-left" @click="friend">
-              <v-badge
-                  bordered
-                  bottom
-                  color="deep-purple green"
-                  large
-                  dot
-                  offset-x="10"
-                  offset-y="10"
-              >
-                <v-avatar size="40">
-                  <v-img
-                      src="https://cdn.vuetifyjs.com/images/lists/2.jpg"
-                  ></v-img>
-                </v-avatar>
-              </v-badge>
-            </v-btn>
-          </div>
-        </v-col>
+                <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+                  <v-icon>{{ plusIcon }}</v-icon>
+                </v-btn>
 
-        <v-col v-if="extend">
-          <v-fab-transition>
+                <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+                  <v-icon>{{ logoutIcon }}</v-icon>
+                </v-btn>
+              </div>
+            </div>
+          </v-col>
 
+
+          <v-col class="mt-10">
             <MessageSystemComponent
-                user="duhan"
-                friend="yohni"
+                friend="duhan"
+                :user="displayName"
             ></MessageSystemComponent>
+          </v-col>
+        </v-row>
+      </v-col>
 
 
-          </v-fab-transition>
-        </v-col>
-        <v-col :cols="drag">
-          <h1>Stories</h1>
-          <div class="stories d-inline">
-            <v-row>
-              <v-col
-                  class="justify-left d-flex mt-4 pa-0"
-                  v-for="n in 4"
-                  :key="n"
-              >
-                <div class="d-inline">
-                  <v-avatar color="green" size="3vw" class="ma-1">
+      <v-col>
+        <div class="d-flex flex-column">
+          <v-card style="width: fit-content" class="  d-flex ">
+            <div class="ma-2"
+                 v-for="n in 5"
+                 :key="n">
+              <v-avatar color="green" size="3vw" class="ma-1"></v-avatar>
+              <p class="">Leo m</p>
+            </div>
+          </v-card>
 
-                  </v-avatar>
+          <v-row class="ma-5  justify-lg-space-around">
+            <v-col cols="5" class="overflow-y-auto">
+              <div class=" d-inline">
+                <v-card
+                    max-height="50%"
+                    v-scroll.self="onScroll"
+                    class="overflow-y-auto "
 
-                  <p class="d-flex justify-center">Leo m</p>
-                </div>
-              </v-col>
-            </v-row>
-            <h1>Posts</h1>
-            <v-btn dark elevation-10 @click="DragPosts">test</v-btn>
+                >
+                  <sweet-card
+                      v-for="(data, index) in AllPostsIdNames"
+                      :key="index"
+                      :post-i-d="data"
+                      user-name="yohni"
+                      :is-swipe-locked="true"
+                      :is-dating-sweet-card="false"
+                  ></sweet-card>
+                </v-card>
+              </div>
+            </v-col>
 
-            <v-card
-                v-scroll.self="onScroll"
-                class="overflow-y-auto pa-4"
-                :max-height="widnowHeight"
-            >
-              <span v-scroll.self="onScroll"></span>
-
+            <v-col class="justify-end" cols="5" style="text-align: center">
               <sweet-card
                   v-for="(data, index) in AllPostsIdNames"
                   :key="index"
                   :post-i-d="data"
                   user-name="yohni"
-                  :is-swipe-locked="true"
-                  :is-dating-sweet-card="false"
+                  :is-swipe-locked="false"
+                  :is-dating-sweet-card="true"
               ></sweet-card>
-
-            </v-card>
-          </div>
-        </v-col>
-        <v-col style="text-align: center" cols="3">
-          <h1>Feed</h1>
-          <sweet-card
-              v-for="(data, index) in AllPostsIdNames"
-              :key="index"
-              :post-i-d="data"
-              user-name="yohni"
-              :is-swipe-locked="false"
-              :is-dating-sweet-card="true"
-          ></sweet-card>
-
-        </v-col>
-      </v-row>
-    </v-container>
+            </v-col>
+          </v-row>
+        </div>
+      </v-col>
+    </v-row>
   </div>
+
+
 </template>
 
 <script>
@@ -123,6 +103,7 @@ import {onAuthStateChanged} from "../../firebase";
 import NewComtestponent from "@/views/NewComtestponent.vue";
 import {getAuth} from "firebase/auth";
 import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
+import {mdiBell, mdiMessage, mdiPlus, mdiLogout} from '@mdi/js'
 
 export default {
   data() {
@@ -132,6 +113,10 @@ export default {
       userLoginStatus: false,
       userInfo: null,
       userEmail: null,
+      notificationIcon: mdiBell,
+      messageIcon: mdiMessage,
+      plusIcon: mdiPlus,
+      logoutIcon: mdiLogout,
 
       drag: 4,
       extend: false,
@@ -153,7 +138,7 @@ export default {
   },
   mounted() {
     // get data
-     this.getPostIDs()
+    this.getPostIDs()
 
     console.log(auth);
     //debugger;
@@ -223,16 +208,7 @@ export default {
       }
 
     },
-    async addData() {
-      await setDoc(
-          doc(db, "Users", "UserNames", auth.currentUser.displayName, "testing"),
-          {
-            name: "Los Angeles",
-            state: "CA",
-            country: "USA",
-          }
-      );
-    },
+
     friend() {
       if (this.extend === false) this.extend = true;
       else this.extend = false;
@@ -249,4 +225,8 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+
+</style>
 

@@ -1,6 +1,6 @@
 <template>
 
-  <v-container>
+  <v-container >
     <Vue2InteractDraggable
         style="background-color: #ff7b92"
         @draggedRight="draggedRight"
@@ -42,8 +42,8 @@
       <v-scroll-y-transition style="background-color: aqua;">
 
 
-        <v-img max-height="1000" width="100%" :src="randomImageUrl(debugMod)">
-          <div  v-if="!this.isDatingSweetCard" class="bottomText" style="top: 0;">
+        <v-img  :src="randomImageUrl(debugMod)">
+          <div v-if="!this.isDatingSweetCard" class="bottomText" style="top: 0;">
             <v-container class="bg-surface-variant">
               <v-row no-gutters>
                 <v-col style="text-align: left;">
@@ -54,7 +54,7 @@
                   <p style="text-align: center;" class="d-inline pa-2"> {{ userName }} </p>
                 </v-col>
 
-                <v-col   class="d-inline pa-2" style="text-align: center;">
+                <v-col class="d-inline pa-2" style="text-align: center;">
                   <p class="d-inline">likes: {{ this.numberOfLikesOnPost }} </p>
 
                   <p class="d-inline">comments: {{ numberOfCommentsOnPost }} </p>
@@ -72,25 +72,25 @@
             <!--    COMMENTS SYSTEM-->
             <v-expand-transition>
 
-              <div class="pa-5" v-if="isCommentWindowOpen"
+              <div class="pa-5 overflow-y-auto" v-if="isCommentWindowOpen"
                    style=" font-size: 50px; background-color: #d8dae7; color: black; height: 100%">
 
-                <!--TODO: Optimize items flickering while scrolling-->
-                <v-virtual-scroll
-                    height="50%"
-                    :items="this.exsistingCommentsOnPost[0]"
-                    item-height="100"
-                >
+                <div>
+                  <div class="d-flex justify-center "   v-if="this.exsistingCommentsOnPost[0] == null">
+                    <h5 style="text-align: center">Be first to leave a comment</h5>
+                  </div>
                   <div class="d-flex mt-2"
+
                        v-for="(data, index) in this.exsistingCommentsOnPost[0]"
-                       :key="index"
-                  >
+                       :key="index">
+
                     <v-avatar class="">
                       <v-img :src="data.UserProfilePicture"></v-img>
                     </v-avatar>
                     <v-col class="ml-2" style="font-size: 1vw">
 
                       <v-row>{{ data.UserName }}</v-row>
+
                       <v-row>{{ data.Comment }}</v-row>
                       <v-row>
                         <v-divider></v-divider>
@@ -98,20 +98,17 @@
 
                     </v-col>
                   </div>
-
-                </v-virtual-scroll>
-
-
-                <div style=" width: 100%" class=" d-inline">
-                  <v-row>
-                    <v-col>
-                      <v-text-field v-model="newComment" class="d-inline justify-end"
-                                    hint="Leave a comment"></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-btn dark @click=" addNewComment()">send</v-btn>
-                    </v-col>
-                  </v-row>
+                  <div style=" width: 100%" class="mb-12 ">
+                    <v-row>
+                      <v-col >
+                        <v-text-field v-model="newComment" class="d-inline justify-end"
+                                      hint="Leave a comment"></v-text-field>
+                      </v-col>
+                      <v-col cols="2">
+                        <v-btn dark @click="addNewComment()">send</v-btn>
+                      </v-col>
+                    </v-row>
+                  </div>
                 </div>
 
 
@@ -283,6 +280,8 @@ export default {
       } else {
         console.log("Write something before sending.");
       }
+      // Clear input
+      this.newComment = '';
     },
 
 
@@ -328,15 +327,14 @@ export default {
         }
         return docSnap.data()["LikedPost"];
       } else {
-        console.log("error");
+        console.log("liked post does not exsist");
         return null;
 
       }
     },
 
-     async getUserProfilePicture(user)
-    {
-      const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile","Data");
+    async getUserProfilePicture(user) {
+      const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data");
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {

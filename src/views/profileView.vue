@@ -15,7 +15,9 @@
           :second-name="this.secondName"
           :background-image="this.profileBackgroundPicture"
           :profile-picture="this.profilePicture"
+          :followers-count="this.followersCount"
       />
+
 
 
 
@@ -141,6 +143,7 @@ export default {
     interests: null,
     music: null,
     movies: null,
+    followersCount: 0,
 
     // Overly
     overlay: false,
@@ -236,6 +239,7 @@ export default {
             this.profileDescription = doc.data()["ProfileDescription"];
             this.profilePicture = doc.data()["ProfilePictureUrl"];
             this.profileBackgroundPicture = doc.data()["ProfileBackgroundPicture"];
+            this.followersCount = doc.data()["Followers"];
             this.getPostIDs().then(r =>this.userExists = true);
 
           });

@@ -240,7 +240,7 @@
 
 import {auth, db, getDoc, storage} from "../../firebase.js";
 import {getDownloadURL, ref, uploadBytes} from "firebase/storage";
-import {doc, updateDoc} from "firebase/firestore";
+import {collection, doc, getDocs, setDoc, updateDoc} from "firebase/firestore";
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
 import PhoneNumber from "@/components/PhoneNumber.vue";
 import 'vue-phone-number-input/dist/vue-phone-number-input.css';
@@ -817,6 +817,13 @@ export default {
       };
 
       await updateDoc(reff, InformationData);
+
+      // Add follow system database
+      await setDoc(doc(db, "Users", "UserNames", this.displayName, "Information", "Followers", "Following"), {
+        Following: [],
+        Followers: [],
+      }).then(console.log("done!"));
+
       await this.$router.push("/");
     },
 

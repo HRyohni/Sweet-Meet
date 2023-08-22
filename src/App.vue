@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <div class="topbar pa-2" style="position: absolute; width: 100%" >
-      <v-row >
+    <div class="topbar pa-2" style="position: absolute; width: 100%">
+      <v-row>
         <v-col>
           <h4>sweet meet</h4>
         </v-col>
@@ -22,7 +22,6 @@
           <v-btn
               v-if="!userLoginStatus"
               color="dark"
-
               outlined
               @click="RegisterPage()"
           <v-btn
@@ -48,15 +47,14 @@
               outlined
               @click="RegisterPage()"
           >Sign in
-          </v-btn
-          >
+          </v-btn>
+          <v-btn @click="goToProfileBtn()">profile</v-btn>
         </v-col>
       </v-row>
     </div>
 
     <router-view></router-view>
 
-    <div class="bottom"></div>
   </v-app>
 </template>
 
@@ -144,6 +142,10 @@ export default {
         // docSnap.data() will be undefined in this case
         console.log("DisplayName Error");
       }
+    },
+
+    goToProfileBtn() {
+      this.$router.push("profile/" + auth.currentUser.displayName);
     },
   },
 };

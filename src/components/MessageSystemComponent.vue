@@ -1,23 +1,14 @@
 <template>
   <v-container>
-
-
-    <v-row>
-
-      <v-col class="">
-        <v-card
-
-            max-height="auto" outlined class=" messageBox pa-5 ma-3 overflow-y-auto">
-
+        <v-card max-height="25%" outlined class="messageBox pa-3 overflow-y-auto">
           <div class="d-flex ">
             <v-avatar
                 class="ma-1"
                 color="primary"
                 size="40"
             >
-              <v-img :src="friendsAvatarUrl" ></v-img>
+              <v-img :src="friendsAvatarUrl"></v-img>
             </v-avatar>
-
             <h1>{{ this.friend }}</h1>
           </div>
 
@@ -35,7 +26,7 @@
                   color="primary"
                   size="40"
               >
-                <v-img :src="friendsAvatarUrl" ></v-img>
+                <v-img :src="friendsAvatarUrl"></v-img>
               </v-avatar>
 
               <div class="d-flex ">
@@ -44,15 +35,11 @@
 
                     <div class=" ">
                       <v-row style="color: black" class="text--darken-4  ma-n1">
-                        {{message.text}}
+                        {{ message.text }}
                       </v-row>
                     </div>
                   </v-card-text>
-
-
                 </v-card>
-
-
               </div>
             </div>
 
@@ -62,7 +49,8 @@
 
                 v-if="message.sender !== friend "
                 class="d-flex justify-end">
-              <v-card style="width: fit-content; height: fit-content" elevation="3" class=" ma-3 pa-0 d-flex justify-end">
+              <v-card style="width: fit-content; height: fit-content" elevation="3"
+                      class=" ma-3 pa-0 d-flex justify-end">
                 <v-card-text style=" height: fit-content">
 
                   <div class=" ">
@@ -71,14 +59,13 @@
                   </div>
                 </v-card-text>
 
-
               </v-card>
               <v-avatar
                   class="ma-1"
                   color="primary"
                   size="40"
               >
-                <v-img :src="usersAvatarUrl" ></v-img>
+                <v-img :src="usersAvatarUrl"></v-img>
               </v-avatar>
 
             </div>
@@ -89,13 +76,13 @@
           <!--              Type Message-->
 
           <v-divider></v-divider>
-          <VEmojiPicker emojis-by-row="10"  v-if="!marker" @select="selectEmoji" />
+          <VEmojiPicker emojis-by-row="10" v-if="!marker" @select="selectEmoji"/>
           <div class="d-flex ">
 
             <v-text-field
                 outlined
                 v-model="currentMessage"
-                :append-icon="marker ? 'mdi-map-marker' : 'mdi-map-marker-off'"
+                :append-icon="marker ? emoticon : emoticon"
                 :append-outer-icon="message ? 'mdi-send' : 'mdi-microphone'"
                 filled
                 clear-icon="mdi-close-circle"
@@ -110,11 +97,6 @@
 
         </v-card>
 
-
-      </v-col>
-
-    </v-row>
-
   </v-container>
 </template>
 
@@ -123,10 +105,11 @@
 import {collection, doc, getDoc, getDocs, setDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase.js";
 import "firebase/storage";
-import { VEmojiPicker } from 'v-emoji-picker';
+import {VEmojiPicker} from 'v-emoji-picker';
 import {icon} from "@fortawesome/fontawesome-svg-core";
 
-
+import {mdiEmoticon} from '@mdi/js'
+import marker from "vue2-google-maps/dist/components/marker";
 export default {
   data() {
     return {
@@ -153,7 +136,7 @@ export default {
         'mdi-emoticon-sad',
         'mdi-emoticon-tongue',
       ],
-
+      emoticon: mdiEmoticon,
 
 
     };
@@ -230,7 +213,11 @@ export default {
     },
 
     async sendMsgToFriend(message) {
+      // Clears message input after sending message
       this.clearCurrentMessage();
+      // close emoji menu after sending message
+      if (!this.marker)
+      this.toggleMarker();
 
       let document = doc(
           db,
@@ -258,7 +245,7 @@ export default {
       await updateDoc(document, {messages: existingMessages});
 
       // Update friends history
-       document = doc(
+      document = doc(
           db,
           "Users",
           "UserNames",
@@ -299,14 +286,14 @@ export default {
       });
     },
 
-    toggleMarker () {
+    toggleMarker() {
       this.marker = !this.marker
     },
 
-    clearCurrentMessage () {
+    clearCurrentMessage() {
       this.currentMessage = ''
     },
-    resetIcon () {
+    resetIcon() {
       this.iconIndex = 0
     },
     selectEmoji(emoji) {
