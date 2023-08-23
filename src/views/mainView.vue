@@ -11,9 +11,7 @@
               </v-avatar>
               <p class="d-inline ma-2">{{ displayName }}</p>
               <div>
-                <v-btn class="d-block  mt-2" icon elevation="2" fab color="red">
-                  <v-icon>{{ notificationIcon }}</v-icon>
-                </v-btn>
+                <NotificationMenuComponent></NotificationMenuComponent>
 
                 <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
                   <v-icon>{{ messageIcon }}</v-icon>
@@ -26,17 +24,14 @@
                 <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
                   <v-icon>{{ logoutIcon }}</v-icon>
                 </v-btn>
+
+
               </div>
             </div>
           </v-col>
 
 
-          <v-col class="mt-10">
-            <MessageSystemComponent
-                friend="duhan"
-                :user="displayName"
-            ></MessageSystemComponent>
-          </v-col>
+
         </v-row>
       </v-col>
 
@@ -104,6 +99,7 @@ import NewComtestponent from "@/views/NewComtestponent.vue";
 import {getAuth} from "firebase/auth";
 import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
 import {mdiBell, mdiMessage, mdiPlus, mdiLogout} from '@mdi/js'
+import NotificationMenuComponent from "@/components/NotificationMenuComponent.vue";
 
 export default {
   data() {
@@ -131,6 +127,7 @@ export default {
 
 
   components: {
+    NotificationMenuComponent,
     MessageSystemComponent,
     NewComtestponent,
     //components

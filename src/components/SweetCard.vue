@@ -1,6 +1,6 @@
 <template>
 
-  <v-container >
+  <v-container>
     <Vue2InteractDraggable
         style="background-color: #ff7b92"
         @draggedRight="draggedRight"
@@ -42,7 +42,7 @@
       <v-scroll-y-transition style="background-color: aqua;">
 
 
-        <v-img  :src="randomImageUrl(debugMod)">
+        <v-img :src="randomImageUrl(debugMod)">
           <div v-if="!this.isDatingSweetCard" class="bottomText" style="top: 0;">
             <v-container class="bg-surface-variant">
               <v-row no-gutters>
@@ -76,7 +76,7 @@
                    style=" font-size: 50px; background-color: #d8dae7; color: black; height: 100%">
 
                 <div>
-                  <div class="d-flex justify-center "   v-if="this.exsistingCommentsOnPost[0] == null">
+                  <div class="d-flex justify-center " v-if="this.exsistingCommentsOnPost[0] == null">
                     <h5 style="text-align: center">Be first to leave a comment</h5>
                   </div>
                   <div class="d-flex mt-2"
@@ -100,7 +100,7 @@
                   </div>
                   <div style=" width: 100%" class="mb-12 ">
                     <v-row>
-                      <v-col >
+                      <v-col>
                         <v-text-field v-model="newComment" class="d-inline justify-end"
                                       hint="Leave a comment"></v-text-field>
                       </v-col>
@@ -212,13 +212,18 @@ export default {
           LikedPost: true,
         });
 
+
         const InformationData = {NumberOfLikesOnPost: this.numberOfLikesOnPost + 1};
         await updateDoc(reff, InformationData);
         this.numberOfLikesOnPost += 1;
 
         // change btn color
         this.isLikedPost = "red";
+        // Send Notification
+        await this.sendNewNotificationToUser({ username: auth.currentUser.displayName, comment: auth.currentUser.displayName+ " liked your post!" });
+
       } else {
+
         await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Posts", "LikedPosts", this.postID), {
           LikedPost: false,
         });
@@ -229,6 +234,7 @@ export default {
 
         // change btn color
         this.isLikedPost = "blue";
+
       }
 
 
@@ -282,6 +288,8 @@ export default {
       }
       // Clear input
       this.newComment = '';
+      // Send Notification
+      await this.sendNewNotificationToUser({ username: auth.currentUser.displayName, comment: auth.currentUser.displayName+ " commented your post!" });
     },
 
 
@@ -346,9 +354,47 @@ export default {
       }
 
     },
+    async sendNewNotificationToUser(notificationMessage) {
+      try {
+        let notificationList = [];
+        let reff = doc(
+            db,
+            "Users",
+            "UserNames",
+            this.userName,
+            "Notification"
+        );
 
+        // Fetch data
+        const docSnap = await getDoc(reff);
+
+        if (docSnap.exists()) {
+          // Ensure Notifications field exists in docSnap data
+          if (docSnap.data() && docSnap.data().Notifications) {
+            // Get existing notifications
+            notificationList = docSnap.data().Notifications;
+            notificationList.push(notificationMessage);
+          } else {
+            console.log("No existing notifications field found.");
+          }
+        } else {
+          console.log("No New Notifications");
+        }
+
+        let informationData = {
+          Notifications: notificationList,
+        };
+
+        await updateDoc(reff, informationData);
+      } catch (error) {
+        console.error("Error sending new notification:", error);
+      }
+    },
   },
-  async mounted() {
+
+
+
+    async mounted() {
     await this.getPostData();
     await this.getComments();
     await this.isPostAlreadyLiked()

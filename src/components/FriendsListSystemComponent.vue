@@ -1,101 +1,101 @@
 <template>
   <v-container>
-        <v-card  outlined class="messageBox pa-3 overflow-y-auto">
+    <v-card  outlined class="messageBox pa-3 overflow-y-auto">
+      <div class="d-flex ">
+        <v-avatar
+            class="ma-1"
+            color="primary"
+            size="40"
+        >
+          <v-img :src="friendsAvatarUrl"></v-img>
+        </v-avatar>
+        <h1>{{ this.friend }}</h1>
+      </div>
+
+      <v-scroll-x-reverse-transition
+          v-for="(message, index) in this.messageHistory"
+          :key="index">
+        <!--              FRIEND SEND A MESSAGE-->
+        <div
+
+            v-if="message.sender === friend "
+
+            class="d-flex">
+          <v-avatar
+              class="ma-1"
+              color="primary"
+              size="40"
+          >
+            <v-img :src="friendsAvatarUrl"></v-img>
+          </v-avatar>
+
           <div class="d-flex ">
-            <v-avatar
-                class="ma-1"
-                color="primary"
-                size="40"
-            >
-              <v-img :src="friendsAvatarUrl"></v-img>
-            </v-avatar>
-            <h1>{{ this.friend }}</h1>
+            <v-card style="width: fit-content" elevation="3" class=" ma-1 d-flex ">
+              <v-card-text style="">
+
+                <div class=" ">
+                  <v-row style="color: black" class="text--darken-4  ma-n1">
+                    {{ message.text }}
+                  </v-row>
+                </div>
+              </v-card-text>
+            </v-card>
           </div>
+        </div>
 
-          <v-scroll-x-reverse-transition
-              v-for="(message, index) in this.messageHistory"
-              :key="index">
-            <!--              FRIEND SEND A MESSAGE-->
-            <div
 
-                v-if="message.sender === friend "
+        <!--              USER SEND A MESSAGE-->
+        <div
 
-                class="d-flex">
-              <v-avatar
-                  class="ma-1"
-                  color="primary"
-                  size="40"
-              >
-                <v-img :src="friendsAvatarUrl"></v-img>
-              </v-avatar>
+            v-if="message.sender !== friend "
+            class="d-flex justify-end">
+          <v-card style="width: fit-content; height: fit-content" elevation="3"
+                  class=" ma-3 pa-0 d-flex justify-end">
+            <v-card-text style=" height: fit-content">
 
-              <div class="d-flex ">
-                <v-card style="width: fit-content" elevation="3" class=" ma-1 d-flex ">
-                  <v-card-text style="">
-
-                    <div class=" ">
-                      <v-row style="color: black" class="text--darken-4  ma-n1">
-                        {{ message.text }}
-                      </v-row>
-                    </div>
-                  </v-card-text>
-                </v-card>
+              <div class=" ">
+                <v-row style="color: black ;" class="text--darken-4 ma-n1"> {{ message.text }}
+                </v-row>
               </div>
-            </div>
+            </v-card-text>
+
+          </v-card>
+          <v-avatar
+              class="ma-1"
+              color="primary"
+              size="40"
+          >
+            <v-img :src="usersAvatarUrl"></v-img>
+          </v-avatar>
+
+        </div>
+
+      </v-scroll-x-reverse-transition>
 
 
-            <!--              USER SEND A MESSAGE-->
-            <div
+      <!--              Type Message-->
 
-                v-if="message.sender !== friend "
-                class="d-flex justify-end">
-              <v-card style="width: fit-content; height: fit-content" elevation="3"
-                      class=" ma-3 pa-0 d-flex justify-end">
-                <v-card-text style=" height: fit-content">
+      <v-divider></v-divider>
+      <VEmojiPicker emojis-by-row="10" v-if="!marker" @select="selectEmoji"/>
+      <div class="d-flex ">
 
-                  <div class=" ">
-                    <v-row style="color: black ;" class="text--darken-4 ma-n1"> {{ message.text }}
-                    </v-row>
-                  </div>
-                </v-card-text>
+        <v-text-field
+            outlined
+            v-model="currentMessage"
+            :append-icon="marker ? emoticon : emoticon"
+            :append-outer-icon="message ? 'mdi-send' : 'mdi-microphone'"
+            filled
+            clear-icon="mdi-close-circle"
+            clearable
+            label="Message"
+            type="text"
+            @click:append="toggleMarker"
+            @click:append-outer="sendMsgToFriend(currentMessage)"
+        ></v-text-field>
 
-              </v-card>
-              <v-avatar
-                  class="ma-1"
-                  color="primary"
-                  size="40"
-              >
-                <v-img :src="usersAvatarUrl"></v-img>
-              </v-avatar>
+      </div>
 
-            </div>
-
-          </v-scroll-x-reverse-transition>
-
-
-          <!--              Type Message-->
-
-          <v-divider></v-divider>
-          <VEmojiPicker emojis-by-row="10" v-if="!marker" @select="selectEmoji"/>
-          <div class="d-flex ">
-
-            <v-text-field
-                outlined
-                v-model="currentMessage"
-                :append-icon="marker ? emoticon : emoticon"
-                :append-outer-icon="message ? 'mdi-send' : 'mdi-microphone'"
-                filled
-                clear-icon="mdi-close-circle"
-                clearable
-                label="Message"
-                type="text"
-                @click:append="toggleMarker"
-                @click:append-outer="sendMsgToFriend(currentMessage)"
-            ></v-text-field>
-
-          </div>
-
-        </v-card>
+    </v-card>
 
   </v-container>
 </template>
@@ -217,7 +217,7 @@ export default {
       this.clearCurrentMessage();
       // close emoji menu after sending message
       if (!this.marker)
-      this.toggleMarker();
+        this.toggleMarker();
 
       let document = doc(
           db,

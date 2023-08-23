@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-            // View Imports
+// View Imports
 import profile from '../views/profileView.vue'
 import mainView from "../views/mainView.vue";
 import login from '../views/LoginView.vue';
@@ -8,6 +8,7 @@ import register from '../views/RegisterView.vue';
 import info from '../views/infoView.vue';
 import landingPage from '../views/landingPageView.vue'
 import addPostView from "@/views/AddPostView.vue";
+import messageingView from "@/views/MessageingView.vue";
 
 
 Vue.use(VueRouter)
@@ -22,6 +23,12 @@ const routes = [
         path: '/',
         name: 'landingPage',
         component: landingPage
+    },
+
+    {
+        path: '/messages',
+        name: 'messages',
+        component: messageingView
     },
 
     {

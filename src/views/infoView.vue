@@ -824,6 +824,11 @@ export default {
         Followers: [],
       }).then(console.log("done!"));
 
+      // Add Notification system to database
+      await setDoc(doc(db, "Users", "UserNames", this.displayName, "Notification"), {
+        Notifications: [],
+      }).then(console.log("done!"));
+
       await this.$router.push("/");
     },
 
