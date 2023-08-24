@@ -13,7 +13,7 @@
               <div>
                 <NotificationMenuComponent></NotificationMenuComponent>
 
-                <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+                <v-btn @click="openMessageView" class="d-block mt-2" icon elevation="2" fab color="red">
                   <v-icon>{{ messageIcon }}</v-icon>
                 </v-btn>
 
@@ -218,6 +218,10 @@ export default {
 
     onScroll() {
       this.scrollInvoked++;
+    },
+    openMessageView() {
+
+      this.$router.push("messages")
     },
   },
 };

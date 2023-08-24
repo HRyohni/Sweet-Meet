@@ -19,8 +19,6 @@
       />
 
 
-
-
       <div v-if="" class="text-center">
 
 
@@ -80,7 +78,6 @@
             :is-swipe-locked="true"
         ></sweet-card>
       </v-col>
-
 
 
       <!--                                      Settings and other stuf-->
@@ -170,26 +167,23 @@ export default {
       }, 1000)
     },
   },
-  async created() {
+  async mounted() {
     this.setUserUrlName();
     await onAuthStateChanged(auth, (user) => {
       if (user) {
         this.userEmail = auth.currentUser.email;
-        this.checkUserExists();
         this.checkLoginStatus();
         this.setUserEditProfileIfAdmin();
-        this.getUserData();
-        this.overlay = false; // TODO: should be True
+
+        this.overlay = true; // TODO: should be True
       }
     });
+    await this.getUserData();
+
+
   },
-
-
   methods:
       {
-        async checkUserExists() {
-        },
-
         async checkLoginStatus() {
           await onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -217,20 +211,6 @@ export default {
             return "error";
           }
 
-          const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.userUrlName));
-          querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            this.firstName = doc.data()["FirstName"];
-            this.secondName = doc.data()["SecondName"];
-            this.interests = doc.data()["FavInterestType"];
-            this.movies = doc.data()["FavMovieType"];
-            this.music = doc.data()["FavMusicType"];
-            this.country = doc.data()["Country"];
-            this.sexualOrientation = doc.data()["UserAttractedToGender"];
-            this.age = doc.data()["age"];
-            this.gender = doc.data()["UserGender"];
-          });
-
 
           const querySnapshot2 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Information", "Profile"));
           querySnapshot2.forEach((doc) => {
@@ -240,12 +220,40 @@ export default {
             this.profilePicture = doc.data()["ProfilePictureUrl"];
             this.profileBackgroundPicture = doc.data()["ProfileBackgroundPicture"];
             this.followersCount = doc.data()["Followers"];
-            this.getPostIDs().then(r =>this.userExists = true);
+            this.getPostIDs().then(r => this.userExists = true);
 
           });
 
-          // to fetch post ids
 
+          //const docRef = doc(db, "Users", "UserNames", this.userUrlName);
+
+// Get a document, forcing the SDK to fetch from the offline cache.
+          const docSnap = await getDoc(doc(db, "Users", "UserNames", this.userUrlName,"Information"));
+
+          if (docSnap.exists()) {
+            this.firstName = docSnap.data()["FirstName"];
+            this.secondName = docSnap.data()["SecondName"];
+            this.interests = docSnap.data()["FavInterestType"];
+            this.movies = docSnap.data()["FavMovieType"];
+            this.music = docSnap.data()["FavMusicType"];
+            this.country = docSnap.data()["Country"];
+            this.sexualOrientation = docSnap.data()["UserAttractedToGender"];
+            this.age = docSnap.data()["age"];
+            this.gender = docSnap.data()["UserGender"];
+          } else {
+            // docSnap.data() will be undefined in this case
+            console.log("No such document!");
+          }
+
+
+          // const querySnapshot = await getDoc(collection(db, "Users", "UserNames", this.userUrlName));
+          // querySnapshot.forEach((doc) => {
+          //   // doc.data() is never undefined for query doc snapshots
+
+          // });
+
+
+          // to fetch post ids
 
 
         },

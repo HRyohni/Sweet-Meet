@@ -4,14 +4,15 @@
       <v-card elevation="5" height="100%">
         <v-card-title>Messages</v-card-title>
         <v-card
-           v-for="(user, index) in this.friendList"
-           :key="index"
+            v-for="(user, index) in this.friendList"
+            :key="index"
         >
 
           <v-list>
             <v-list-item>
               <v-list-item-avatar>
-                <v-progress-circular v-if="!user" color="error" indeterminate :size="20" :width="5"></v-progress-circular>
+                <v-progress-circular v-if="!user" color="error" indeterminate :size="20"
+                                     :width="5"></v-progress-circular>
                 <img
                     v-if="user"
                     :src="user.userAvatar"
@@ -20,9 +21,9 @@
               </v-list-item-avatar>
 
 
-              <v-list-item-content>
-                <v-list-item-title>{{ user.username }} </v-list-item-title>
-                <v-list-item-subtitle> {{ user.lastMessage.text }} </v-list-item-subtitle>
+              <v-list-item-content @click="getFriendUsername(user.username)">
+                <v-list-item-title>{{ user.username }}</v-list-item-title>
+                <v-list-item-subtitle> {{ user.lastMessage.text }}</v-list-item-subtitle>
               </v-list-item-content>
 
               <v-list-item-action>
@@ -48,8 +49,8 @@
             style="height: 800px"
             class="overflow-y-auto"
             height="max"
-            user="yohni"
-            friend="duhan"
+            :user="this.user"
+            :friend="this.friend"
         ></MessageSystemComponent>
       </v-card>
     </v-col>
@@ -62,12 +63,18 @@ import {doc, getDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 import {mdiBell} from "@mdi/js";
 import NotificationMenuComponent from "@/components/NotificationMenuComponent.vue";
+import {onAuthStateChanged} from "firebase/auth";
 
 export default {
   data() {
     return {
       friendList: [],
       userFollowing: null,
+      displayName: "",
+
+      // dm's
+      user: null,
+      friend: null,
     }
   },
 
@@ -76,12 +83,20 @@ export default {
   components: {
     NotificationMenuComponent,
     MessageSystemComponent
-
   },
   async mounted() {
-    console.log(auth.currentUser.displayName);
+    await onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("fuxck");
+
+      }
+    });
+    // fetch username
+    await this.fetchUsernames()
+    this.friend = "yohni";
     await this.fetchFriendList()
   },
+
 
   methods: {
     async fetchFriendList() {
@@ -98,11 +113,13 @@ export default {
       const userCollectionsDoc = await getDoc(userCollectionsRef);
       this.userFollowing = userCollectionsDoc.data().Following;
       for (let userFollowingKey in this.userFollowing) {
-        this.friendList.push({username: this.userFollowing[userFollowingKey], lastMessage: await this.fetchLastMessage(this.userFollowing[userFollowingKey]),userAvatar: await this.fetchProfileAvatar(this.userFollowing[userFollowingKey])})
+        this.friendList.push({
+          username: this.userFollowing[userFollowingKey],
+          lastMessage: await this.fetchLastMessage(this.userFollowing[userFollowingKey]),
+          userAvatar: await this.fetchProfileAvatar(this.userFollowing[userFollowingKey])
+        })
       }
-      for (let i = 0; i < this.friendList.length; i++) {
-        console.log(this.friendList[i].userAvatar);
-      }
+
 
     },
 
@@ -121,7 +138,6 @@ export default {
       const userCollectionsDoc = await getDoc(userCollectionsRef);
       const userData = userCollectionsDoc.data();
       const messages = userData ? userData.messages : []; // Make sure messages is an array
-        console.log(messages);
       return messages[messages.length - 1];
     },
 
@@ -141,6 +157,19 @@ export default {
       const postData = docSnap.data();
 
       return postData.ProfilePictureUrl;
+    },
+
+    getFriendUsername(username)
+    {
+      console.log(username);
+      this.friend = username;
+      return username;
+    },
+
+    async fetchUsernames()
+    {
+      await onAuthStateChanged(auth, (user) => {this.user = user.displayName;});
+
     },
 
   },

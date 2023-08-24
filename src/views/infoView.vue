@@ -640,7 +640,7 @@ export default {
 
   }),
   mounted() {
-    this.interests
+
     this.email = auth.currentUser.email;
 
   },
@@ -695,6 +695,7 @@ export default {
           storage,
           "Users/" + auth.currentUser.displayName + "/ProfilePicture/profile"
       );
+
 
       // Upload the image to Firebase Storage
       uploadBytes(storageRef, this.profileImageUrl).then((snapshot) => {
@@ -757,16 +758,6 @@ export default {
     },
 
     async addInfo() {
-      setTimeout(function () {
-        this.UploadProfileImageToStorage();
-        this.UploadProfileBackgroundImageToStorage();
-
-      }, 10000);
-      console.log("done");
-      // for music
-      //  this.musicType.forEach((el) => {
-      //    if (el.isActive) FavoriteMusicType.push(el.label);
-      // });
 
       let FavoriteMusicType = this.extractActiveElementsFromArray(this.musicType);
       let FavoriteMovieType = this.extractActiveElementsFromArray(this.movieType);
@@ -819,13 +810,13 @@ export default {
       await updateDoc(reff, InformationData);
 
       // Add follow system database
-      await setDoc(doc(db, "Users", "UserNames", this.displayName, "Information", "Followers", "Following"), {
+      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Information", "Followers", "Following"), {
         Following: [],
         Followers: [],
       }).then(console.log("done!"));
 
       // Add Notification system to database
-      await setDoc(doc(db, "Users", "UserNames", this.displayName, "Notification"), {
+      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Notification"), {
         Notifications: [],
       }).then(console.log("done!"));
 

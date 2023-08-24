@@ -14,6 +14,10 @@
         </v-btn>
 
       </template>
+      <v-btn v-if="this.notificationList" @click="clearNotifications" icon elevation="5" class="ma-3">
+        <v-icon>{{ trashcan }}</v-icon>
+      </v-btn>
+      <h3 class="pa-3" v-if="!this.notificationList">No new notifications</h3>
 
       <v-card
           v-for="(notification, index) in this.notificationList"
@@ -22,7 +26,8 @@
         <v-list>
           <v-list-item>
             <v-list-item-avatar>
-              <v-progress-circular v-if="!notification.profileAvatar" color="error" indeterminate :size="20" :width="5"></v-progress-circular>
+              <v-progress-circular v-if="!notification.profileAvatar" color="error" indeterminate :size="20"
+                                   :width="5"></v-progress-circular>
               <img
                   v-if="notification.profileAvatar"
                   :src="notification.profileAvatar"
@@ -58,8 +63,8 @@
 
 <script>
 import 'vue-phone-number-input/dist/vue-phone-number-input.css';
-import {mdiBell} from "@mdi/js";
-import {collection, doc, getDoc, getDocs} from "firebase/firestore";
+import {mdiBell, mdiTrashCan} from "@mdi/js";
+import {doc, getDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 
 export default {
@@ -69,15 +74,26 @@ export default {
   data() {
     return {
       notificationIcon: mdiBell,
+      trashcan: mdiTrashCan,
       fav: true,
       menu: false,
       message: false,
       hints: true,
       notificationList: null,
+      NumberNotification: 0,
 
     }
 
 
+  },
+  async mounted() {
+    await this.fetchNotifications();
+
+
+  },
+
+  updated() {
+    this.checkForNewNotifications();
   },
   methods:
       {
@@ -108,21 +124,60 @@ export default {
 
           const docSnap = await getDoc(reff);
           const postData = docSnap.data();
+
           this.notificationList = postData.Notifications;
+          this.NumberNotification =  this.notificationList.length;
 
           for (let notification of this.notificationList) {
-            const profileAvatar = await this.fetchNotificationsProfileAvatar(notification.username);
-            notification.profileAvatar = profileAvatar;
+            notification.profileAvatar = await this.fetchNotificationsProfileAvatar(notification.username);
+
+          }
+        },
+
+        async checkForNewNotifications() {
+          const reff = doc(
+              db,
+              "Users",
+              "UserNames",
+              auth.currentUser.displayName,
+              "Notification"
+          );
+
+          const docSnap = await getDoc(reff);
+          const postData = docSnap.data();
+          let newLength = postData.Notifications
+
+          if (newLength.length !== this.NumberNotification)
+          {
+            this.fetchNotifications();
+          }
+
+
+        },
+        clearNotifications() {
+          try {
+            let reff = doc(
+                db,
+                "Users",
+                "UserNames",
+                auth.currentUser.displayName,
+                "Notification"
+            );
+
+
+            let informationData = {
+              Notifications: null,
+            };
+
+            updateDoc(reff, informationData);
+            this.fetchNotifications();
+          } catch (error) {
+            console.error("Error deleting notification:", error);
           }
 
         },
 
       },
-
-  async mounted() {
-    await this.fetchNotifications()
-
-  }
 
 
 };
