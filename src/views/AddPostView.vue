@@ -97,6 +97,7 @@ export default {
            PostUrl: this.downloadImageUrl,
            NumberOfLikesOnPost: 0,
            NumberOfCommentsOnPost: 0,
+           PostedDate: new Date(),
           });
           console.log("Document written with ID: ", docRef.id);
         },

@@ -23,7 +23,11 @@
 
               <v-list-item-content @click="getFriendUsername(user.username)">
                 <v-list-item-title>{{ user.username }}</v-list-item-title>
-                <v-list-item-subtitle> {{ user.lastMessage.text }}</v-list-item-subtitle>
+                <v-list-item-subtitle v-if="user.lastMessage"> {{ user.lastMessage.text }}</v-list-item-subtitle>
+                <v-list-item-subtitle v-if="user.newUser"> {{ user.username }} wants to send you msg
+                </v-list-item-subtitle>
+
+                <p v-if="user.newUser"> Follow Back user</p>
               </v-list-item-content>
 
               <v-list-item-action>
@@ -59,7 +63,7 @@
 
 <script>
 import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
-import {doc, getDoc} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 import {mdiBell} from "@mdi/js";
 import NotificationMenuComponent from "@/components/NotificationMenuComponent.vue";
@@ -70,6 +74,7 @@ export default {
     return {
       friendList: [],
       userFollowing: null,
+      userFollowers: null,
       displayName: "",
 
       // dm's
@@ -84,17 +89,31 @@ export default {
     NotificationMenuComponent,
     MessageSystemComponent
   },
-  async mounted() {
-    await onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("fuxck");
+  created() {
+    // Use created hook instead of mounted
 
+    // Check authentication state using onAuthStateChanged
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is authenticated, fetch necessary data
+        this.user = user.displayName;
+        this.fetchUsernames()
+        this.friend = "yohni";
+        this.fetchFriendList();
+        this.newMessageRequest()
+      } else {
+        this.$router.push("/login");
+        // User is not authenticated, handle accordingly
+        // For example, you might want to redirect to a login page
       }
     });
+  },
+
+  async mounted() {
+
     // fetch username
-    await this.fetchUsernames()
-    this.friend = "yohni";
-    await this.fetchFriendList()
+
+
   },
 
 
@@ -112,10 +131,12 @@ export default {
 
       const userCollectionsDoc = await getDoc(userCollectionsRef);
       this.userFollowing = userCollectionsDoc.data().Following;
+
       for (let userFollowingKey in this.userFollowing) {
+        let lastMessage = await this.fetchLastMessage(this.userFollowing[userFollowingKey]);
         this.friendList.push({
           username: this.userFollowing[userFollowingKey],
-          lastMessage: await this.fetchLastMessage(this.userFollowing[userFollowingKey]),
+          lastMessage: lastMessage,
           userAvatar: await this.fetchProfileAvatar(this.userFollowing[userFollowingKey])
         })
       }
@@ -159,18 +180,77 @@ export default {
       return postData.ProfilePictureUrl;
     },
 
-    getFriendUsername(username)
-    {
-      console.log(username);
+    getFriendUsername(username) {
       this.friend = username;
       return username;
     },
 
-    async fetchUsernames()
-    {
-      await onAuthStateChanged(auth, (user) => {this.user = user.displayName;});
-
+    async fetchUsernames() {
+      await onAuthStateChanged(auth, (user) => {
+        this.user = user.displayName;
+      });
     },
+
+    async newMessageRequest() {
+      try {
+        // Fetch followers
+        const userCollectionsRef = doc(
+            db,
+            "Users",
+            "UserNames",
+            auth.currentUser.displayName,
+            "Information",
+            "Followers",
+            "Following"
+        );
+
+        const userCollectionsDoc = await getDoc(userCollectionsRef);
+        this.userFollowers = userCollectionsDoc.data().Followers;
+
+        console.log("start");
+        let data = [];
+        for (let userFollowersKey in this.userFollowers) {
+          const followerUsername = this.userFollowers[userFollowersKey];
+
+          const messageRef = doc(
+              db,
+              "Users",
+              "UserNames",
+              followerUsername,
+              "Friends",
+              this.user, // Assuming this.user represents the current user's username
+              "Messages"
+          );
+
+          const docSnap = await getDoc(messageRef);
+          const messageData = docSnap.data();
+
+
+          for (let friendListElement of this.friendList) {
+            console.log(friendListElement.username.include(messageData.messages[0].sender));
+
+          }
+
+
+          this.friendList.push({
+            username: followerUsername,
+            lastMessage: "lastMessage",
+            userAvatar: await this.fetchProfileAvatar(followerUsername),
+            newUser: true,
+          })
+
+        }
+        if (this.friendList.includes("mobitel")) {
+        }
+
+        console.log("end");
+
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    },
+
 
   },
 

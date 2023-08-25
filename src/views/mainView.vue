@@ -3,7 +3,7 @@
   <div class="d-flex">
     <v-row>
       <v-col cols="4">
-        <v-row  class="mt-10">
+        <v-row class="mt-10">
           <v-col cols="2" style="width: fit-content">
             <div class=" ml-2 mt-2">
               <v-avatar size="50">
@@ -31,7 +31,6 @@
           </v-col>
 
 
-
         </v-row>
       </v-col>
 
@@ -54,22 +53,27 @@
                     max-height="50%"
                     v-scroll.self="onScroll"
                     class="overflow-y-auto "
-
                 >
+
+
                   <sweet-card
-                      v-for="(data, index) in AllPostsIdNames"
+                      v-if="friendsPosts"
+                      v-for="(data, index) in friendsPosts"
                       :key="index"
-                      :post-i-d="data"
-                      user-name="yohni"
+                      :post-i-d="data.postId"
+                      :user-name="data.username"
                       :is-swipe-locked="true"
                       :is-dating-sweet-card="false"
                   ></sweet-card>
                 </v-card>
+                <h3 v-if="" >find new friends</h3>
+                <RecommendationFriends/>
               </div>
             </v-col>
 
             <v-col class="justify-end" cols="5" style="text-align: center">
               <sweet-card
+
                   v-for="(data, index) in AllPostsIdNames"
                   :key="index"
                   :post-i-d="data"
@@ -89,17 +93,15 @@
 
 <script>
 import SweetCard from "@/components/SweetCard.vue";
-import {collection, doc, getDoc, getDocs, setDoc} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs} from "firebase/firestore";
 import {ref} from "firebase/database";
 import {auth, db} from "../../firebase.js";
 import {getStorage,} from "firebase/storage";
 import "firebase/storage";
-import {onAuthStateChanged} from "../../firebase";
-import NewComtestponent from "@/views/NewComtestponent.vue";
 import {getAuth} from "firebase/auth";
-import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
-import {mdiBell, mdiMessage, mdiPlus, mdiLogout} from '@mdi/js'
+import {mdiBell, mdiLogout, mdiMessage, mdiPlus} from '@mdi/js'
 import NotificationMenuComponent from "@/components/NotificationMenuComponent.vue";
+import RecommendationFriends from "@/components/RecommendationFriends.vue";
 
 export default {
   data() {
@@ -121,27 +123,30 @@ export default {
 
       // Sweet Cards
       AllPostsIdNames: "",
+
+      // friends posts
+      friendsPosts: null,
     };
   },
-  name: "main",
 
 
   components: {
+    RecommendationFriends,
     NotificationMenuComponent,
-    MessageSystemComponent,
-    NewComtestponent,
     //components
     SweetCard,
   },
   mounted() {
+    this.showFollowingUsersPosts();
     // get data
     this.getPostIDs()
 
-    console.log(auth);
     //debugger;
     this.GetUserStatus();
     this.GetUserDataFeed();
     //this.Debugging();
+
+
 
   },
   methods: {
@@ -197,13 +202,6 @@ export default {
       } else {
         this.userLoginStatus = false;
       }
-
-
-      console.log("->", this.userLoginStatus.toString());
-      if (!this.userLoginStatus) {
-        this.$router.push("/login")
-      }
-
     },
 
     friend() {
@@ -216,18 +214,43 @@ export default {
       this.AllPostsIdNames = collectionSnapshot.docs.map(doc => doc.id);
     },
 
+    async showFollowingUsersPosts() {
+      const followingData = [];
+
+      const userCollectionsRef = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Information", "Followers", "Following");
+      const followingUsersPosts = await getDoc(userCollectionsRef);
+
+      for (const followingKey in followingUsersPosts.data().Following) {
+        const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", followingUsersPosts.data().Following[followingKey], "Posts", "UserPosts"));
+        for (const el of collectionSnapshot.docs) {
+          const userPostDates = await getDoc(doc(db, "Users", "UserNames", followingUsersPosts.data().Following[followingKey], "Posts", "UserPosts", el.id));
+          followingData.push({
+            username: followingUsersPosts.data().Following[followingKey],
+            postId: el.id,
+            postDate: userPostDates.data().PostedDate.seconds,
+          });
+        }
+      }
+
+      // Convert postDate strings to timestamps  // sort by date
+      for (const data of followingData) {
+        data.postDate = parseInt(data.postDate);
+      }
+
+      // Sort the followingData array in ascending order by postDate
+      followingData.sort((a, b) => a.postDate - b.postDate);
+
+      //append to show
+      this.friendsPosts = followingData;
+    },
+
     onScroll() {
       this.scrollInvoked++;
     },
     openMessageView() {
-
       this.$router.push("messages")
     },
   },
 };
 </script>
-
-<style scoped>
-
-</style>
 

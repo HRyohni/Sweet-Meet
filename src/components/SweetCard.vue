@@ -220,7 +220,10 @@ export default {
         // change btn color
         this.isLikedPost = "red";
         // Send Notification
-        await this.sendNewNotificationToUser({ username: auth.currentUser.displayName, comment: auth.currentUser.displayName+ " liked your post!" });
+        await this.sendNewNotificationToUser({
+          username: auth.currentUser.displayName,
+          comment: auth.currentUser.displayName + " liked your post!"
+        });
 
       } else {
 
@@ -289,7 +292,10 @@ export default {
       // Clear input
       this.newComment = '';
       // Send Notification
-      await this.sendNewNotificationToUser({ username: auth.currentUser.displayName, comment: auth.currentUser.displayName+ " commented your post!" });
+      await this.sendNewNotificationToUser({
+        username: auth.currentUser.displayName,
+        comment: auth.currentUser.displayName + " commented your post!"
+      });
     },
 
 
@@ -393,8 +399,7 @@ export default {
   },
 
 
-
-    async mounted() {
+  async mounted() {
     await this.getPostData();
     await this.getComments();
     await this.isPostAlreadyLiked()

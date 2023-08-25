@@ -26,7 +26,7 @@
               color="primary"
               size="40"
           >
-            <v-img :src="friendsAvatarUrl"></v-img>
+            <v-img v-if="usersAvatarUrl" :src="usersAvatarUrl"></v-img>
           </v-avatar>
 
           <div class="d-flex ">
@@ -152,28 +152,48 @@ export default {
   },
 
   updated() {
+
     this.fetchMessageHistory()
   },
 
   async mounted() {
 
+    await this.allFunctions();
 
-    if (this.friend || this.user) {
-      //check if user exists
-      await this.checkIfFriendExists();
-      //Check if Messages exists and Send Message
-      await this.checkIfMessagesDatabaseExists();
-
-      //Fetch history of messages data
-      await this.fetchMessageHistory()
-
-      //Fetch Chats Avatars
-      await this.fetchChatsAvatars()
-    }
 
   },
+  watch: {
+    friend(newValue, oldValue) {
+      this.allFunctions();
+    },
+    user(newValue, oldValue) {
+      this.allFunctions();
+    }
+  },
+
+
 
   methods: {
+
+    async allFunctions()
+    {
+      if (this.friend || this.user) {
+        //check if user exists
+        await this.checkIfFriendExists();
+        //Check if Messages exists and Send Message
+        await this.checkIfMessagesDatabaseExists();
+
+        //Fetch history of messages data
+        await this.fetchMessageHistory()
+
+        //Fetch Chats Avatars
+        await this.fetchChatsAvatars()
+      } else {
+        //console.log("cant find user")
+      }
+    },
+
+
     icon,
 
     async checkIfFriendExists() {
@@ -182,12 +202,11 @@ export default {
         console.log("error cant find user");
         await this.$router.push("/");  // TODO: Make error handler better
       } else
-        console.log("exsists!");
+       console.log("exsists!");
     },
 
     async checkIfMessagesDatabaseExists() {
       const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.friend, "Friends", this.user));
-      console.log(querySnapshot.empty);
       if (querySnapshot.empty) {
         console.log("user does not have history" + querySnapshot.empty);
         await this.createMessageDatabase()
@@ -260,9 +279,6 @@ export default {
       // Update the document with the updated messages array
       await updateDoc(document, {messages: existingMessages});
 
-      console.log("Message sent!");
-
-
       await this.fetchMessageHistory()
     },
 
@@ -277,15 +293,13 @@ export default {
 
       let querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.user, "Information", "Profile"));
       querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        this.usersAvatarUrl = doc.data()["ProfileBackgroundPicture"];
+        this.usersAvatarUrl = doc.data()["ProfilePictureUrl"];
       });
-
       querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.friend, "Information", "Profile"));
       querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        this.friendsAvatarUrl = doc.data()["ProfileBackgroundPicture"];
-      });
+        this.friendsAvatarUrl = doc.data()["ProfilePictureUrl"];
+      })
+
     },
 
     toggleMarker() {
@@ -300,7 +314,6 @@ export default {
     },
     selectEmoji(emoji) {
       this.currentMessage += emoji["data"];
-      console.log(emoji["data"]);
     }
 
   },

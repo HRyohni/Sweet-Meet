@@ -87,9 +87,7 @@ export default {
 
   },
   async mounted() {
-    await this.fetchNotifications();
-
-
+   // await this.fetchNotifications(); TODO: fix later
   },
 
   updated() {
@@ -126,7 +124,7 @@ export default {
           const postData = docSnap.data();
 
           this.notificationList = postData.Notifications;
-          this.NumberNotification =  this.notificationList.length;
+          //this.NumberNotification =  this.notificationList.length; TODO: error
 
           for (let notification of this.notificationList) {
             notification.profileAvatar = await this.fetchNotificationsProfileAvatar(notification.username);
