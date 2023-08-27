@@ -1,44 +1,129 @@
 <template>
   <v-card width="400">
     <v-card-title> Who to follow.</v-card-title>
+ <h3 class="align-center pa-2" v-if="followSuggestions.length <2">Sorry we cant find you friend at this time</h3>
 
-    <v-card-text>
-      <v-card class="pa-2 ma-2" elevation-10>
-        <v-avatar>
-          <img
-              src="https://cdn.vuetifyjs.com/images/john.jpg"
-              alt="John"
-          />
-        </v-avatar>
-        <v-card-title class="d-inline">John Hohnny</v-card-title>
-        <v-btn color="primary">follow</v-btn>
-      </v-card>
-      <v-card class="pa-2 ma-2" elevation-10>
-        <v-avatar>
-          <img
-              src="https://cdn.vuetifyjs.com/images/john.jpg"
-              alt="John"
-          />
-        </v-avatar>
-        <v-card-title class="d-inline">John Hohnny</v-card-title>
-        <v-btn color="primary">follow</v-btn>
-      </v-card>
-      <v-card class="pa-2 ma-2" elevation-10>
-        <v-avatar>
-          <img
-              src="https://cdn.vuetifyjs.com/images/john.jpg"
-              alt="John"
-          />
-        </v-avatar>
+    <v-card-text
+        v-for="(user, index) in this.followSuggestions"
 
-        <v-card-title class="d-inline">John Hohnny</v-card-title>
-        <v-btn color="primary">follow</v-btn>
+        :key="index"
+    >
+
+      <v-card v-if="user.username " class="pa-2 ma-2" elevation-10>
+        <v-avatar>
+          <img
+              :src="user.userProfileAvatar"
+
+          />
+        </v-avatar>
+        <v-card-title class="d-inline">{{ user.username }}</v-card-title>
+        <follow-button-component
+            :user-to-follow="user.username"
+        ></follow-button-component>
       </v-card>
+
+
+
+
     </v-card-text>
   </v-card>
 </template>
 <script>
+import {collection, doc, getDocs, query, updateDoc, where} from "firebase/firestore";
+import {auth, db, getDoc} from "../../firebase";
+import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
+
 export default {
-  name: 'FollowSugestionComponent'
-}
+  name: 'FollowSuggestionComponent',
+  components: {FollowButtonComponent},
+  data() {
+    return {
+      followSuggestions: [{}],
+      allUsers: [],
+      usersData: null,
+      userFollowing: [],
+    };
+  },
+  async mounted() {
+  await this.reFetchAllData()
+
+  },
+  methods: {
+    async fetchAllUsers() {
+      const docSnap = await getDoc(doc(db, "Users", "UserNames"));
+
+      if (docSnap.exists()) {
+        this.allUsers = docSnap.data()["ListOfAllUsernames"];
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("cant find all users!");
+      }
+    },
+
+    async fetchUsersData() {
+      const userCollectionsRef = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Information");
+      const UserInformation = await getDoc(userCollectionsRef);
+      this.usersData = UserInformation.data();
+
+    },
+    async findSimilarity() {
+      try {
+        // Iterate through all users in the allUsers list
+        for (let otherUsers of this.allUsers) {
+          if (otherUsers !== auth.currentUser.displayName && !this.userFollowing.includes(otherUsers)) {
+            const userCollectionsRef = doc(db, "Users", "UserNames", otherUsers, "Information");
+            const userInformation = await getDoc(userCollectionsRef);
+            const otherUserData = userInformation.data();
+
+            // Compare user data properties and find similarities
+            const commonProperties = [];
+            for (let documentDataKey in this.usersData) {
+              if (otherUserData.hasOwnProperty(documentDataKey) && this.usersData[documentDataKey] === otherUserData[documentDataKey]) {
+
+                commonProperties.push({[documentDataKey]: this.usersData[documentDataKey]});
+              }
+            }
+            console.log(`Common properties with user ${otherUsers}:`, commonProperties);
+            if (commonProperties.length > 1) // TODO: make it better
+            {
+              this.followSuggestions.push({
+                username: otherUsers,
+                userProfileAvatar: await this.fetchProfileAvatar(otherUsers),
+              });
+            }
+          }
+
+        }
+      } catch (e) {
+        // Handle errors
+        console.error(e);
+      }
+      console.log("->", this.followSuggestions);
+    },
+
+    async fetchProfileAvatar(user) {
+      const reff = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data",);
+      const docSnap = await getDoc(reff);
+      const postData = docSnap.data();
+      return postData.ProfilePictureUrl;
+    },
+
+    async fetchUsersFollowing() {
+      let querySnapshot = await getDocs(collection(db, "Users", "UserNames", auth.currentUser.displayName, "Information", "Followers"));
+      querySnapshot.forEach((doc) => {
+        this.userFollowing = doc.data()["Following"];
+      });
+    },
+
+    async reFetchAllData()
+    {
+      await this.fetchUsersFollowing();
+      await this.fetchAllUsers();
+      await this.fetchUsersData();
+      await this.findSimilarity();
+    },
+
+  },
+
+};
 </script>

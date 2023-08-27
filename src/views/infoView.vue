@@ -820,6 +820,29 @@ export default {
         Notifications: [],
       }).then(console.log("done!"));
 
+
+      const docRef = doc(db, "Users", "UserNames");
+
+      try {
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const listOfAllUsernames = docSnap.data().ListOfAllUsernames || [];
+          listOfAllUsernames.push(auth.currentUser.displayName);
+
+          await updateDoc(docRef, {
+            ListOfAllUsernames: listOfAllUsernames,
+          });
+
+          console.log("Username added successfully.");
+        } else {
+          console.log("No such document as 'list of all usernames'");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+
+
       await this.$router.push("/");
     },
 

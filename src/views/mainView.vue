@@ -66,8 +66,11 @@
                       :is-dating-sweet-card="false"
                   ></sweet-card>
                 </v-card>
-                <h3 v-if="" >find new friends</h3>
-                <RecommendationFriends/>
+                
+                <FollowSugestionComponent
+
+                ></FollowSugestionComponent>
+
               </div>
             </v-col>
 
@@ -102,6 +105,8 @@ import {getAuth} from "firebase/auth";
 import {mdiBell, mdiLogout, mdiMessage, mdiPlus} from '@mdi/js'
 import NotificationMenuComponent from "@/components/NotificationMenuComponent.vue";
 import RecommendationFriends from "@/components/RecommendationFriends.vue";
+import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue";
+import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
 
 export default {
   data() {
@@ -131,6 +136,8 @@ export default {
 
 
   components: {
+    FollowButtonComponent,
+    FollowSugestionComponent,
     RecommendationFriends,
     NotificationMenuComponent,
     //components
@@ -169,6 +176,7 @@ export default {
     },
 
     async GetUserDataFeed() {
+
 
       const docRef = doc(
           db,
@@ -252,5 +260,7 @@ export default {
     },
   },
 };
+
 </script>
+
 

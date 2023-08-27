@@ -164,16 +164,7 @@ export default {
 
 
     async fetchProfileAvatar(user) {
-      const reff = doc(
-          db,
-          "Users",
-          "UserNames",
-          user,
-          "Information",
-          "Profile",
-          "Data",
-      );
-      // Fetch existing data from the document
+      const reff = doc(db,"Users","UserNames",user,"Information","Profile","Data",);
       const docSnap = await getDoc(reff);
       const postData = docSnap.data();
 
