@@ -46,6 +46,7 @@
             </div>
           </v-card>
 
+
           <v-row class="ma-5  justify-lg-space-around">
             <v-col cols="5" class="overflow-y-auto">
               <div class=" d-inline">
@@ -55,9 +56,8 @@
                     class="overflow-y-auto "
                 >
 
-
                   <sweet-card
-                      v-if="friendsPosts"
+
                       v-for="(data, index) in friendsPosts"
                       :key="index"
                       :post-i-d="data.postId"
@@ -66,10 +66,9 @@
                       :is-dating-sweet-card="false"
                   ></sweet-card>
                 </v-card>
-                
-                <FollowSugestionComponent
 
-                ></FollowSugestionComponent>
+
+                <FollowSugestionComponent v-if="!friendsPosts"></FollowSugestionComponent>
 
               </div>
             </v-col>

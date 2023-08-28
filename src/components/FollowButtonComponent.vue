@@ -12,7 +12,7 @@
 <script>
 import VuePhoneNumberInput from 'vue-phone-number-input';
 import 'vue-phone-number-input/dist/vue-phone-number-input.css';
-import {collection, doc, getDocs, updateDoc} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 
 export default {
@@ -70,6 +70,8 @@ export default {
           this.isUserFollowed = this.userToFollowFollowers.includes(this.currentUser);
         },
 
+
+
         async follow() {
 // Check if the user is already following
           await this.fetchUsersFollowing();
@@ -114,12 +116,55 @@ export default {
                 doc(db, "Users", "UserNames", this.userToFollow, "Information", "Followers", "Following"),
                 {Followers: updatedFollowers}
             );
+            //Send Notification
+            await this.sendNewNotificationToUser({
+              username: auth.currentUser.displayName,
+              comment: auth.currentUser.displayName + " Followed you!",
+              FollowRequest: true
+            });
 
             // Fetch updated following and followers
             await this.fetchUserToFollowData();
             await this.checkUserFollowed();
 
 
+          }
+        },
+
+        async sendNewNotificationToUser(notificationMessage) {
+          try {
+            let notificationList = [];
+            let reff = doc(
+                db,
+                "Users",
+                "UserNames",
+                this.userToFollow,
+                "Notification"
+            );
+
+            // Fetch data
+            const docSnap = await getDoc(reff);
+
+            if (docSnap.exists()) {
+              // Ensure Notifications field exists in docSnap data
+              if (docSnap.data() && docSnap.data().Notifications) {
+                // Get existing notifications
+                notificationList = docSnap.data().Notifications;
+                notificationList.push(notificationMessage);
+              } else {
+                console.log("No existing notifications field found.");
+              }
+            } else {
+              console.log("No New Notifications");
+            }
+
+            let informationData = {
+              Notifications: notificationList,
+            };
+
+            await updateDoc(reff, informationData);
+          } catch (error) {
+            console.error("Error sending new notification:", error);
           }
         },
 

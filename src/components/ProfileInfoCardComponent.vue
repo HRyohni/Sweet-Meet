@@ -32,7 +32,7 @@
         <h4 class="white--text">
           {{ profileDescription }}
         </h4>
-        <v-btn v-if="userAdmin" class="d-inline  mt-5  font-weight-light pa-1  " style="font-size: 1em">Edit</v-btn>
+        <v-btn v-if="userAdmin" class="d-inline  mt-5  font-weight-light pa-1  " @click="editInformationBtn()" style="font-size: 1em">Edit</v-btn>
         <!--         TODO: remove userAdmin !-->
 
           <follow-button-component
@@ -78,7 +78,13 @@ export default {
    mounted() {
 
   },
-  methods: {  }
+  methods: {
+
+    editInformationBtn()
+    {
+      this.$router.push("/edit")
+    },
+  }
 
 }
 

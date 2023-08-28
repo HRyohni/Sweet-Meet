@@ -14,9 +14,12 @@ export default {
   components: {
     VuePhoneNumberInput,
   },
+  props:{
+    phoneNumber: ""
+  },
   data() {
     return {
-      phoneNumber: '', // Initialize phoneNumber as an empty string
+      // Initialize phoneNumber as an empty string
     };
   },
   watch: {

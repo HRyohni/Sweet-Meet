@@ -36,9 +36,13 @@
             </v-list-item-avatar>
 
 
+
+
+
             <v-list-item-content>
               <v-list-item-title>{{ notification.username }}</v-list-item-title>
               <v-list-item-subtitle>{{ notification.comment }}</v-list-item-subtitle>
+              <div v-if="notification.FollowRequest" > <follow-button-component :user-to-follow="notification.username" ></follow-button-component> </div>
             </v-list-item-content>
 
             <v-list-item-action>
@@ -66,10 +70,11 @@ import 'vue-phone-number-input/dist/vue-phone-number-input.css';
 import {mdiBell, mdiTrashCan} from "@mdi/js";
 import {doc, getDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
+import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
 
 export default {
 
-  components: {},
+  components: {FollowButtonComponent},
 
   data() {
     return {

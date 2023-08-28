@@ -201,8 +201,7 @@ export default {
       if (querySnapshot.empty) {
         console.log("error cant find user");
         await this.$router.push("/");  // TODO: Make error handler better
-      } else
-       console.log("exsists!");
+      }
     },
 
     async checkIfMessagesDatabaseExists() {
@@ -211,8 +210,6 @@ export default {
         console.log("user does not have history" + querySnapshot.empty);
         await this.createMessageDatabase()
         //await this.$router.push("/");  // TODO: Make error handler better
-      } else {
-        console.log("history exsists");
       }
     },
 

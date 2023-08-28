@@ -9,6 +9,7 @@ import info from '../views/infoView.vue';
 import landingPage from '../views/landingPageView.vue'
 import addPostView from "@/views/AddPostView.vue";
 import messageingView from "@/views/MessageingView.vue";
+import editInformationView from "@/views/editInformationView.vue";
 
 
 Vue.use(VueRouter)
@@ -36,7 +37,11 @@ const routes = [
         name: 'addpost',
         component: addPostView
     },
-
+    {
+        path: '/edit',
+        name: 'editInformation',
+        component: editInformationView
+    },
     {
         path: '/info',
         name: 'info',

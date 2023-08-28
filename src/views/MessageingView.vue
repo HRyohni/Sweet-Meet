@@ -14,6 +14,7 @@
                 <v-progress-circular v-if="!user" color="error" indeterminate :size="20"
                                      :width="5"></v-progress-circular>
                 <img
+                    @click="goToProfile(user.username)"
                     v-if="user"
                     :src="user.userAvatar"
                     alt="Profile Avatar"
@@ -27,7 +28,12 @@
                 <v-list-item-subtitle v-if="user.newUser"> {{ user.username }} wants to send you msg
                 </v-list-item-subtitle>
 
-                <p v-if="user.newUser"> Follow Back user</p>
+                <div v-if="user.newUser">
+                  <follow-button-component
+                  :user-to-follow="user.username">
+
+                  </follow-button-component>
+                </div>
               </v-list-item-content>
 
               <v-list-item-action>
@@ -63,11 +69,12 @@
 
 <script>
 import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
-import {collection, doc, getDoc, getDocs} from "firebase/firestore";
+import {doc, getDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
-import {mdiBell} from "@mdi/js";
 import NotificationMenuComponent from "@/components/NotificationMenuComponent.vue";
 import {onAuthStateChanged} from "firebase/auth";
+import router from "@/router";
+import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
 
 export default {
   data() {
@@ -86,6 +93,7 @@ export default {
   name: 'Home',
 
   components: {
+    FollowButtonComponent,
     NotificationMenuComponent,
     MessageSystemComponent
   },
@@ -154,17 +162,16 @@ export default {
           user,
           "Messages"
       );
-
-
       const userCollectionsDoc = await getDoc(userCollectionsRef);
       const userData = userCollectionsDoc.data();
+
       const messages = userData ? userData.messages : []; // Make sure messages is an array
       return messages[messages.length - 1];
     },
 
 
     async fetchProfileAvatar(user) {
-      const reff = doc(db,"Users","UserNames",user,"Information","Profile","Data",);
+      const reff = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data",);
       const docSnap = await getDoc(reff);
       const postData = docSnap.data();
 
@@ -183,6 +190,8 @@ export default {
     },
 
     async newMessageRequest() {
+      let userFollowList = await this.returnUserFollowing();
+
       try {
         // Fetch followers
         const userCollectionsRef = doc(
@@ -196,52 +205,65 @@ export default {
         );
 
         const userCollectionsDoc = await getDoc(userCollectionsRef);
-        this.userFollowers = userCollectionsDoc.data().Followers;
+        this.userFollowers = await userCollectionsDoc.data().Followers;
 
-        console.log("start");
-        let data = [];
         for (let userFollowersKey in this.userFollowers) {
-          const followerUsername = this.userFollowers[userFollowersKey];
-
+          const followerUsername = await this.userFollowers[userFollowersKey];
           const messageRef = doc(
               db,
               "Users",
               "UserNames",
               followerUsername,
               "Friends",
-              this.user, // Assuming this.user represents the current user's username
+              this.user,
               "Messages"
           );
 
           const docSnap = await getDoc(messageRef);
-          const messageData = docSnap.data();
+          const messageData = docSnap.data().messages;
 
+          let userHasSendMessageBack = false;
+          let isFriendAlready = false;
 
-          for (let friendListElement of this.friendList) {
-            console.log(friendListElement.username.include(messageData.messages[0].sender));
-
+          for (let message in messageData) {
+            if (messageData[message].sender === auth.currentUser.displayName) {
+              userHasSendMessageBack = true;
+              break;
+            }
           }
 
+          if (userHasSendMessageBack && !userFollowList.includes(followerUsername)) {
+            this.friendList.push({
+              username: followerUsername,
+              lastMessage: "lastMessage",
+              userAvatar: await this.fetchProfileAvatar(followerUsername),
+              newUser: true,
+            });
+          }
 
-          this.friendList.push({
-            username: followerUsername,
-            lastMessage: "lastMessage",
-            userAvatar: await this.fetchProfileAvatar(followerUsername),
-            newUser: true,
-          })
-
+          userHasSendMessageBack = false;
         }
-        if (this.friendList.includes("mobitel")) {
-        }
-
-        console.log("end");
-
-
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     },
+    async returnUserFollowing() {
+      const userCollectionsRef = doc(
+          db,
+          "Users",
+          "UserNames",
+          auth.currentUser.displayName,
+          "Information",
+          "Followers",
+          "Following",
+      );
+      const userCollectionsDoc = await getDoc(userCollectionsRef);
+      return userCollectionsDoc.data().Following
 
+    },
+    goToProfile(username) {
+      this.$router.push("/profile/" + username);
+    },
 
   },
 

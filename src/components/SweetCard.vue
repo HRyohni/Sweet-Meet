@@ -47,7 +47,8 @@
             <v-container class="bg-surface-variant">
               <v-row no-gutters>
                 <v-col style="text-align: left;">
-                  <v-avatar class="">
+                  <v-avatar class="" @click="goToProfile(userName)">
+
                     <v-img :src="this.userProfilePicture"></v-img>
                   </v-avatar>
 
@@ -396,7 +397,11 @@ export default {
         console.error("Error sending new notification:", error);
       }
     },
+    goToProfile(username) {
+      this.$router.push("/profile/" + username);
+    },
   },
+
 
 
   async mounted() {

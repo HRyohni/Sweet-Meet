@@ -228,7 +228,7 @@ export default {
           //const docRef = doc(db, "Users", "UserNames", this.userUrlName);
 
 // Get a document, forcing the SDK to fetch from the offline cache.
-          const docSnap = await getDoc(doc(db, "Users", "UserNames", this.userUrlName,"Information"));
+          const docSnap = await getDoc(doc(db, "Users", "UserNames", this.userUrlName, "Information"));
 
           if (docSnap.exists()) {
             this.firstName = docSnap.data()["FirstName"];
@@ -263,6 +263,8 @@ export default {
           const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Posts", "UserPosts"));
           this.AllPostsIdNames = collectionSnapshot.docs.map(doc => doc.id);
         },
+
+
       }
 
 
