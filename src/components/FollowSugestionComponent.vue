@@ -1,15 +1,16 @@
 <template>
-  <v-card width="400">
+  <v-card :ripple="false" width="400" @click="updateData()">
     <v-card-title> Who to follow.</v-card-title>
  <h3 class="align-center pa-2" v-if="followSuggestions.length <2">Sorry we cant find you friend at this time</h3>
 
     <v-card-text
         v-for="(user, index) in this.followSuggestions"
-
         :key="index"
+
     >
 
-      <v-card v-if="user.username " class="pa-2 ma-2" elevation-10>
+      <v-card v-if="user.username && index < 3 " class="pa-2 ma-2" elevation-10>
+
         <v-avatar>
           <img
               :src="user.userProfileAvatar"
@@ -21,6 +22,8 @@
             :user-to-follow="user.username"
         ></follow-button-component>
       </v-card>
+
+
 
 
 
@@ -44,6 +47,7 @@ export default {
       userFollowing: [],
     };
   },
+
   async mounted() {
   await this.reFetchAllData()
 
@@ -67,6 +71,7 @@ export default {
 
     },
     async findSimilarity() {
+      let tempFollowSuggestion = [];
       try {
         // Iterate through all users in the allUsers list
         for (let otherUsers of this.allUsers) {
@@ -86,19 +91,18 @@ export default {
             console.log(`Common properties with user ${otherUsers}:`, commonProperties);
             if (commonProperties.length > 1) // TODO: make it better
             {
-              this.followSuggestions.push({
+              tempFollowSuggestion.push({
                 username: otherUsers,
                 userProfileAvatar: await this.fetchProfileAvatar(otherUsers),
               });
             }
           }
-
+          this.followSuggestions = tempFollowSuggestion;
         }
       } catch (e) {
         // Handle errors
         console.error(e);
       }
-      console.log("->", this.followSuggestions);
     },
 
     async fetchProfileAvatar(user) {
@@ -115,15 +119,25 @@ export default {
       });
     },
 
-    async reFetchAllData()
-    {
-      await this.fetchUsersFollowing();
+    async reFetchAllData() {
       await this.fetchAllUsers();
+      await this.fetchUsersFollowing();
       await this.fetchUsersData();
       await this.findSimilarity();
+    },
+
+    updateData()
+    {
+      this.reFetchAllData();
     },
 
   },
 
 };
 </script>
+
+<style>
+
+
+
+</style>

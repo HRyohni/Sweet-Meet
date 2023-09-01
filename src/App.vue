@@ -5,9 +5,10 @@
         <v-col>
           <h4>sweet meet</h4>
         </v-col>
+
         <v-col style="text-align: center">
           <div>
-
+<SearchUserComponent></SearchUserComponent>
           </div>
         </v-col>
         <v-col style="text-align: right; font-size: 3vh" class="pa-5">
@@ -69,10 +70,12 @@ import {
   getStorage,
 } from "../firebase.js";
 import {doc, getDoc} from "firebase/firestore";
+import SearchUserComponent from "@/components/SearchUserComponent.vue";
 
 export default {
   name: "App",
   components: {
+    SearchUserComponent
     //components
   },
 

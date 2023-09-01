@@ -1,5 +1,5 @@
 <template>
-  <v-container class="mt-10">
+  <v-container class="mt-15">
 
     <!--                                       Profile info card for more information about profile -->
     <div v-if="userExists">
@@ -48,7 +48,7 @@
 
       <!--                                 TODO: fix nameing id with site      Follow Suggestion system-->
       <v-col cols="3">
-        <FollowSugestionComponent/>
+        <FollowSugestionComponent v-if="userAdmin" />
         <v-card elevation="12" class="pa-3 mt-3 white--text" :color="this.profileCardColor">
           <v-card-title class="white--text">Information</v-card-title>
           <h3 class="d-inline">{{ this.firstName }} {{ this.secondName }}</h3>

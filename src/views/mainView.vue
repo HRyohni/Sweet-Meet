@@ -1,94 +1,83 @@
 <template>
 
-  <div class="d-flex">
+  <v-container class="d-flex ma-10 justify-center">
     <v-row>
-      <v-col cols="4">
-        <v-row class="mt-10">
-          <v-col cols="2" style="width: fit-content">
-            <div class=" ml-2 mt-2">
-              <v-avatar size="50">
-                <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
-              </v-avatar>
-              <p class="d-inline ma-2">{{ displayName }}</p>
-              <div>
-                <NotificationMenuComponent></NotificationMenuComponent>
+      <v-col>
+        <div class=" ml-2 mt-2">
+          <v-avatar size="50">
+            <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
+          </v-avatar>
+          <p class="d-inline ma-2">{{ displayName }}</p>
+          <div>
+            <NotificationMenuComponent></NotificationMenuComponent>
 
-                <v-btn @click="openMessageView" class="d-block mt-2" icon elevation="2" fab color="red">
-                  <v-icon>{{ messageIcon }}</v-icon>
-                </v-btn>
+            <v-btn @click="openMessageView" class="d-block mt-2" icon elevation="2" fab color="red">
+              <v-icon>{{ messageIcon }}</v-icon>
+            </v-btn>
 
-                <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
-                  <v-icon>{{ plusIcon }}</v-icon>
-                </v-btn>
+            <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+              <v-icon>{{ plusIcon }}</v-icon>
+            </v-btn>
 
-                <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
-                  <v-icon>{{ logoutIcon }}</v-icon>
-                </v-btn>
-
-
-              </div>
-            </div>
-          </v-col>
-
-
-        </v-row>
+            <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+              <v-icon>{{ logoutIcon }}</v-icon>
+            </v-btn>
+          </div>
+        </div>
       </v-col>
+
+
+      <v-col >
+        <div class="d-inline" style="">
+          <v-card
+              max-height="50%"
+              v-scroll.self="onScroll"
+              class="overflow-y-auto "
+          >
+
+            <sweet-card
+
+                v-for="(data, index) in friendsPosts"
+                :key="index"
+                :post-i-d="data.postId"
+                :user-name="data.username"
+                :is-swipe-locked="true"
+                :is-dating-sweet-card="false"
+            ></sweet-card>
+          </v-card>
+
+          <!--                    v-if="!friendsPosts" TODO:remove-->
+          <v-overlay
+              v-if="false"
+              class="align-center justify-center"
+          >
+            <v-progress-circular
+                color="red"
+                indeterminate
+                size="64"
+            ></v-progress-circular>
+          </v-overlay>
+
+        </div>
+      </v-col>
+
+
 
 
       <v-col>
-        <div class="d-flex flex-column">
-          <v-card style="width: fit-content" class="  d-flex ">
-            <div class="ma-2"
-                 v-for="n in 5"
-                 :key="n">
-              <v-avatar color="green" size="3vw" class="ma-1"></v-avatar>
-              <p class="">Leo m</p>
-            </div>
-          </v-card>
-
-
-          <v-row class="ma-5  justify-lg-space-around">
-            <v-col cols="5" class="overflow-y-auto">
-              <div class=" d-inline">
-                <v-card
-                    max-height="50%"
-                    v-scroll.self="onScroll"
-                    class="overflow-y-auto "
-                >
-
-                  <sweet-card
-
-                      v-for="(data, index) in friendsPosts"
-                      :key="index"
-                      :post-i-d="data.postId"
-                      :user-name="data.username"
-                      :is-swipe-locked="true"
-                      :is-dating-sweet-card="false"
-                  ></sweet-card>
-                </v-card>
-
-
-                <FollowSugestionComponent v-if="!friendsPosts"></FollowSugestionComponent>
-
-              </div>
-            </v-col>
-
-            <v-col class="justify-end" cols="5" style="text-align: center">
-              <sweet-card
-
-                  v-for="(data, index) in AllPostsIdNames"
-                  :key="index"
-                  :post-i-d="data"
-                  user-name="yohni"
-                  :is-swipe-locked="false"
-                  :is-dating-sweet-card="true"
-              ></sweet-card>
-            </v-col>
-          </v-row>
-        </div>
+        <sweet-card-dating
+            v-for="(data, index) in AllPostsIdNames"
+            :key="index"
+            :post-i-d="data"
+            :debug-mod="true"
+            user-name="yohni"
+            :is-swipe-locked="false"
+            :is-dating-sweet-card="true"
+        ></sweet-card-dating>
       </v-col>
+
     </v-row>
-  </div>
+  </v-container>
 
 
 </template>
@@ -100,12 +89,13 @@ import {ref} from "firebase/database";
 import {auth, db} from "../../firebase.js";
 import {getStorage,} from "firebase/storage";
 import "firebase/storage";
-import {getAuth} from "firebase/auth";
+import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {mdiBell, mdiLogout, mdiMessage, mdiPlus} from '@mdi/js'
 import NotificationMenuComponent from "@/components/NotificationMenuComponent.vue";
 import RecommendationFriends from "@/components/RecommendationFriends.vue";
 import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue";
 import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
+import SweetCardDating from "@/components/SweetCardDatingComponent.vue";
 
 export default {
   data() {
@@ -120,7 +110,7 @@ export default {
       plusIcon: mdiPlus,
       logoutIcon: mdiLogout,
 
-      drag: 4,
+
       extend: false,
       scrollInvoked: 0,
       widnowHeight: window.innerHeight,
@@ -135,6 +125,7 @@ export default {
 
 
   components: {
+    SweetCardDating,
     FollowButtonComponent,
     FollowSugestionComponent,
     RecommendationFriends,
@@ -142,16 +133,20 @@ export default {
     //components
     SweetCard,
   },
-  mounted() {
-    this.showFollowingUsersPosts();
-    // get data
-    this.getPostIDs()
+  async mounted() {
 
-    //debugger;
-    this.GetUserStatus();
-    this.GetUserDataFeed();
-    //this.Debugging();
+    await onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.showFollowingUsersPosts();
+        // get data
+        this.getPostIDs()
 
+        //debugger;
+        this.GetUserStatus();
+        this.GetUserDataFeed();
+        //this.Debugging();
+      }
+    });
 
 
   },

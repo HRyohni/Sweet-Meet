@@ -2,7 +2,41 @@
   <div class="data  d-flex  justify-center">
 
     <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10">
-      <v-btn @click="appendQuestions">qqq</v-btn>
+
+      <v-card-title> Setup your profile Description</v-card-title>
+      <v-btn>
+        <label class="custom-file-upload">
+          Change Profile Image
+          <input type="file" @change="onFileChangeProfileImage"/>
+
+        </label>
+      </v-btn>
+      Change Profile background Image
+      <v-btn>
+        <label class="custom-file-upload">
+          Change Profile Image
+          <input @change="this.onFileChangeProfileBackground" type="file">
+        </label>
+      </v-btn>
+
+      <profile-info-card
+          :display-name="this.displayName"
+          :first-name="this.firstName"
+          :second-name="this.secondName"
+          :profile-description="description"
+          :profile-picture="this.urlImageProfile"
+          :background-image="this.urlImageBackgroundProfile"
+          :card-color="this.cardColor"
+      ></profile-info-card>
+      <div class="ma-4">
+        <p>Pick Color:</p>
+        <v-btn @click="colorOfCard('white')" class="ma-2" color="white"></v-btn>
+        <v-btn @click="colorOfCard('blue')" class="ma-2" color="blue"></v-btn>
+        <v-btn @click="colorOfCard('red')" class="ma-2" color="red"></v-btn>
+        <v-btn @click="colorOfCard('green')" class="ma-2" color="green"></v-btn>
+      </div>
+      <v-text-field label="Description" outlined class="mt-10" v-model="description"></v-text-field>
+
       <h1>Introduce yourself</h1>
       <div class="d-inline">
         <v-row>
@@ -147,11 +181,13 @@
             :zoom="3"
             map-style-id="roadmap"
             :options="mapOptions"
-            style="width: 100vmin; height: 50vmin"
+            style="width: 100%; height: 50vmin"
             ref="mapRef"
             @click="handleMapClick"
         >
+
           <GmapMarker
+              class="ma-5"
               :zoom="2"
               :position="marker.position"
               :clickable="true"
@@ -161,49 +197,12 @@
 
           />
         </GmapMap>
-        <v-btn class="ma-5" @click="geolocate"> Detect Location</v-btn>
         <!--        <p>Selected Position: {{ marker }}</p>-->
       </div>
 
 
       <!--            SETUP PROFILE DESCRIPTION-->
 
-      <v-card-title> Setup your profile Description</v-card-title>
-      <v-btn>
-        <label class="custom-file-upload">
-          Change Profile Image
-          <input type="file" @change="onFileChangeProfileImage"/>
-
-        </label>
-      </v-btn>
-
-
-      Change Profile background Image
-
-      <v-btn>
-        <label class="custom-file-upload">
-          Change Profile Image
-          <input @change="this.onFileChangeProfileBackground" type="file">
-        </label>
-      </v-btn>
-
-      <profile-info-card
-          :display-name="this.displayName"
-          :first-name="this.firstName"
-          :second-name="this.secondName"
-          :profile-description="description"
-          :profile-picture="this.urlImageProfile"
-          :background-image="this.urlImageBackgroundProfile"
-          :card-color="this.cardColor"
-      ></profile-info-card>
-      <div class="ma-4">
-        <p>Pick Color:</p>
-        <v-btn @click="colorOfCard('white')" class="ma-2" color="white"></v-btn>
-        <v-btn @click="colorOfCard('blue')" class="ma-2" color="blue"></v-btn>
-        <v-btn @click="colorOfCard('red')" class="ma-2" color="red"></v-btn>
-        <v-btn @click="colorOfCard('green')" class="ma-2" color="green"></v-btn>
-      </div>
-      <v-text-field label="Description" outlined class="mt-10" v-model="description"></v-text-field>
 
 
       <v-btn class="ma-5" color="primary"
@@ -621,6 +620,15 @@ export default {
     downloadProfilePictureUrl: "",
     downloadProfileBackgroundPictureUrl: "",
 
+
+    isChangedProfileImage: false,
+    isChangedBackgroundProfileImage: false,
+
+    currentProfileImage: "",
+    currentBackgroundProfileImage: "",
+
+
+
   }),
   async mounted() {
     this.email = auth.currentUser.email;
@@ -680,6 +688,7 @@ export default {
         // Get the download URL of the uploaded image
         getDownloadURL(snapshot.ref).then((url) => {
           this.downloadProfilePictureUrl = url;
+          this.addInfo();
         }).catch((error) => {
           console.error("Error getting download URL:", error);
         });
@@ -691,6 +700,7 @@ export default {
 
 
     UploadProfileBackgroundImageToStorage() {
+
       // Assuming you have imported the necessary functions and objects
       const storageRef = ref(
           storage,
@@ -715,12 +725,13 @@ export default {
 
 
     onFileChangeProfileImage(event) {
+      this.isChangedProfileImage = true;
       this.file = event.target.files[0];
       this.urlImageProfile = URL.createObjectURL(this.file);
       this.profileImageUrl = this.file;
     },
     onFileChangeProfileBackground(event) {
-
+      this.isChangedBackgroundProfileImage = true;
       this.file = event.target.files[0];
       this.urlImageBackgroundProfile = URL.createObjectURL(this.file);
       this.profileBackgroundImageUrl = this.file;
@@ -772,6 +783,7 @@ export default {
           "Data"
       );
 
+
       InformationData = {
         ProfileDescription: this.description,
         ProfileCardColor: this.cardColor,
@@ -793,28 +805,7 @@ export default {
         Notifications: [],
       });
 
-
-      const docRef = doc(db, "Users", "UserNames");
-
-      try {
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const listOfAllUsernames = docSnap.data().ListOfAllUsernames || [];
-          listOfAllUsernames.push(auth.currentUser.displayName);
-
-          await updateDoc(docRef, {
-            ListOfAllUsernames: listOfAllUsernames,
-          });
-
-
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-
-
-      await this.$router.push("/profile/"+ auth.currentUser.displayName );
+      // await this.$router.push("/profile/" + auth.currentUser.displayName);
     },
 
     checkedElement(elemType, index) {
@@ -846,8 +837,24 @@ export default {
     },
 
     async UplodaAllDataToFirebase() {
-      await this.UploadProfileImageToStorage()
-      await this.UploadProfileBackgroundImageToStorage();
+
+      if (this.isChangedProfileImage)
+      {await this.UploadProfileImageToStorage();}
+
+      if (this.isChangedBackgroundProfileImage)
+      {await this.UploadProfileBackgroundImageToStorage();}
+
+      if (!this.isChangedProfileImage ) {
+        this.downloadProfilePictureUrl = this.currentProfileImage;
+
+      }
+      if (!this.isChangedBackgroundProfileImage) {
+        this.downloadProfileBackgroundPictureUrl = this.currentBackgroundProfileImage;
+      }
+
+
+      await this.addInfo()
+
 
     },
 
@@ -930,14 +937,18 @@ export default {
         this.urlImageBackgroundProfile = docSnap.data()["ProfileBackgroundPicture"];
         this.urlImageProfile = docSnap.data()["ProfilePictureUrl"];
 
+        this.currentBackgroundProfileImage = docSnap.data()["ProfileBackgroundPicture"];
+        this.currentProfileImage = docSnap.data()["ProfilePictureUrl"];
+
         this.description = docSnap.data()["ProfileDescription"];
         this.cardColor = docSnap.data()["ProfileCardColor"];
-
-
       } else {
         // docSnap.data() will be undefined in this case
         console.log("No such document!");
       }
+      console.log("-->",this.currentBackgroundProfileImage);
+
+
 
 
     }
