@@ -35,15 +35,18 @@
               class="overflow-y-auto "
           >
 
-            <sweet-card
 
-                v-for="(data, index) in friendsPosts"
-                :key="index"
-                :post-i-d="data.postId"
-                :user-name="data.username"
-                :is-swipe-locked="true"
-                :is-dating-sweet-card="false"
-            ></sweet-card>
+              <sweet-card
+
+                  v-for="(data, index) in friendsPosts"
+                  :key="index"
+                  :post-i-d="data.postId"
+                  :user-name="data.username"
+                  :is-swipe-locked="true"
+                  :is-dating-sweet-card="false"
+              ></sweet-card>
+
+
           </v-card>
 
           <!--                    v-if="!friendsPosts" TODO:remove-->
@@ -61,19 +64,19 @@
         </div>
       </v-col>
 
-
-
-
       <v-col>
+        <div style=" ">
         <sweet-card-dating
             v-for="(data, index) in AllPostsIdNames"
             :key="index"
             :post-i-d="data"
             :debug-mod="true"
+
             user-name="yohni"
             :is-swipe-locked="false"
             :is-dating-sweet-card="true"
         ></sweet-card-dating>
+        </div>
       </v-col>
 
     </v-row>

@@ -1,8 +1,9 @@
 <template>
   <v-container>
     <v-card>
+
       <Vue2InteractDraggable
-          style="background-color: #ff7b92; width: 800px"
+          style="background-color: #ff7b92"
           @draggedRight="draggedRight"
           :interact-max-rotation="15"
           :interact-out-of-sight-x-coordinate="3000"
@@ -11,29 +12,78 @@
           :interact-lock-x-axis="isSwipeLocked"
       >
 
+        <v-list-item>
+
+          <v-list-item-content>
+            <v-list-item-title>John Leider</v-list-item-title>
+            <v-list-item-subtitle>Author</v-list-item-subtitle>
+            <div class="child-flex justify-center">
+              <v-list dark color="pink" rounded>
+                <v-list-group
+                    v-for="item in items"
+                    :key="item.title"
+                    v-model="item.active"
+                    :prepend-icon="item.action"
+                    no-action
+                >
+
+                  <template v-slot:activator>
+                    <v-list-item-content>
+
+                      <v-list-item-title v-text="item.title"></v-list-item-title>
+                    </v-list-item-content>
+                  </template>
+
+                  <v-scale-transition>
+                    <v-list-item
+                        v-for="child in item.items"
+                        :key="child.title"
+                    >
+                      <v-list-item-content>
+
+                        <div class="d-flex justify-center">
+                          <div>
+                            <h1>info about user</h1>
+                          </div>
+                        </div>
+                        <v-list-item-title v-text="child.title"></v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-scale-transition>
+                </v-list-group>
+              </v-list>
+
+            </div>
+          </v-list-item-content>
+
+
+        </v-list-item>
+
+
         <!--      dating app-->
         <v-carousel
             v-if="isDatingSweetCard"
             cycle
-            height="1000"
+            height="500"
             hide-delimiter-background
             show-arrows-on-hover
         >
 
           <template v-slot:prev="{ on, attrs }">
             <v-btn
-                color="success"
+
                 v-bind="attrs"
                 v-on="on"
-            >Previous slide
+                icon>
+              <v-icon>{{ leftArrow }}</v-icon>
             </v-btn>
           </template>
           <template v-slot:next="{ on, attrs }">
             <v-btn
-                color="info"
                 v-bind="attrs"
-                v-on="on"
-            >Next slide
+                icon
+                v-on="on">
+              <v-icon>{{ rightArrow }}</v-icon>
             </v-btn>
           </template>
 
@@ -51,13 +101,15 @@
                   justify="center"
               >
                 <div class="text-h2">
-                  <v-img contain  max-width="800" :src="randomImageUrl(true)"></v-img>
+                  <v-img contain max-width="800" :src="randomImageUrl(true)"></v-img>
 
                 </div>
               </v-row>
             </v-sheet>
           </v-carousel-item>
         </v-carousel>
+
+
       </Vue2InteractDraggable>
     </v-card>
   </v-container>
@@ -69,15 +121,27 @@ import {collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc} fr
 import {auth, db} from "../../firebase";
 import firebase from "firebase/compat/app";
 import {getAuth} from "firebase/auth";
+import {mdiArrowLeft, mdiArrowRight, mdiAccountHeart} from '@mdi/js'
 
 export default {
   components: {
     Vue2InteractDraggable
   },
   data: () => ({
+    items: [
+      {
+        action: 'mdi-ticket',
+        items: [{title: 'List Item'}],
+        title: 'More Info',
+      },
+    ],
 
     imageUrl: "",
     userProfilePicture: "",
+    // icons
+    leftArrow: mdiArrowLeft,
+    rightArrow: mdiArrowRight,
+    heart: mdiAccountHeart,
 
 
     colors: [
@@ -110,6 +174,19 @@ export default {
   },
 
   name: 'SweetCardDating',
+
+  async mounted() {
+    // find a user
+    // fetch all images from user
+    //fetch all data from user
+
+    //await this.getPostData();
+
+
+    this.userProfilePicture = await this.getUserProfilePicture(this.userName);
+
+  },
+
   methods: {
     async getPostData() {
       const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID);
@@ -127,7 +204,6 @@ export default {
         return "https://picsum.photos/id/" + Math.floor(Math.random() * 100) + "/1080/1920/";
       return this.imageUrl;
     },
-
 
     draggedRight() {
       //const x = event.clientX; // X coordinate
@@ -147,8 +223,6 @@ export default {
       }, 300);
     },
 
-
-
     async getUserProfilePicture(user) {
       const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data");
       const docSnap = await getDoc(docRef);
@@ -162,6 +236,7 @@ export default {
       }
 
     },
+
     async sendNewNotificationToUser(notificationMessage) {
       try {
         let notificationList = [];
@@ -198,25 +273,38 @@ export default {
         console.error("Error sending new notification:", error);
       }
     },
-    goToProfile(username) {
-      this.$router.push("/profile/" + username);
+
+    async fetchImagesFromUser() {
+      // fix later
+      await this.getPostIDs()
+
+      console.log("asd")
+      console.log("wata fak")
+      const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", "Data");
+      const docSnap = await getDoc(docRef);
+      console.log(docSnap.data(), ",--");
+      if (docSnap.exists()) {
+        console.log(docSnap.data(), ",--");
+
+      } else {
+
+        console.log("error");
+        return null;
+
+      }
+
     },
+
+    async getPostIDs() {
+      const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", "yohni", "Posts", "UserPosts"));
+      this.AllPostsIdNames = collectionSnapshot.docs.map(doc => doc.id);
+    },
+
   },
-  randomImageUrl(debugMode) {
-    if (debugMode)
-      return "https://picsum.photos/id/" + Math.floor(Math.random() * 100) + "/1080/1920/";
-    return this.imageUrl;
-  },
 
 
 
 
- async  mounted() {
-
-    await this.getPostData();
-    this.userProfilePicture = await this.getUserProfilePicture(this.userName);
-
-  }
 
 
 };
@@ -241,8 +329,6 @@ export default {
   border-radius: 20px;
   height: 100%;
 }
-
-
 
 
 .bottomText {

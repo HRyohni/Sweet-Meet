@@ -17,24 +17,25 @@
       <v-card-title>naslov</v-card-title>
       <v-card-subtitle>ovo je podnaslov</v-card-subtitle>
     </v-card>
-    <v-text-field v-model="user"></v-text-field>
-    <v-text-field v-model="friend"></v-text-field>
 
 
-    <MessageSystemComponent
-        :user="this.user"
-        :friend="this.friend"
-    ></MessageSystemComponent>
+    <sweet-card-dating
+        :debug-mod="true"
+        user-name="yohni"
+        :is-swipe-locked="false"
+        :is-dating-sweet-card="true"
+    ></sweet-card-dating>
 
   </div>
 
 </template>
 <script>
 import MessageSystemComponent from "@/components/MessageSystemComponent.vue";
+import SweetCardDating from "@/components/SweetCardDatingComponent.vue";
 
 export default {
   name: "landingPage",
-  components: {MessageSystemComponent},
+  components: {SweetCardDating, MessageSystemComponent},
   data() {
     return {
       user: '',
