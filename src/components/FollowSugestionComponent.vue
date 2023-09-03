@@ -49,7 +49,7 @@ export default {
   },
 
   async mounted() {
-  await this.reFetchAllData()
+  await this.reFetchAllData();
 
   },
   methods: {

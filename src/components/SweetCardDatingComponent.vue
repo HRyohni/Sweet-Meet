@@ -15,8 +15,10 @@
         <v-list-item>
 
           <v-list-item-content>
-            <v-list-item-title>John Leider</v-list-item-title>
-            <v-list-item-subtitle>Author</v-list-item-subtitle>
+            <v-list-item-title class="d-inline"><h1 class="d-inline">{{ this.soulMate["FirstName"] }}</h1>
+              {{ this.soulMate["age"] }}
+            </v-list-item-title>
+            <v-list-item-subtitle>Distance: {{ this.soulMate["age"] }}</v-list-item-subtitle>
             <div class="child-flex justify-center">
               <v-list dark color="pink" rounded>
                 <v-list-group
@@ -40,12 +42,60 @@
                         :key="child.title"
                     >
                       <v-list-item-content>
+                        <v-card>
+                          <v-card-title>Description</v-card-title>
+                          <v-card-text>{{ profileDescription }}</v-card-text>
+                        </v-card>
 
-                        <div class="d-flex justify-center">
-                          <div>
-                            <h1>info about user</h1>
+                          <h1 class="ml-2">Interests</h1>
+                        <v-card  color="white" class="pa-2">
+                          <div
+                              v-for="(data, index) in soulMate['FavInterestType']"
+                              :key="index"
+                              class="d-inline"
+                          >
+                              <v-chip
+                                  class="ma-2 "
+                                  color="blue"
+                                >
+                                {{ data }}
+                              </v-chip>
                           </div>
-                        </div>
+                        </v-card>
+
+
+                        <h1 class="ml-2">Music</h1>
+                        <v-card  color="white" class="pa-2">
+                          <div
+                              v-for="(data, index) in soulMate['FavMusicType']"
+                              :key="index"
+                              class="d-inline"
+                          >
+                            <v-chip
+                                class="ma-1"
+                                color="blue"
+                                >
+                              {{ data }}
+                            </v-chip>
+                          </div>
+                        </v-card>
+
+                        <h1 class="ml-2">Movies</h1>
+                        <v-card  color="white" class="pa-2">
+                          <div
+                              v-for="(data, index) in soulMate['FavMovieType']"
+                              :key="index"
+                              class="d-inline"
+                          >
+                            <v-chip
+                                class="ma-1"
+                                color="blue"
+                                >
+                              {{ data }}
+                            </v-chip>
+                          </div>
+                        </v-card>
+
                         <v-list-item-title v-text="child.title"></v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
@@ -88,7 +138,7 @@
           </template>
 
           <v-carousel-item
-              v-for="(slide, i) in slides"
+              v-for="(slide, i) in this.soulMatePosts"
               :key="i"
           >
             <v-sheet
@@ -101,7 +151,7 @@
                   justify="center"
               >
                 <div class="text-h2">
-                  <v-img contain max-width="800" :src="randomImageUrl(true)"></v-img>
+                  <v-img contain max-width="800" :src="slide.PostUrl"></v-img>
 
                 </div>
               </v-row>
@@ -120,14 +170,22 @@ import {Vue2InteractDraggable} from 'vue2-interact'
 import {collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 import firebase from "firebase/compat/app";
-import {getAuth} from "firebase/auth";
+import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {mdiArrowLeft, mdiArrowRight, mdiAccountHeart} from '@mdi/js'
+import SweetCard from "@/components/SweetCard.vue";
 
 export default {
   components: {
+    SweetCard,
     Vue2InteractDraggable
   },
   data: () => ({
+    currentUserData: null,
+    allUserNames: [],
+    soulMate: [],
+    soulMatePostsId: [],
+    profileDescription: "",
+
     items: [
       {
         action: 'mdi-ticket',
@@ -151,13 +209,7 @@ export default {
       'red lighten-1',
       'deep-purple accent-4',
     ],
-    slides: [
-      'First',
-      'Second',
-      'Third',
-      'Fourth',
-      'Fifth',
-    ],
+    soulMatePosts: [],
 
 
   }),
@@ -176,14 +228,31 @@ export default {
   name: 'SweetCardDating',
 
   async mounted() {
+    await onAuthStateChanged(auth, (user) => {
+      if (user) {
+        //console.log("user exists");
+      }
+    });
+
+    //fetch current user data
+    await this.fetchUserInformation();
+
+    // fetch all user
+    await this.fetchAllUsers(); // check rejected ones
+
+    // find soulmate
+    await this.findSoulMate();
+
+    // fetch soulmate posts
+    await this.fetchPostsFromUser();
     // find a user
     // fetch all images from user
     //fetch all data from user
 
     //await this.getPostData();
 
+    this.userProfilePicture = this.getUserProfilePicture(this.userName);
 
-    this.userProfilePicture = await this.getUserProfilePicture(this.userName);
 
   },
 
@@ -228,6 +297,7 @@ export default {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
+        this.profileDescription = docSnap.data()["ProfileDescription"];
         return docSnap.data()["ProfilePictureUrl"];
       } else {
         console.log("error");
@@ -274,37 +344,55 @@ export default {
       }
     },
 
-    async fetchImagesFromUser() {
-      // fix later
-      await this.getPostIDs()
+    async fetchUserInformation() {
+      const collection = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Information");
+      const currentUser = await getDoc(collection);
+      this.currentUserData = currentUser.data();
+    },
 
-      console.log("asd")
-      console.log("wata fak")
-      const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", "Data");
-      const docSnap = await getDoc(docRef);
-      console.log(docSnap.data(), ",--");
-      if (docSnap.exists()) {
-        console.log(docSnap.data(), ",--");
+    async fetchAllUsers() {
+      const collection = doc(db, "Users", "UserNames");
+      const userNames = await getDoc(collection);
+      this.allUserNames = userNames.data()["ListOfAllUsernames"];
+    },
 
-      } else {
+    async findSoulMate() {
+      for (let userName of this.allUserNames) {
 
-        console.log("error");
-        return null;
+        const collection = doc(db, "Users", "UserNames", userName, "Information");
+        const userData = await getDoc(collection);
+
+        if (this.currentUserData["UserAttractedToGender"] === userData.data()["UserGender"]) {
+          this.soulMate = userData.data();       // TODO: ADDD BREAK
+        }
+      }
+      await this.getPostIDs(this.soulMate["displayName"]);
+      await this.getUserProfilePicture(this.soulMate["displayName"]);
+    },
+
+    async getPostIDs(username) {
+      const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", username, "Posts", "UserPosts"));
+      this.soulMatePostsId = collectionSnapshot.docs.map(doc => doc.id);
+    },
+
+    async fetchPostsFromUser() {
+
+      for (let PostId of this.soulMatePostsId) {
+        const docRef = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Posts", "UserPosts", PostId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists())
+          this.soulMatePosts.push(docSnap.data());
+
+        else {
+          console.log("error");
+          return null;
+        }
 
       }
 
     },
 
-    async getPostIDs() {
-      const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", "yohni", "Posts", "UserPosts"));
-      this.AllPostsIdNames = collectionSnapshot.docs.map(doc => doc.id);
-    },
-
   },
-
-
-
-
 
 
 };
