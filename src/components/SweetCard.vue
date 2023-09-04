@@ -382,7 +382,6 @@ export default {
         }
         return docSnap.data()["LikedPost"];
       } else {
-        console.log("liked post does not exsist");
         return null;
 
       }

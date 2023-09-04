@@ -10,7 +10,6 @@
           <p class="d-inline ma-2">{{ displayName }}</p>
           <div>
             <NotificationMenuComponent></NotificationMenuComponent>
-
             <v-btn @click="openMessageView" class="d-block mt-2" icon elevation="2" fab color="red">
               <v-icon>{{ messageIcon }}</v-icon>
             </v-btn>
@@ -34,10 +33,7 @@
               v-scroll.self="onScroll"
               class="overflow-y-auto "
           >
-
-
               <sweet-card
-
                   v-for="(data, index) in friendsPosts"
                   :key="index"
                   :post-i-d="data.postId"
@@ -45,6 +41,8 @@
                   :is-swipe-locked="true"
                   :is-dating-sweet-card="false"
               ></sweet-card>
+
+
 
 
           </v-card>
@@ -118,6 +116,7 @@ export default {
       scrollInvoked: 0,
       widnowHeight: window.innerHeight,
 
+
       // Sweet Cards
       AllPostsIdNames: "",
 
@@ -125,6 +124,7 @@ export default {
       friendsPosts: null,
     };
   },
+
 
 
   components: {
@@ -207,6 +207,7 @@ export default {
       } else {
         this.userLoginStatus = false;
       }
+
     },
 
     friend() {
@@ -257,6 +258,7 @@ export default {
     },
   },
 };
+
 
 </script>
 
