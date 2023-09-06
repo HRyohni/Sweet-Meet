@@ -1,9 +1,10 @@
 <template>
   <v-container>
-    <v-card>
+    <v-card >
 
       <Vue2InteractDraggable
           style="background-color: #ff7b92"
+          v-if="soulMate.length !== 0"
           @draggedRight="draggedRight"
           @draggedLeft="draggedLeft"
           :interact-max-rotation="15"
@@ -17,6 +18,7 @@
         <!--      dating app-->
         <v-carousel
             v-if="isDatingSweetCard"
+
             cycle
             height="500"
             hide-delimiter-background
@@ -105,7 +107,10 @@
             </v-sheet>
           </v-carousel-item>
         </v-carousel>
-        <v-list-item>
+
+        <v-list-item
+
+        >
           <v-list-item-content>
 
             <div class="child-flex justify-center ma-3">
@@ -438,10 +443,13 @@ export default {
 
           }
         }
+        if (this.soulMate)
+        {
+          await this.getPostIDs(this.soulMate["displayName"]);
+          await this.getUserProfilePicture(this.soulMate["displayName"]);
+        }
 
 
-        await this.getPostIDs(this.soulMate["displayName"]);
-        await this.getUserProfilePicture(this.soulMate["displayName"]);
       } catch (error) {
         console.log(error)
       }
@@ -526,7 +534,6 @@ export default {
       let reff = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Soulmate", "Dating", "Status");
       console.log(auth.currentUser.displayName);
       const docSnapCurrentUser = await getDoc(reff);
-
 
       // this.soulMate["displayName"]
       let reff2 = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Soulmate", "Dating", "Status");
