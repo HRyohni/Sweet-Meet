@@ -1,9 +1,9 @@
 <template>
   <v-container>
-    <v-card >
+    <v-card class="d-flex justify-center">
 
       <Vue2InteractDraggable
-          style="background-color: #ff7b92"
+          style="background-color: #d4d4d4; width: 500px"
           v-if="soulMate.length !== 0"
           @draggedRight="draggedRight"
           @draggedLeft="draggedLeft"
@@ -18,16 +18,12 @@
         <!--      dating app-->
         <v-carousel
             v-if="isDatingSweetCard"
-
-            cycle
-            height="500"
             hide-delimiter-background
             show-arrows-on-hover
         >
 
           <template v-slot:prev="{ on, attrs }">
             <v-btn
-
                 v-bind="attrs"
                 v-on="on"
                 icon>
@@ -49,60 +45,62 @@
           >
             <v-sheet
                 :color="colors[i]"
-                height="100%"
+
             >
               <v-row
                   class="fill-height"
                   align="center"
                   justify="center"
               >
-                <div class="text-h2">
-                  <v-img contain max-width="800" :src="user.PostUrl">
-                    <v-app-bar
-                        flat
-                        style="background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(0,0,0,1) 100%);"
-                        color="rgba(0, 0, 0, 0)"
-                        class="pb-4"
+
+
+                <v-img max-width="500" :src="user.PostUrl">
+                  <v-app-bar
+                      flat
+                      style="background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(0,0,0,1) 100%);"
+                      color="rgba(0, 0, 0, 0)"
+                      class=""
+                  >
+
+
+                    <v-toolbar-title class="text-h6 white--text pl-0 ma-2 ">
+                      <p class="d-inline font-weight-bold">{{ soulMate["FirstName"] }}</p>
+                      <p class="d-inline font-weight-light"><b> {{ soulMate["age"] }} </b></p>
+                      <div class="d-inline grey--text" v-if="currentUserData['lng'] && soulMate['lng']">
+                        {{ usersDistance }}
+                      </div>
+                    </v-toolbar-title>
+
+
+                    <v-spacer></v-spacer>
+
+                    <v-menu
+                        bottom
+                        left
                     >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                            dark
+                            icon
+                            v-bind="attrs"
+                            v-on="on"
+                        >
+                          <v-icon>mdi-dots-vertical</v-icon>
+                        </v-btn>
+                      </template>
+
+                      <v-list>
+                        <v-list-item class="red--text">
+                          <v-list-item-title @click="reportUser">Report</v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
 
 
-                      <v-toolbar-title class="text-h6 white--text pl-0 ma-2 ">
-                        <p class="d-inline font-weight-bold">{{ soulMate["FirstName"] }}</p>
-                        <p class="d-inline font-weight-light"><b> {{ soulMate["age"] }} </b></p>
-                        <div class="d-inline grey--text" v-if="currentUserData['lng'] && soulMate['lng']">
-                          {{ usersDistance }}
-                        </div>
-                      </v-toolbar-title>
+                  </v-app-bar>
+                </v-img>
 
 
-                      <v-spacer></v-spacer>
-
-                      <v-menu
-                          bottom
-                          left
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-btn
-                              dark
-                              icon
-                              v-bind="attrs"
-                              v-on="on"
-                          >
-                            <v-icon>mdi-dots-vertical</v-icon>
-                          </v-btn>
-                        </template>
-
-                        <v-list>
-                          <v-list-item class="red--text">
-                            <v-list-item-title>Report</v-list-item-title>
-                          </v-list-item>
-                        </v-list>
-                      </v-menu>
-
-                    </v-app-bar>
-                  </v-img>
-
-                </div>
               </v-row>
             </v-sheet>
           </v-carousel-item>
@@ -157,6 +155,7 @@
                               {{ data }}
                             </v-chip>
                           </div>
+
                         </div>
 
                         <v-divider></v-divider>
@@ -183,10 +182,11 @@
                           <div
                               v-for="(data, index) in soulMate['FavMovieType']"
                               :key="index"
-                              class="d-inline"
+                              class="d-inline scroll-x-transition"
                           >
                             <v-chip
-                                class="ma-1"
+
+                                class="ma-1 "
                                 color="blue"
                             >
                               {{ data }}
@@ -320,6 +320,9 @@ export default {
 
       await this.checkForMatchingSoulmates();
 
+      // fetch user Report Status
+      await this.fetchUserReports();
+
       this.userProfilePicture = this.getUserProfilePicture(this.userName);
     } catch (error) {
       console.error("An error occurred:", error);
@@ -443,8 +446,7 @@ export default {
 
           }
         }
-        if (this.soulMate)
-        {
+        if (this.soulMate) {
           await this.getPostIDs(this.soulMate["displayName"]);
           await this.getUserProfilePicture(this.soulMate["displayName"]);
         }
@@ -589,7 +591,25 @@ export default {
     },
     toRadians(degrees) {
       return degrees * (Math.PI / 180);
-    }
+    },
+    async fetchUserReports() {
+
+
+    },
+
+    async reportUser() {
+      let reff2 = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Report");
+      let docSnapSoulmate = await getDoc(reff2);
+
+      let reportList = docSnapSoulmate.data()["Reports"];
+      if (!reportList.includes(auth.currentUser.displayName)) {
+        reportList.push(auth.currentUser.displayName);
+        await setDoc(reff2, {
+          Reports: reportList,
+        });
+
+      }
+    },
 
   },
 
@@ -610,24 +630,6 @@ export default {
 
 }
 
-.comment {
-  background-color: grey;
-  width: 100%;
-  border-radius: 20px;
-  height: 100%;
-}
-
-
-.bottomText {
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-
-  color: rgb(235, 235, 235);
-  border-radius: 0px 0px 20px 20px;
-
-}
 
 @keyframes animate-pop {
   0% {

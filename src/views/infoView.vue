@@ -820,8 +820,8 @@ export default {
         Notifications: [],
       }).then(console.log("done!"));
 // Add Report System
-      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Notification"), {
-        Notifications: [],
+      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName), {
+        Reports: [],
       }).then(console.log("done!"));
 
 

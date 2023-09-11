@@ -1,9 +1,10 @@
 <template>
 
   <v-container>
-    <v-card>
+    <v-card class="d-flex justify-center">
       <Vue2InteractDraggable
-          style="background-color: #ff7b92; width: max-content"
+          class="d-flex justify-center"
+          style="background-color: #ff7b92; width: 100%"
           @draggedRight="draggedRight"
           :interact-max-rotation="15"
           :interact-out-of-sight-x-coordinate="3000"
@@ -16,7 +17,6 @@
         <div v-if="!isDatingSweetCard">
           <v-scroll-y-transition>
             <div v-if="false" class="comment pa-4 ma-2">  <!--Comment secstion-->
-
               <div>
                 <v-avatar class="d-inline">
 
@@ -43,43 +43,75 @@
 
 
           <!--      image section-->
+          <v-app-bar
+              flat
+              style="background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(0,0,0,1) 100%);"
+              color="rgba(0, 0, 0, 0)"
+              class="mt-4"
+          >
+
+            <v-container class="bg-surface-variant mt-2">
+              <v-row no-gutters>
+                <v-col style="text-align: left;">
+                  <v-avatar class="" @click="goToProfile(userName)">
+
+                    <v-img :src="this.userProfilePicture"></v-img>
+                  </v-avatar>
+
+                  <p style="text-align: center;" class="d-inline pa-2"> {{ userName }} </p>
+                </v-col>
+
+
+                <v-col class="d-inline pa-2" style="text-align: center;">
+                  <p class="d-inline">likes: {{ this.numberOfLikesOnPost }} </p>
+
+                  <p class="d-inline">comments: {{ numberOfCommentsOnPost }} </p>
+                </v-col>
+
+                <v-col class="d-inline pa-2" style="text-align: right; ">
+                  <v-btn @click="openOrCloseComments()">
+                    <font-awesome-icon icon="fa-regular fa-message" style=" font-size: 30px; color: white"/>
+                  </v-btn>
+<!--                  // TODO: Fix like-->
+                  <v-btn icon class="ma-1" :color="this.isLikedPost" @click="likeBtn()"><v-icon>{{ heartIcon }}</v-icon></v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+            <v-menu
+                bottom
+                left
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                    dark
+                    icon
+                    v-bind="attrs"
+                    v-on="on"
+                >
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+
+              <v-list>
+                <v-list-item class="red--text">
+                  <v-list-item-title @click="reportUser">Report</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-app-bar>
           <v-scroll-y-transition style="background-color: aqua;" class="align-center">
 
 
-            <v-img max-height="1000" max-width="500" contain :src="randomImageUrl(debugMod)">
+            <v-img contain max-width="500" :src="randomImageUrl(debugMod)">
+
               <div v-if="!this.isDatingSweetCard" class="bottomText" style="top: 0;">
-                <v-container class="bg-surface-variant">
-                  <v-row no-gutters>
-                    <v-col style="text-align: left;">
-                      <v-avatar class="" @click="goToProfile(userName)">
 
-                        <v-img :src="this.userProfilePicture"></v-img>
-                      </v-avatar>
-
-                      <p style="text-align: center;" class="d-inline pa-2"> {{ userName }} </p>
-                    </v-col>
-
-
-                    <v-col class="d-inline pa-2" style="text-align: center;">
-                      <p class="d-inline">likes: {{ this.numberOfLikesOnPost }} </p>
-
-                      <p class="d-inline">comments: {{ numberOfCommentsOnPost }} </p>
-                    </v-col>
-
-                    <v-col class="d-inline pa-2" style="text-align: right; ">
-                      <v-btn @click="openOrCloseComments()">
-                        <font-awesome-icon icon="fa-regular fa-message" style=" font-size: 30px; color: white"/>
-                      </v-btn>
-                      <v-btn class="ma-1" :color="this.isLikedPost" @click="likeBtn()">like</v-btn>
-                    </v-col>
-                  </v-row>
-                </v-container>
 
                 <!--    COMMENTS SYSTEM-->
                 <v-expand-transition>
 
                   <div class="pa-5 overflow-y-auto" v-if="isCommentWindowOpen"
-                       style=" font-size: 50px; background-color: #d8dae7; color: black; ">
+                       style=" font-size: 50px; height: 100%; width: 100%; background-color: #d8dae7; color: black; ">
 
                     <div>
                       <div class="d-flex justify-center " v-if="this.exsistingCommentsOnPost[0] == null">
@@ -138,13 +170,15 @@ import {collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc} fr
 import {auth, db} from "../../firebase";
 import firebase from "firebase/compat/app";
 import {getAuth} from "firebase/auth";
-
+import {mdiHeart} from "@mdi/js";
 export default {
   components: {
     Vue2InteractDraggable
   },
   data: () => ({
     numberOfLikesOnPost: "",
+    //icons
+    heartIcon : mdiHeart,
     // For Post Data
     imageUrl: "",
     numberOfCommentsOnPost: 0,
@@ -439,21 +473,33 @@ export default {
     goToProfile(username) {
       this.$router.push("/profile/" + username);
     },
+
+    async reportUser() {
+      let reff2 = doc(db, "Users", "UserNames", this.userName, "Report");
+      let docSnapSoulmate = await getDoc(reff2);
+
+      let reportList = docSnapSoulmate.data()["Reports"];
+      if (!reportList.includes(auth.currentUser.displayName)) {
+        reportList.push(auth.currentUser.displayName);
+        await setDoc(reff2, {
+          Reports: reportList,
+        });
+
+      }
+    },
   },
+
 
   // dating Card   --->
 
 
   async mounted() {
     getAuth();
-      // get random user based on similarity
-      await this.getPostData();
-      await this.getComments();
-      await this.isPostAlreadyLiked()
-      this.userProfilePicture = await this.getUserProfilePicture(this.userName);
-
-
-
+    // get random user based on similarity
+    await this.getPostData();
+    await this.getComments();
+    await this.isPostAlreadyLiked()
+    this.userProfilePicture = await this.getUserProfilePicture(this.userName);
   },
 };
 

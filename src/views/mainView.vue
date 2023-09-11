@@ -1,8 +1,9 @@
 <template>
 
+
   <v-container class="d-flex ma-10 justify-center">
     <v-row>
-      <v-col>
+      <v-col cols="2" >
         <div class=" ml-2 mt-2">
           <v-avatar size="50">
             <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
@@ -26,7 +27,9 @@
       </v-col>
 
 
-      <v-col >
+
+
+      <v-col  >
         <div class="d-inline" style="">
           <v-card
               max-height="50%"
@@ -41,7 +44,6 @@
                   :is-swipe-locked="true"
                   :is-dating-sweet-card="false"
               ></sweet-card>
-
 
 
 
@@ -62,18 +64,23 @@
         </div>
       </v-col>
 
-      <v-col>
+
+
+      <v-col cols="3" >
         <div style=" ">
         <sweet-card-dating
-            v-for="(data, index) in AllPostsIdNames"
-            :key="index"
+            style="width: 500px"
+
             :post-i-d="data"
             :debug-mod="true"
 
             user-name="yohni"
             :is-swipe-locked="false"
             :is-dating-sweet-card="true"
+
         ></sweet-card-dating>
+
+
         </div>
       </v-col>
 
@@ -249,6 +256,11 @@ export default {
       //append to show
       this.friendsPosts = followingData;
     },
+
+
+
+
+
 
     onScroll() {
       this.scrollInvoked++;
