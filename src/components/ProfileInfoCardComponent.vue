@@ -15,11 +15,15 @@
         <div class="ml-3  text-lg-h3  d-inline">{{ this.displayName }}</div>
 
         <v-card-text>
-          <h3 class=" ml-3 d-inline">followers: {{ this.followersCount }} following: {{ this.followersCount }}</h3>
           <h3 class="ml-3    ">{{ this.firstName + " " + this.secondName }}</h3>
+          <h3 class=" ml-3 d-inline">followers: {{ this.followersCount }} </h3>
+          <h3 class=" ml-3 d-inline">following: {{ this.followingCount }}</h3>
+          <h3 class=" ml-3 d-inline">Posts: {{ this.postCount }}</h3>
+
         </v-card-text>
 
       </v-card-title>
+
 
 
     </v-img>
@@ -35,7 +39,7 @@
         <v-btn v-if="userAdmin" class="d-inline  mt-5  font-weight-light pa-1  " @click="editInformationBtn()" style="font-size: 1em">Edit</v-btn>
         <!--         TODO: remove userAdmin !-->
 
-          <follow-button-component
+          <follow-button-component class="d-inline ma-2"
               :user-to-follow="this.displayName"
           ></follow-button-component>
 
@@ -70,7 +74,10 @@ export default {
     profilePicture: "",
     backgroundImage: "",
     cardColor: "",
-    followersCount: "",
+
+    followersCount: 0,
+    followingCount: 0,
+    postCount: 0,
 
 
   },

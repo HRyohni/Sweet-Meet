@@ -3,33 +3,32 @@
 
   <v-container class="d-flex ma-10 justify-center">
     <v-row>
-      <v-col cols="2" >
+      <v-col cols="2">
         <div class=" ml-2 mt-2">
-          <v-avatar size="50">
+          <v-avatar @click="goToProfilePage()" size="50">
             <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
           </v-avatar>
           <p class="d-inline ma-2">{{ displayName }}</p>
           <div>
+
             <NotificationMenuComponent></NotificationMenuComponent>
             <v-btn @click="openMessageView" class="d-block mt-2" icon elevation="2" fab color="red">
               <v-icon>{{ messageIcon }}</v-icon>
             </v-btn>
 
-            <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+            <v-btn @click="addPost" class="d-block mt-2" icon elevation="2" fab color="red">
               <v-icon>{{ plusIcon }}</v-icon>
             </v-btn>
 
-            <v-btn class="d-block mt-2" icon elevation="2" fab color="red">
+
+            <v-btn @click="signOut()" class="d-block mt-2" icon elevation="2" fab color="red">
               <v-icon>{{ logoutIcon }}</v-icon>
             </v-btn>
           </div>
         </div>
       </v-col>
 
-
-
-
-      <v-col  >
+      <v-col>
         <div class="d-inline" style="">
           <v-card
               style="width: fit-content"
@@ -37,17 +36,15 @@
               color="white"
               class="overflow-y-auto "
           >
-              <sweet-card
+            <sweet-card
+                v-for="(data, index) in friendsPosts"
+                :key="index"
+                :post-i-d="data.postId"
+                :user-name="data.username"
+                :is-swipe-locked="true"
 
-                  v-for="(data, index) in friendsPosts"
-                  :key="index"
-                  :post-i-d="data.postId"
-                  :user-name="data.username"
-                  :is-swipe-locked="true"
-                  :is-dating-sweet-card="false"
-              ></sweet-card>
-
-
+                :is-dating-sweet-card="false"
+            ></sweet-card>
 
           </v-card>
 
@@ -58,6 +55,7 @@
           >
             <v-progress-circular
                 color="red"
+
                 indeterminate
                 size="64"
             ></v-progress-circular>
@@ -67,19 +65,15 @@
       </v-col>
 
 
-
-      <v-col cols="3" >
+      <v-col cols="3">
         <div style=" ">
-        <sweet-card-dating
-            style="width: 500px"
-            :post-i-d="data"
-            :debug-mod="true"
-
-            user-name="yohni"
-            :is-swipe-locked="false"
-            :is-dating-sweet-card="true"
-
-        ></sweet-card-dating>
+          <sweet-card-dating
+              style="width: 500px"
+              :debug-mod="true"
+              :user-name="auth().currentUser.displayName"
+              :is-swipe-locked="false"
+              :is-dating-sweet-card="true"
+          ></sweet-card-dating>
 
 
         </div>
@@ -105,6 +99,7 @@ import RecommendationFriends from "@/components/RecommendationFriends.vue";
 import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue";
 import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
 import SweetCardDating from "@/components/SweetCardDatingComponent.vue";
+import {signOut} from "../../firebase";
 
 export default {
   data() {
@@ -134,7 +129,6 @@ export default {
   },
 
 
-
   components: {
     SweetCardDating,
     FollowButtonComponent,
@@ -162,6 +156,9 @@ export default {
 
   },
   methods: {
+    auth() {
+      return auth
+    },
     async Debugging() {
       // Create a reference to the file whose metadata we want to retrieve
 
@@ -182,7 +179,6 @@ export default {
 
     async GetUserDataFeed() {
 
-
       const docRef = doc(
           db,
           "Users",
@@ -190,6 +186,8 @@ export default {
           auth.currentUser.displayName,
           "Information"
       );
+
+
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -259,16 +257,30 @@ export default {
     },
 
 
-
-
-
-
+    signOut() {
+      const auth = getAuth();
+      signOut(auth)
+          .then(() => {
+            this.$router.push("/login");
+          })
+          .catch((error) => {
+            // An error happened.
+            console.log(error);
+          });
+    },
+    addPost() {
+      this.$router.push("/addPost");
+    },
     onScroll() {
       this.scrollInvoked++;
     },
     openMessageView() {
       this.$router.push("messages")
     },
+    goToProfilePage()
+    {
+      this.$router.push("profile/" + auth.currentUser.displayName);
+    }
   },
 };
 

@@ -1,17 +1,22 @@
 <template>
   <v-container>
-    <v-card class="d-flex justify-center">
 
+    <v-card class="d-flex justify-center">
+      <div class="ma-5 d-flex justify-center" v-if="!soulMateExists">
+        <h3>sorry cant find your Soulmate at the time try later!</h3>
+      </div>
       <Vue2InteractDraggable
           style="background-color: #d4d4d4; width: 500px"
-          v-if="soulMate.length !== 0"
+
           @draggedRight="draggedRight"
           @draggedLeft="draggedLeft"
           :interact-max-rotation="15"
-          :interact-out-of-sight-x-coordinate="3000"
+          :interact-out-of-sight-x-coordinate="500"
           :interact-x-threshold="500"
-          :interact-lock-y-axis="true"
-          :interact-lock-x-axis="isSwipeLocked"
+          :interact-block-drag-up="true"
+          :interact-block-drag-down="true"
+          v-if="isShowing && soulMateExists"
+
       >
 
 
@@ -210,19 +215,27 @@
           class="d-flex justify-center"
       >
         <h1>You got Sweet Meet</h1>
+
         <v-btn
-            class="justify-center"
+            class="justify-center ma-2"
             color="success"
-            @click="closeOverly = false"
+            @click="closeOverly = false, stop()"
         >
           Great!
+        </v-btn>
+        <v-btn
+
+            class="justify-center ma-2"
+            color="success"
+            @click="stop(),goToProfile()"
+        >
+          Go Meet your Sweet Meet!
         </v-btn>
       </v-overlay>
 
     </v-card>
   </v-container>
 </template>
-
 <script>
 import {Vue2InteractDraggable} from 'vue2-interact'
 import {collection, doc, getDoc, getDocs, setDoc, updateDoc} from "firebase/firestore";
@@ -230,6 +243,9 @@ import {auth, db} from "../../firebase";
 import {onAuthStateChanged} from "firebase/auth";
 import {mdiAccountHeart, mdiArrowLeft, mdiArrowRight, mdiArrowDownBold, mdiArrowUpBold} from '@mdi/js'
 import SweetCard from "@/components/SweetCard.vue";
+import VueConfetti from 'vue-confetti'
+import Vue from 'vue'
+Vue.use(VueConfetti)
 
 export default {
   components: {
@@ -237,6 +253,7 @@ export default {
     Vue2InteractDraggable
   },
   data: () => ({
+    soulMateExists: true,
     closeOverly: false,
     currentUserData: null,
     allUserNames: [],
@@ -246,6 +263,7 @@ export default {
     usersDistance: null,
     rejectedSoulmates: [],
     approvedSoulmates: [],
+    soulMateDisplayNameTemp:"",
 
     items: [
       {
@@ -257,6 +275,7 @@ export default {
 
     imageUrl: "",
     userProfilePicture: "",
+
     // icons
     leftArrow: mdiArrowLeft,
     rightArrow: mdiArrowRight,
@@ -273,6 +292,7 @@ export default {
       'deep-purple accent-4',
     ],
     soulMatePosts: [],
+    isShowing: true,
 
 
   }),
@@ -293,7 +313,6 @@ export default {
   async mounted() {
     await onAuthStateChanged(auth, (user) => {
       if (user) {
-        //console.log("user exists");
       }
     });
 
@@ -323,7 +342,6 @@ export default {
       // fetch user Report Status
       await this.fetchUserReports();
 
-      this.userProfilePicture = this.getUserProfilePicture(this.userName);
     } catch (error) {
       console.error("An error occurred:", error);
     }
@@ -331,6 +349,7 @@ export default {
 
 
   methods: {
+
     async getPostData() {
       const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID);
       const docSnap = await getDoc(docRef);
@@ -350,25 +369,30 @@ export default {
 
     async draggedRight() {
       //const x = event.clientX; // X coordinate
+      this.hideCard();
       await this.approveSoulmate();
       await this.checkForMatchingSoulmates();
+      this.soulMatePosts = [];
+      await this.fetchNewSoulmate();
 
-      if (this.closeOverly === false) {
-        const element = this.$el;
-        setTimeout(() => {
-          element.remove();
 
-        }, 300);
-      }
     },
-    draggedLeft() {
-      this.rejectSoulmate();
-      const element = this.$el;
+    async draggedLeft() {
+
+      this.hideCard();
+      await this.rejectSoulmate();
+      this.soulMatePosts = [];
+      await this.fetchNewSoulmate();
+    },
+
+    hideCard() {
       setTimeout(() => {
-        element.remove();
-      }, 300);
+        this.isShowing = false;
+      }, 200);
+      setTimeout(() => {
+        this.isShowing = true;
+      }, 1000);
     },
-
     async getUserProfilePicture(user) {
       const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data");
       const docSnap = await getDoc(docRef);
@@ -381,6 +405,7 @@ export default {
         return null;
 
       }
+
 
     },
 
@@ -421,9 +446,41 @@ export default {
       }
     },
 
+    async fetchNewSoulmate() {
+      try {
+        // Fetch current user data
+        await this.fetchUserInformation();
+
+        // Fetch Rejected and approved Soulmates
+        await this.fetchStatusOfSoulmates();
+
+        // Fetch all usernames
+        await this.fetchAllUsers();
+
+        // Find soulmate
+        await this.findSoulMate();
+
+        // Fetch soulmate posts
+        await this.fetchPostsFromUser();
+
+        // Calculate distance if both soulMate and currentUserData are available
+        if (this.soulMate && this.currentUserData) {
+          this.calculateDistance(this.soulMate["lat"], this.soulMate["lng"], this.currentUserData["lat"], this.currentUserData["lng"]);
+        }
+
+        await this.checkForMatchingSoulmates();
+
+        // fetch user Report Status
+        await this.fetchUserReports();
+
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    },
+
 
     async fetchUserInformation() {
-      const collection = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Information");
+      const collection = doc(db, "Users", "UserNames", this.userName, "Information");
       const currentUser = await getDoc(collection);
       this.currentUserData = currentUser.data();
     },
@@ -436,19 +493,26 @@ export default {
 
     async findSoulMate() {
       try {
+        this.soulMate = [];
         for (let userName of this.allUserNames) {
           const collection = doc(db, "Users", "UserNames", userName, "Information");
 
           const userData = await getDoc(collection);
+          await this.fetchStatusOfSoulmates();
           if (this.currentUserData["UserAttractedToGender"] === userData.data()["UserGender"] && !this.rejectedSoulmates.includes(userData.data()["displayName"]) && !this.approvedSoulmates.includes(userData.data()["displayName"])) {
             this.soulMate = userData.data();       // TODO: ADD BREAK
             break;
-
           }
+
         }
-        if (this.soulMate) {
+
+        if (this.soulMate.age !== undefined) {
           await this.getPostIDs(this.soulMate["displayName"]);
           await this.getUserProfilePicture(this.soulMate["displayName"]);
+        }
+        else
+        {
+          this.soulMateExists = false;
         }
 
 
@@ -514,6 +578,7 @@ export default {
 
     },
     async rejectSoulmate() {
+      await this.fetchStatusOfSoulmates();
       this.rejectedSoulmates.push(this.soulMate["displayName"])
       await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Soulmate", "Dating", "Status"), {
         RejectedSoulmates: this.rejectedSoulmates,
@@ -548,10 +613,10 @@ export default {
             comment: "you got match with " + auth.currentUser.displayName,
             FollowRequest: false
           });
+          this.soulMateDisplayNameTemp = this.soulMate["displayName"];
+          this.love();
           this.closeOverly = true
-          await this.$router.push("/profile/" + this.soulMate["displayName"]);
-        } else
-          console.log("not matching");
+        }
       } else {
         console.log("nothing found");
       }
@@ -610,6 +675,34 @@ export default {
 
       }
     },
+    goToProfile()
+    {
+      this.$router.push('/profile/' + this.soulMateDisplayNameTemp);
+    },
+
+    stop() {
+      this.$confetti.stop();
+    },
+
+
+    love() {
+      this.$confetti.start();
+      this.$confetti.update({
+        particles: [
+          {
+            type: 'heart',
+          },
+          {
+            type: 'circle',
+          },
+        ],
+        defaultColors: [
+          'red',
+          'pink',
+          '#ba0000'
+        ],
+      });
+    }
 
   },
 

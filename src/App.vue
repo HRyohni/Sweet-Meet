@@ -12,44 +12,7 @@
           </div>
         </v-col>
         <v-col style="text-align: right; font-size: 3vh" class="pa-5">
-          <v-btn
-              class="ma-2"
-              v-if="userLoginStatus"
-              @click="addPost()"
-              color="dark"
-              elevation="12"
-          >Add Post
-          </v-btn>
-          <v-btn
-              v-if="!userLoginStatus"
-              color="dark"
-              outlined
-              @click="RegisterPage()"
-          <v-btn
-              v-if="userLoginStatus"
-              @click="SignOut()"
-              color="red"
-              elevation="12"
-          >Sign Out
-          </v-btn>
-          <v-btn
-              v-if="!userLoginStatus"
-              color="primary"
-              @click="LoginPage()"
-              class="ma-2"
-          >Log In
-          </v-btn
-          >
-
-          <v-btn
-              v-if="!userLoginStatus"
-              color="red"
-
-              outlined
-              @click="RegisterPage()"
-          >Sign in
-          </v-btn>
-          <v-btn @click="goToProfileBtn()">profile</v-btn>
+   name
         </v-col>
       </v-row>
     </div>
@@ -114,16 +77,7 @@ export default {
           });
     },
 
-    LoginPage() {
-      this.$router.push("/login");
-    },
-    RegisterPage() {
-      this.$router.push("/register");
-    },
 
-    addPost() {
-      this.$router.push("/addPost");
-    },
 
     async GetDisplayName(LoginState) {
       if (!LoginState)
@@ -147,9 +101,7 @@ export default {
       }
     },
 
-    goToProfileBtn() {
-      this.$router.push("profile/" + auth.currentUser.displayName);
-    },
+
   },
 };
 </script>

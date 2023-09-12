@@ -15,8 +15,13 @@
           :second-name="this.secondName"
           :background-image="this.profileBackgroundPicture"
           :profile-picture="this.profilePicture"
+
           :followers-count="this.followersCount"
+          :following-count="this.followingCount"
+          :post-count="this.postCount"
+
       />
+
 
 
       <div v-if="" class="text-center">
@@ -40,17 +45,21 @@
       <div class="profileinfo">
       </div>
     </v-col>
-    <div v-if="!userExists">
-      <h1 class="align-center d-md-flex">User Does not exsists</h1>
-    </div>
 
+    <div v-if="!userExists">
+
+      <v-container class="d-flex justify-center">
+        <v-card color="red" class="white--text " width="25%">
+          <v-card-title class="justify-center">Oh no we cant find that</v-card-title>
+          <v-card-text class="justify-center white--text">User you are looking for does not exist</v-card-text>
+        </v-card>
+      </v-container>
+    </div>
     <v-row v-if="userExists && profilePrivate" class="BottomSite">
 
-      <!--                                 TODO: fix nameing id with site      Follow Suggestion system-->
       <v-col cols="3">
-        <FollowSugestionComponent v-if="userAdmin" />
-        <v-card elevation="12" class="pa-3 mt-3 white--text" :color="this.profileCardColor">
-          <v-card-title class="white--text">Information</v-card-title>
+        <FollowSugestionComponent v-if="userAdmin"/>
+        <v-card elevation="12" class="pa-3 mt-3 white--text pa-5" :color="this.profileCardColor">
           <h3 class="d-inline">{{ this.firstName }} {{ this.secondName }}</h3>
           <h3 class="d-inline"> {{ this.age }}</h3>
           <v-row>
@@ -71,6 +80,7 @@
       <!--Sweet Card profile images-->
       <v-col cols="6">
         <sweet-card
+            style="width: fit-content"
             v-for="(data, index) in AllPostsIdNames"
             :key="index"
             :post-i-d="data"
@@ -132,6 +142,10 @@ export default {
     gender: "",
     AllPostsIdNames: [],
 
+    followersCount: 0,
+    followingCount: 0,
+    postCount: 0,
+
 
     profileCardColor: "blue",
     profileDescription: "Loading..",
@@ -140,11 +154,11 @@ export default {
     interests: null,
     music: null,
     movies: null,
-    followersCount: 0,
+
 
     // Overly
     overlay: false,
-    userExists: false,
+    userExists: true,
     profilePrivate: true, // profile private TODO: make profile private system
     // User Id Site
     userUrlName: "",
@@ -163,7 +177,7 @@ export default {
   watch: {
     overlay(val) {
       val && setTimeout(() => {
-        this.overlay = false
+        this.overlay = false;
       }, 1000)
     },
   },
@@ -211,8 +225,8 @@ export default {
             return "error";
           }
 
-
           const querySnapshot2 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Information", "Profile"));
+
           querySnapshot2.forEach((doc) => {
             // doc.data() is never undefined for query doc snapshots
             this.profileCardColor = doc.data()["ProfileCardColor"];
@@ -221,13 +235,9 @@ export default {
             this.profileBackgroundPicture = doc.data()["ProfileBackgroundPicture"];
             this.followersCount = doc.data()["Followers"];
             this.getPostIDs().then(r => this.userExists = true);
-
           });
 
 
-          //const docRef = doc(db, "Users", "UserNames", this.userUrlName);
-
-// Get a document, forcing the SDK to fetch from the offline cache.
           const docSnap = await getDoc(doc(db, "Users", "UserNames", this.userUrlName, "Information"));
 
           if (docSnap.exists()) {
@@ -242,8 +252,23 @@ export default {
             this.gender = docSnap.data()["UserGender"];
           } else {
             // docSnap.data() will be undefined in this case
-            console.log("No such document!");
+            this.userExists = false;
           }
+
+          const querySnapshot3 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName,"Information", "Followers"));
+          let userFollowers, userFollowing;
+          try {
+            querySnapshot3.forEach((doc) => {
+              // doc.data() is never undefined for query doc snapshots
+              userFollowers = doc.data()["Followers"];
+              userFollowing = doc.data()["Following"];
+            });
+
+            this.followersCount = userFollowers.length;
+            this.followingCount = userFollowing.length;
+          }
+          catch (e)
+          { console.log(e);}
 
 
           // const querySnapshot = await getDoc(collection(db, "Users", "UserNames", this.userUrlName));
@@ -262,6 +287,7 @@ export default {
         async getPostIDs() {
           const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Posts", "UserPosts"));
           this.AllPostsIdNames = collectionSnapshot.docs.map(doc => doc.id);
+          this.postCount = this.AllPostsIdNames.length
         },
 
 

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card class="d-flex justify-center">
+    <v-card width="" class="d-flex justify-center">
       <v-row>
 
         <v-col>
@@ -56,7 +56,7 @@
 
               </v-scroll-y-transition>
               <v-container style="width: 500px" class="bg-surface-variant mt-2">
-                <v-row  no-gutters>
+                <v-row no-gutters>
                   <v-col style="text-align: left;">
                     <v-avatar class="" @click="goToProfile(userName)">
 
@@ -77,12 +77,12 @@
                     </v-btn>
                     <!--                  // TODO: Fix like-->
                     <v-btn icon class="ma-1" :color="this.isLikedPost" @click="likeBtn()">
-                      <v-icon >{{ heartIcon }}</v-icon>
+                      <v-icon>{{ heartIcon }}</v-icon>
                     </v-btn>
                   </v-col>
                 </v-row>
                 <div v-if="postDescription">
-                   {{postDescription}}
+                  {{ postDescription }}
                 </div>
               </v-container>
             </div>
@@ -97,9 +97,23 @@
                  style="width: 100%; max-height: 500px; min-height: 500px; background-color: #f3f3f3; color: black; ">
 
               <div>
-                <p>Comments: {{this.numberOfCommentsOnPost}}</p>
+                <p>Comments: {{ this.numberOfCommentsOnPost }}</p>
                 <div class="d-flex justify-center " v-if="this.existingCommentsOnPost[0] == null">
                   <p style="text-align: center; font-size: 20px">Be first to leave a comment</p>
+                </div>
+                comment:
+                <div style=" width: 100%" class="">
+                  <v-row>
+                    <v-col>
+                      <v-text-field outlined v-model="newComment" class="d-inline justify-end"
+                                    hint="Leave a comment"></v-text-field>
+                    </v-col>
+                    <v-col cols="2">
+                      <v-btn elevation="1" icon dark @click="addNewComment()">
+                        <v-icon color="black">{{ sendIcon }}</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                 </div>
 
 
@@ -127,19 +141,7 @@
 
               </div>
               <v-divider class="mt-4"></v-divider>
-              <div style=" width: 100%" class="pa-3">
-                <v-row>
-                  <v-col >
-                    <v-text-field outlined v-model="newComment" class="d-inline justify-end"
-                                  hint="Leave a comment"></v-text-field>
-                  </v-col>
-                  <v-col cols="2">
-                    <v-btn elevation="1" icon dark @click="addNewComment()">
-                      <v-icon color="black">{{ sendIcon }}</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </div>
+
             </div>
 
           </v-expand-transition>
@@ -307,7 +309,6 @@ export default {
       }
 
 
-
     },
 
     async addNewComment() {
@@ -364,7 +365,7 @@ export default {
         comment: auth.currentUser.displayName + " commented your post!"
       });
 
-     await this.getComments();
+      await this.getComments();
     },
 
 
@@ -509,8 +510,6 @@ export default {
   opacity: 0;
 
 }
-
-
 
 
 @keyframes animate-fade {
