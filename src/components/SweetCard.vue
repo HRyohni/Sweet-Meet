@@ -1,163 +1,150 @@
 <template>
-
   <v-container>
     <v-card class="d-flex justify-center">
-      <Vue2InteractDraggable
-          class="d-flex justify-center"
-          style="background-color: #ff7b92; width: 100%"
-          @draggedRight="draggedRight"
-          :interact-max-rotation="15"
-          :interact-out-of-sight-x-coordinate="3000"
-          :interact-x-threshold="500"
-          :interact-lock-y-axis="true"
-          :interact-lock-x-axis="isSwipeLocked"
-      >
+      <v-row>
 
-        <!--  Social media-->
-        <div v-if="!isDatingSweetCard">
-          <v-scroll-y-transition>
-            <div v-if="false" class="comment pa-4 ma-2">  <!--Comment secstion-->
-              <div>
-                <v-avatar class="d-inline">
-
-                </v-avatar>
-                <div>username:</div>
-                <div>comment</div>
-              </div>
-
-              <div>
-                <v-text-field
-                    class="d-inline-flex"
-                    label="Leave a comment">
-                </v-text-field>
-                <v-btn class="d-inline-flex">send</v-btn>
-              </div>
-
-              <v-btn dark @click="openOrCloseComments()">
-                <font-awesome-icon icon="fa-regular fa-message" style=" font-size: 30px; color: white"/>
-              </v-btn>
-
-
-            </div>
-          </v-scroll-y-transition>
-
-
-          <!--      image section-->
-          <v-app-bar
-              flat
-              style="background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(0,0,0,1) 100%);"
-              color="rgba(0, 0, 0, 0)"
-              class="mt-4"
+        <v-col>
+          <Vue2InteractDraggable
+              class="d-flex justify-center"
+              style=" width: 100%"
+              @draggedRight="draggedRight"
+              :interact-max-rotation="15"
+              :interact-out-of-sight-x-coordinate="3000"
+              :interact-x-threshold="500"
+              :interact-lock-y-axis="true"
+              :interact-lock-x-axis="isSwipeLocked"
           >
 
-            <v-container class="bg-surface-variant mt-2">
-              <v-row no-gutters>
-                <v-col style="text-align: left;">
-                  <v-avatar class="" @click="goToProfile(userName)">
+            <!--  Social media-->
+            <div v-if="!isDatingSweetCard">
+              <v-scroll-y-transition>
+                <div v-if="false" class="comment pa-4 ma-2">  <!--Comment section-->
+                  <div>
+                    <v-avatar class="d-inline">
 
-                    <v-img :src="this.userProfilePicture"></v-img>
-                  </v-avatar>
-
-                  <p style="text-align: center;" class="d-inline pa-2"> {{ userName }} </p>
-                </v-col>
-
-
-                <v-col class="d-inline pa-2" style="text-align: center;">
-                  <p class="d-inline">likes: {{ this.numberOfLikesOnPost }} </p>
-
-                  <p class="d-inline">comments: {{ numberOfCommentsOnPost }} </p>
-                </v-col>
-
-                <v-col class="d-inline pa-2" style="text-align: right; ">
-                  <v-btn @click="openOrCloseComments()">
-                    <font-awesome-icon icon="fa-regular fa-message" style=" font-size: 30px; color: white"/>
-                  </v-btn>
-<!--                  // TODO: Fix like-->
-                  <v-btn icon class="ma-1" :color="this.isLikedPost" @click="likeBtn()"><v-icon>{{ heartIcon }}</v-icon></v-btn>
-                </v-col>
-              </v-row>
-            </v-container>
-            <v-menu
-                bottom
-                left
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                    dark
-                    icon
-                    v-bind="attrs"
-                    v-on="on"
-                >
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-
-              <v-list>
-                <v-list-item class="red--text">
-                  <v-list-item-title @click="reportUser">Report</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-app-bar>
-          <v-scroll-y-transition style="background-color: aqua;" class="align-center">
-
-
-            <v-img contain max-width="500" :src="randomImageUrl(debugMod)">
-
-              <div v-if="!this.isDatingSweetCard" class="bottomText" style="top: 0;">
-
-
-                <!--    COMMENTS SYSTEM-->
-                <v-expand-transition>
-
-                  <div class="pa-5 overflow-y-auto" v-if="isCommentWindowOpen"
-                       style=" font-size: 50px; height: 100%; width: 100%; background-color: #d8dae7; color: black; ">
-
-                    <div>
-                      <div class="d-flex justify-center " v-if="this.exsistingCommentsOnPost[0] == null">
-                        <h5 style="text-align: center">Be first to leave a comment</h5>
-                      </div>
-                      <div class="d-flex mt-2"
-
-                           v-for="(data, index) in this.exsistingCommentsOnPost[0]"
-                           :key="index">
-
-                        <v-avatar class="">
-                          <v-img :src="data.UserProfilePicture"></v-img>
-                        </v-avatar>
-                        <v-col class="ml-2" style="font-size: 1vw">
-
-                          <v-row>{{ data.UserName }}</v-row>
-
-                          <v-row>{{ data.Comment }}</v-row>
-                          <v-row>
-                            <v-divider></v-divider>
-                          </v-row>
-
-                        </v-col>
-                      </div>
-                      <div style=" width: 100%" class="mb-12 ">
-                        <v-row>
-                          <v-col>
-                            <v-text-field v-model="newComment" class="d-inline justify-end"
-                                          hint="Leave a comment"></v-text-field>
-                          </v-col>
-                          <v-col cols="2">
-                            <v-btn dark @click="addNewComment()">send</v-btn>
-                          </v-col>
-                        </v-row>
-                      </div>
-                    </div>
-
-
+                    </v-avatar>
+                    <div>username:</div>
+                    <div>comment</div>
                   </div>
-                </v-expand-transition>
-              </div>
-            </v-img>
-          </v-scroll-y-transition>
 
-        </div>
-      </Vue2InteractDraggable>
+                  <div>
+                    <v-text-field
+                        class="d-inline-flex"
+                        label="Leave a comment">
+                    </v-text-field>
+                    <v-btn class="d-inline-flex">send</v-btn>
+                  </div>
+
+
+                  <v-btn icon dark @click="openOrCloseComments()">
+                    <v-icon>{{ commentIcon }}</v-icon>
+                  </v-btn>
+                </div>
+              </v-scroll-y-transition>
+
+
+              <!--      image section-->
+
+
+              <v-scroll-y-transition style="background-color: aqua;" class="align-center">
+                <v-img contain max-width="500" :src="randomImageUrl(debugMod)">
+
+                  <!--    COMMENTS SYSTEM-->
+
+
+                </v-img>
+
+              </v-scroll-y-transition>
+              <v-container style="width: 500px" class="bg-surface-variant mt-2">
+                <v-row  no-gutters>
+                  <v-col style="text-align: left;">
+                    <v-avatar class="" @click="goToProfile(userName)">
+
+                      <v-img :src="this.userProfilePicture"></v-img>
+                    </v-avatar>
+
+                    <p style="text-align: center;" class="d-inline pa-2"> {{ userName }} </p>
+                  </v-col>
+
+
+                  <v-col class=" font-weight-bold" style="text-align: center;">
+                    <p class="">likes: {{ this.numberOfLikesOnPost }} </p>
+                  </v-col>
+
+                  <v-col class="d-inline pa-2" style="text-align: right; ">
+                    <v-btn icon @click="openOrCloseComments()">
+                      <v-icon>{{ commentIcon }}</v-icon>
+                    </v-btn>
+                    <!--                  // TODO: Fix like-->
+                    <v-btn icon class="ma-1" :color="this.isLikedPost" @click="likeBtn()">
+                      <v-icon >{{ heartIcon }}</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+                <div v-if="postDescription">
+                   {{postDescription}}
+                </div>
+              </v-container>
+            </div>
+          </Vue2InteractDraggable>
+        </v-col>
+
+
+        <v-col v-if="isCommentWindowOpen">
+          <v-expand-transition>
+
+            <div class="pa-5 overflow-y-auto"
+                 style="width: 100%; max-height: 500px; min-height: 500px; background-color: #f3f3f3; color: black; ">
+
+              <div>
+                <p>Comments: {{this.numberOfCommentsOnPost}}</p>
+                <div class="d-flex justify-center " v-if="this.existingCommentsOnPost[0] == null">
+                  <p style="text-align: center; font-size: 20px">Be first to leave a comment</p>
+                </div>
+
+
+                <div class="d-flex mt-2"
+
+                     v-for="(data, index) in this.existingCommentsOnPost[0]"
+                     :key="index">
+
+                  <v-avatar class="">
+                    <v-img :src="data.UserProfilePicture"></v-img>
+                  </v-avatar>
+                  <v-col class="ml-2" style="font-size: 0.8vw">
+
+                    <v-row>{{ data.UserName }}</v-row>
+
+                    <v-row>{{ data.Comment }}</v-row>
+                    <v-row>
+                      <v-divider></v-divider>
+                    </v-row>
+
+                  </v-col>
+
+                </div>
+
+
+              </div>
+              <v-divider class="mt-4"></v-divider>
+              <div style=" width: 100%" class="pa-3">
+                <v-row>
+                  <v-col >
+                    <v-text-field outlined v-model="newComment" class="d-inline justify-end"
+                                  hint="Leave a comment"></v-text-field>
+                  </v-col>
+                  <v-col cols="2">
+                    <v-btn elevation="1" icon dark @click="addNewComment()">
+                      <v-icon color="black">{{ sendIcon }}</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </div>
+            </div>
+
+          </v-expand-transition>
+        </v-col>
+      </v-row>
     </v-card>
 
 
@@ -170,7 +157,8 @@ import {collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc} fr
 import {auth, db} from "../../firebase";
 import firebase from "firebase/compat/app";
 import {getAuth} from "firebase/auth";
-import {mdiHeart} from "@mdi/js";
+import {mdiHeart, mdiComment, mdiSend} from "@mdi/js";
+
 export default {
   components: {
     Vue2InteractDraggable
@@ -178,19 +166,22 @@ export default {
   data: () => ({
     numberOfLikesOnPost: "",
     //icons
-    heartIcon : mdiHeart,
+    heartIcon: mdiHeart,
+    commentIcon: mdiComment,
+    sendIcon: mdiSend,
     // For Post Data
     imageUrl: "",
     numberOfCommentsOnPost: 0,
     userProfilePicture: "",
+    postDescription: "",
 
     //comment system
     isCommentWindowOpen: false,
     newComment: "",
-    exsistingCommentsOnPost: [],
+    existingCommentsOnPost: [],
 
     // Like system
-    isLikedPost: "blue",
+    isLikedPost: "grey",
 
     // dating app
 
@@ -232,6 +223,7 @@ export default {
         this.numberOfCommentsOnPost = docSnap.data()["NumberOfCommentsOnPost"];
         this.numberOfLikesOnPost = docSnap.data()["NumberOfLikesOnPost"];
         this.imageUrl = docSnap.data()["PostUrl"];
+        this.postDescription = docSnap.data()["PostDescription"];
       } else {
         console.log("Cant Find post!");
       }
@@ -310,14 +302,16 @@ export default {
         this.numberOfLikesOnPost -= 1;
 
         // change btn color
-        this.isLikedPost = "blue";
+        this.isLikedPost = "grey";
 
       }
+
 
 
     },
 
     async addNewComment() {
+      console.log(this.newComment);
       if (this.newComment !== "") {
         const reff = doc(
             db,
@@ -340,12 +334,11 @@ export default {
           postData.Comments = [];
         }
 
-
         // Append the new comment to the existing comments
         const newComment = {
           UserName: auth.currentUser.displayName,
           Comment: this.newComment,
-          CommentId: new Date(), // Use the client-generated timestamp
+          CommentId: new Date(),
           UserProfilePicture: usersProfilePictureUrl,
         };
         postData.Comments.push(newComment);
@@ -370,10 +363,13 @@ export default {
         username: auth.currentUser.displayName,
         comment: auth.currentUser.displayName + " commented your post!"
       });
+
+     await this.getComments();
     },
 
 
     async getComments() {
+      this.existingCommentsOnPost = [];
       const reff = doc(
           db,
           "Users",
@@ -388,7 +384,8 @@ export default {
       const docSnap = await getDoc(reff);
       const postData = docSnap.data();
       this.test1 = docSnap.data();
-      this.exsistingCommentsOnPost.push(postData.Comments)
+      this.existingCommentsOnPost.push(postData.Comments)
+
     },
 
 
@@ -412,7 +409,7 @@ export default {
         if (docSnap.data()["LikedPost"]) {
           this.isLikedPost = "red"
         } else {
-          this.isLikedPost = "blue"
+          this.isLikedPost = "grey"
         }
         return docSnap.data()["LikedPost"];
       } else {
@@ -420,6 +417,7 @@ export default {
 
       }
     },
+
 
     async getUserProfilePicture(user) {
       const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data");
@@ -512,52 +510,7 @@ export default {
 
 }
 
-.card {
 
-
-}
-
-.comment {
-  background-color: grey;
-  width: 100%;
-  border-radius: 20px;
-  height: 100%;
-}
-
-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-}
-
-.bottomText {
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-
-  color: rgb(235, 235, 235);
-  border-radius: 0px 0px 20px 20px;
-
-}
-
-@keyframes animate-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.5, 0.5);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1, 1);
-  }
-}
-
-.Vue2InteractDraggable {
-  animation-duration: 0.5s;
-  animation-name: animate-fade;
-  animation-delay: 0.5s;
-  animation-fill-mode: backwards;
-}
 
 
 @keyframes animate-fade {

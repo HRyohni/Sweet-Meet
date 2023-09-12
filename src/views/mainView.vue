@@ -32,11 +32,13 @@
       <v-col  >
         <div class="d-inline" style="">
           <v-card
-              max-height="50%"
+              style="width: fit-content"
               v-scroll.self="onScroll"
+              color="white"
               class="overflow-y-auto "
           >
               <sweet-card
+
                   v-for="(data, index) in friendsPosts"
                   :key="index"
                   :post-i-d="data.postId"
@@ -70,7 +72,6 @@
         <div style=" ">
         <sweet-card-dating
             style="width: 500px"
-
             :post-i-d="data"
             :debug-mod="true"
 

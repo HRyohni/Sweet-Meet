@@ -6,13 +6,6 @@
                 width="80%"
         >
           <h1>Add Image Here</h1>
-          <sweet-card
-              :debug-mod="false"
-              :image-url="this.imageUrl"
-              :user-name="this.displayName"
-              :number-of-comments-on-post="23"
-              :number-of-likes-on-post="123"
-          ></sweet-card>
 
           <v-file-input
               v-model="selectedImage"
@@ -21,8 +14,32 @@
               @change="handleFileChange"
           ></v-file-input>
 
+
+
+          <v-textarea
+              v-model="postDescription"
+              color="teal"
+          >
+            <template v-slot:label>
+              <div>
+                Post description
+              </div>
+            </template>
+          </v-textarea>
+
           <v-btn @click="UploadPost()" class="ma-3">Upload</v-btn>
         </v-card>
+      </v-col>
+      <v-col>
+        <sweet-card
+            :debug-mod="false"
+            :image-url="this.imageUrl"
+            :user-name="this.displayName"
+            :number-of-comments-on-post="23"
+            :number-of-likes-on-post="123"
+        ></sweet-card>
+
+
       </v-col>
 
 
@@ -45,6 +62,7 @@ export default {
         selectedImage: "",
         imageUrl: "",
         downloadImageUrl: "",
+        postDescription: "",
 
 
       }),
@@ -61,6 +79,8 @@ export default {
         },
 
         UploadPost() {
+          this.imageUrl = this.selectedImage;
+
 
           const storageRef = ref(
               storage,
@@ -74,6 +94,7 @@ export default {
             // Get the download URL of the uploaded image
             getDownloadURL(snapshot.ref).then((url) => {
               this.downloadImageUrl = url;
+
               this.savePostUrl();
             }).catch((error) => {
               console.error("Error getting download URL:", error);
@@ -93,11 +114,12 @@ export default {
 
 
         async savePostUrl() {
-          const docRef = await addDoc(collection(db, "Users","UserNames",this.displayName,"Posts","UserPosts"), {
-           PostUrl: this.downloadImageUrl,
-           NumberOfLikesOnPost: 0,
-           NumberOfCommentsOnPost: 0,
-           PostedDate: new Date(),
+          const docRef = await addDoc(collection(db, "Users", "UserNames", this.displayName, "Posts", "UserPosts"), {
+            PostUrl: this.downloadImageUrl,
+            NumberOfLikesOnPost: 0,
+            NumberOfCommentsOnPost: 0,
+            PostedDate: new Date(),
+            PostDescription: this.postDescription,
           });
           console.log("Document written with ID: ", docRef.id);
         },
