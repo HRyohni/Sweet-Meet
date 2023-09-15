@@ -8,7 +8,7 @@
           <v-avatar @click="goToProfilePage()" size="50">
             <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
           </v-avatar>
-          <p class="d-inline ma-2">{{ displayName }}</p>
+          <p class="d-inline ma-2">{{ userName }}</p>
           <div>
 
             <NotificationMenuComponent></NotificationMenuComponent>
@@ -70,7 +70,7 @@
           <sweet-card-dating
               style="width: 500px"
               :debug-mod="true"
-              :user-name="auth().currentUser.displayName"
+              :user-name="userName"
               :is-swipe-locked="false"
               :is-dating-sweet-card="true"
           ></sweet-card-dating>
@@ -109,6 +109,8 @@ export default {
       userLoginStatus: false,
       userInfo: null,
       userEmail: null,
+      userName:"",
+      // icons
       notificationIcon: mdiBell,
       messageIcon: mdiMessage,
       plusIcon: mdiPlus,
@@ -139,17 +141,18 @@ export default {
     SweetCard,
   },
   async mounted() {
-
-    await onAuthStateChanged(auth, (user) => {
+    await onAuthStateChanged(auth,  async (user) => {
       if (user) {
-        this.showFollowingUsersPosts();
+        this.userName = user.displayName;
+        await this.showFollowingUsersPosts();
         // get data
-        this.getPostIDs()
+        await this.getPostIDs();
 
         //debugger;
         this.GetUserStatus();
-        this.GetUserDataFeed();
+        await this.GetUserDataFeed();
         //this.Debugging();
+
       }
     });
 
@@ -168,7 +171,6 @@ export default {
           storage,
           "Users" + auth.currentUser.displayName + "ProfilePicture/profile.png"
       );
-      console.log(pathReference);
     },
     DragPosts() {
       if (this.drag === 2)
@@ -203,7 +205,6 @@ export default {
 
       let auth = getAuth();
       let user = auth.currentUser;
-
 
       if (user) {
         this.userLoginStatus = true;
@@ -277,6 +278,7 @@ export default {
     openMessageView() {
       this.$router.push("messages")
     },
+
     goToProfilePage()
     {
       this.$router.push("profile/" + auth.currentUser.displayName);

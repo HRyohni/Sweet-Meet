@@ -133,7 +133,7 @@
           light
           :class="{ green: inter.isActive }"
           v-for="(inter, index) in interests"
-          :key="index"
+          :key="index+'a'"
           v-model="interest"
           @click="checkedElement(interests,index)"
       >{{ inter.label }}
@@ -149,7 +149,7 @@
           light
           :class="{ green: music.isActive }"
           v-for="(music, index) in musicType"
-          :key="index"
+          :key="index+'b'"
           v-model="musics"
           @click="checkedElement(musicType,index)"
       >{{ music.label }}
@@ -166,7 +166,7 @@
           light
           :class="{ green: movie.isActive }"
           v-for="(movie, index) in movieType"
-          :key="index"
+          :key="index+'c'"
           @click="checkedElement(movieType,index)"
       >{{ movie.label }}
       </v-chip>

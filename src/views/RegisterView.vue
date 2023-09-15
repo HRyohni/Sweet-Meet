@@ -1,12 +1,18 @@
 <template>
-  <v-container fill-height fluid class="background">
+  <v-img class="pa-0 ma-0"   src="../../public/imgassets/backgroundSweetMeet.png">
+    <div  style="position: absolute;">
+      <v-img style="left: 45%;" width="1000" src="../../public/imgassets/blob.png"></v-img>
+    </div>
+  <v-container  fluid class="background mt-15">
+
     <v-row align="center" justify="center">
       <v-col align="center" justify="center" cols="12">
+
         <v-card class="card-border" width="600px" outlined>
-          <v-card-title align="left">REGISTER</v-card-title>
-          <v-card-subtitle align="left">
-            Deer user, plz register
-          </v-card-subtitle>
+          <div class="d-flex justify-center">
+            <v-card-title style="font-size: x-large">REGISTER</v-card-title>
+          </div>
+
           <v-card-text>
             <v-form v-model="valid">
               <v-text-field
@@ -39,14 +45,15 @@
               ></v-text-field>
             </v-form>
           </v-card-text>
+          <p class="d-inline" style="font-size: 12px;"> Already have account?</p>
           <v-btn
               @click="login()"
-              class="link-left"
+              class="link-left d-inline"
               text
               x-small
               color="blue"
           >
-            Alerady have account?
+            Log in
           </v-btn>
 
           <v-card-actions class="card-actions">
@@ -64,9 +71,12 @@
             </v-btn>
           </v-card-actions>
         </v-card>
+
       </v-col>
     </v-row>
   </v-container>
+  </v-img>
+
 </template>
 
 <script>
@@ -80,13 +90,14 @@ import {
 } from "../../firebase.js";
 
 import { getAuth, updateProfile } from "@firebase/auth";
+import {getDoc} from "firebase/firestore";
 
 export default {
   name: "RegistrationView",
   components: {},
   watch: {
     valid: function (isValid) {
-      this.isButtonDisabled = isValid != true;
+      this.isButtonDisabled = isValid !== true;
     },
   },
   data() {
@@ -110,7 +121,7 @@ export default {
   },
   created() {
   },
-  mounted() {
+  async mounted() {
   },
   destroyed() {
   },
@@ -130,11 +141,16 @@ export default {
         displayName: firstName,
         AuthorisationType: "USER",
       });
-      await setDoc(doc(db, "Users", "UserNames", firstName, "Information","Profile","Data"), {
-
-      });
+      await setDoc(doc(db, "Users", "UserNames", firstName, "Information", "Profile", "Data"), {});
     },
-    registerUser() {
+    async registerUser() {
+      if (await this.checkIfUserNameExists(this.firstName))
+      {
+        console.log("fuck off");
+        alert("user already exists");
+        return "error"
+      }
+
       const email = this.email;
       const password = this.password;
 
@@ -171,8 +187,7 @@ export default {
     },
 
 
-    UpdateProfile()
-    {
+    UpdateProfile() {
       updateProfile(auth.currentUser, {
         displayName: this.displayName
       }).then(() => {
@@ -181,13 +196,38 @@ export default {
         // ...
       }).catch((error) => {
         // An error occurred
-         console.log("fuck");
+        console.log("fuck");
       });
     },
 
     login() {
 
       this.$router.push("/login");
+    },
+    async checkIfUserNameExists(username)
+
+    {
+      let usernameList = [];
+      const docRef = doc(
+          db,
+          "Users",
+          "UserNames",
+      );
+
+      const docSnap = await getDoc(docRef);
+
+
+      if (docSnap.exists()) {
+        // setup display name
+        usernameList = docSnap.data().ListOfAllUsernames;
+        return usernameList.includes(username);
+
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("cant find nothing");
+        await this.$router.push("/")
+      }
+
     },
   },
 };

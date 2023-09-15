@@ -3,16 +3,16 @@
     <div class="topbar pa-2" style="position: absolute; width: 100%">
       <v-row>
         <v-col>
-          <h4>sweet meet</h4>
+          <h4></h4>
         </v-col>
 
         <v-col style="text-align: center">
           <div>
-<SearchUserComponent></SearchUserComponent>
+            <SearchUserComponent></SearchUserComponent>
           </div>
         </v-col>
         <v-col style="text-align: right; font-size: 3vh" class="pa-5">
-   name
+
         </v-col>
       </v-row>
     </div>
@@ -78,7 +78,6 @@ export default {
     },
 
 
-
     async GetDisplayName(LoginState) {
       if (!LoginState)
         return null;
@@ -107,16 +106,5 @@ export default {
 </script>
 
 <style scoped>
-.topbar {
-  widows: 100%;
-  height: 5%;
-}
-
-.bottom {
-  position: absolute;
-  display: fixed;
-  bottom: 0px;
-  width: 100%;
-  height: 50px;
-}
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
 </style>

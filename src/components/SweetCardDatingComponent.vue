@@ -311,40 +311,40 @@ export default {
   name: 'SweetCardDating',
 
   async mounted() {
-    await onAuthStateChanged(auth, (user) => {
+    await onAuthStateChanged(auth, async (user) => {
       if (user) {
+        try {
+          // Fetch current user data
+          await this.fetchUserInformation();
+
+          // Fetch Rejected and approved Soulmates
+          await this.fetchStatusOfSoulmates();
+
+          // Fetch all usernames
+          await this.fetchAllUsers();
+
+          // Find soulmate
+          await this.findSoulMate();
+
+          // Fetch soulmate posts
+          await this.fetchPostsFromUser();
+
+          // Calculate distance if both soulMate and currentUserData are available
+          if (this.soulMate && this.currentUserData) {
+            this.calculateDistance(this.soulMate["lat"], this.soulMate["lng"], this.currentUserData["lat"], this.currentUserData["lng"]);
+          }
+
+          await this.checkForMatchingSoulmates();
+
+          // fetch user Report Status
+          await this.fetchUserReports();
+
+        } catch (error) {
+          console.error("An error occurred:", error);
+        }
       }
     });
 
-    try {
-      // Fetch current user data
-      await this.fetchUserInformation();
-
-      // Fetch Rejected and approved Soulmates
-      await this.fetchStatusOfSoulmates();
-
-      // Fetch all usernames
-      await this.fetchAllUsers();
-
-      // Find soulmate
-      await this.findSoulMate();
-
-      // Fetch soulmate posts
-      await this.fetchPostsFromUser();
-
-      // Calculate distance if both soulMate and currentUserData are available
-      if (this.soulMate && this.currentUserData) {
-        this.calculateDistance(this.soulMate["lat"], this.soulMate["lng"], this.currentUserData["lat"], this.currentUserData["lng"]);
-      }
-
-      await this.checkForMatchingSoulmates();
-
-      // fetch user Report Status
-      await this.fetchUserReports();
-
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
   },
 
 

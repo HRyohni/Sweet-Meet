@@ -1,42 +1,45 @@
 <template>
-  <v-container>
-    <v-card outlined class="messageBox pa-3 overflow-y-auto">
-      <div class="d-flex ">
-        <v-avatar
-            class="ma-1"
-            color="primary"
-            size="40"
-        >
-          <v-img :src="friendsAvatarUrl"></v-img>
-        </v-avatar>
-        <h1>{{ this.friend }}</h1>
-      </div>
+  <div>
+    <v-card elevation="5" class="d-flex pa-5 ma-0 ">
+      <v-avatar
+          class="ma-2 "
+          color="primary"
+          size="40"
+      >
+        <v-img :src="friendsAvatarUrl"></v-img>
+      </v-avatar>
+      <h1>{{ this.friend }}</h1>
 
-      <v-scroll-x-reverse-transition
+    </v-card>
+
+    <div class="overflow-y-auto pa-3" style="height: 100%">
+      <div
           v-for="(message, index) in this.messageHistory"
           :key="index">
-        <!--              FRIEND SEND A MESSAGE-->
-        <div
 
-            v-if="message.sender === friend "
+        <div v-if="message.sender === friend ">
 
-            class="d-flex">
-          <v-avatar
-              class="ma-1"
-              color="primary"
-              size="40"
-          >
-            <v-img v-if="usersAvatarUrl" :src="usersAvatarUrl"></v-img>
-          </v-avatar>
 
           <div class="d-flex ">
+            <v-avatar
+                class="ma-1"
+                color="primary"
+                size="40"
+            >
+              <v-img v-if="usersAvatarUrl" :src="friendsAvatarUrl"></v-img>
+            </v-avatar>
             <v-card style="width: fit-content" elevation="3" class=" ma-1 d-flex ">
               <v-card-text style="">
 
                 <div class=" ">
+
                   <v-row style="color: black" class="text--darken-4  ma-n1">
+
                     {{ message.text }}
+                    <p style="font-size: 12px; text-align: right; color: #646567; width: max-content"
+                       class="ma-0 pa-0 ml-2">{{ convertTimestamp(message.timestamp) }}</p>
                   </v-row>
+
                 </div>
               </v-card-text>
             </v-card>
@@ -49,17 +52,28 @@
 
             v-if="message.sender !== friend "
             class="d-flex justify-end">
-          <v-card style="width: fit-content; height: fit-content" elevation="3"
-                  class=" ma-3 pa-0 d-flex justify-end">
-            <v-card-text style=" height: fit-content">
+          <div class="d-inline">
 
-              <div class=" ">
-                <v-row style="color: black ;" class="text--darken-4 ma-n1"> {{ message.text }}
-                </v-row>
-              </div>
-            </v-card-text>
 
-          </v-card>
+            <v-card style="width: fit-content; height: fit-content" elevation="3"
+                    class=" ma-3 pa-0 d-flex justify-end">
+              <v-card-text style=" height: fit-content">
+
+                <div class=" ">
+                  <v-row style="color: black ;" class="text--darken-4 ma-n1">
+                    {{ message.text }}
+                  </v-row>
+                </div>
+
+              </v-card-text>
+              <v-card-text class="d-flex  ma-0 pa-0"
+                           style="font-size: 12px; text-align: right; color: #646567; width: max-content">
+                <p style="width: max-content" class="pa-1">{{ convertTimestamp(message.timestamp) }}</p>
+              </v-card-text>
+
+            </v-card>
+
+          </div>
           <v-avatar
               class="ma-1"
               color="primary"
@@ -68,36 +82,38 @@
             <v-img :src="usersAvatarUrl"></v-img>
           </v-avatar>
 
+
         </div>
 
-      </v-scroll-x-reverse-transition>
-
-
-      <!--              Type Message-->
-
-      <v-divider></v-divider>
-      <VEmojiPicker emojis-by-row="10" v-if="!marker" @select="selectEmoji"/>
-      <div class="d-flex ">
-
-        <v-text-field
-            outlined
-            v-model="currentMessage"
-            :append-icon="marker ? emoticon : emoticon"
-            :append-outer-icon="message ? 'mdi-send' : 'mdi-microphone'"
-            filled
-            clear-icon="mdi-close-circle"
-            clearable
-            label="Message"
-            type="text"
-            @click:append="toggleMarker"
-            @click:append-outer="sendMsgToFriend(currentMessage)"
-        ></v-text-field>
-
       </div>
+      <VEmojiPicker style="width: 100%" emojis-by-row="10" v-if="!marker" @select="selectEmoji"/>
+    </div>
 
-    </v-card>
 
-  </v-container>
+    <!--              Type Message-->
+
+    <v-divider></v-divider>
+
+    <div class="d-flex mb-3">
+
+      <v-text-field
+          class="ma-2 mb-3"
+          outlined
+          v-model="currentMessage"
+          :append-icon="marker ? emoticon : emoticon"
+          :append-outer-icon="message ? 'mdi-send' : 'mdi-microphone'"
+          filled
+          clear-icon="mdi-close-circle"
+          clearable
+          label="Message"
+          type="text"
+          @click:append="toggleMarker"
+          @click:append-outer="sendMsgToFriend(currentMessage)"
+      ></v-text-field>
+
+    </div>
+
+  </div>
 </template>
 
 
@@ -157,9 +173,7 @@ export default {
   },
 
   async mounted() {
-
     await this.allFunctions();
-
 
   },
   watch: {
@@ -172,11 +186,9 @@ export default {
   },
 
 
-
   methods: {
 
-    async allFunctions()
-    {
+    async allFunctions() {
       if (this.friend || this.user) {
         //check if user exists
         await this.checkIfFriendExists();
@@ -227,6 +239,7 @@ export default {
         // doc.data() is never undefined for query doc snapshots
         this.messageHistory = doc.data()["messages"];
       });
+
 
     },
 
@@ -297,6 +310,14 @@ export default {
         this.friendsAvatarUrl = doc.data()["ProfilePictureUrl"];
       })
 
+    },
+    convertTimestamp(timestamp) {
+      const date = new Date(timestamp);
+      const currentDate = new Date();
+      if (currentDate.toDateString() === date.toDateString())
+        return date.getHours() + ":" + date.getMinutes();
+      else
+        return date.getDay() + " " + date.toLocaleString('default', {month: 'short'});
     },
 
     toggleMarker() {

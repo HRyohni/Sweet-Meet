@@ -1,101 +1,121 @@
-<template>
-  <v-container fill-height fluid class="background">
-    <v-row align="center" justify="center">
-      <v-col align="center" justify="center" cols="12">
-        <v-card class="card-border" width="600px" outlined>
-          <v-card-title align="left">LOGIN</v-card-title>
-          <v-card-subtitle align="left"> Deer user, plz login</v-card-subtitle>
-          <v-card-text class="card-text-border">
-            <v-form v-model="valid">
-              <v-text-field
-                  v-model="email"
-                  dense
-                  label="Email"
-                  clearble
-                  type="text"
-                  :rules="[rules.required, rules.email]"
-                  outlined
-              ></v-text-field>
-              <v-text-field
-                  v-model="password"
-                  dense
-                  label="Password"
-                  clearble
-                  :append-icon="showIcon ? 'mdi-eye' : 'mdi-eye-off'"
-                  :rules="[rules.required, rules.min]"
-                  :type="showIcon ? 'text' : 'password'"
-                  outlined
-              ></v-text-field>
-            </v-form>
-            <v-btn
-                @click="openDialog"
-                class="link-left"
-                text
-                x-small
-                color="blue"
+<template >
+  <v-img class="pa-0  ma-0" src="../../public/imgassets/backgroundSweetMeet.png"  >
+    <div class="d-flex justify-center">
+      <v-card style="width: 40%"  class="background mt-15 pa-5"  >
+        <v-row align="center" justify="center">
+          <v-col  justify="center" cols="12">
+            <div class="card-border">
+              <div class="d-flex justify-center" style="font-size: x-large; color: black">
+                <h1 align="left">LOGIN</h1>
+              </div>
+              <div class="d-flex">
+                <h5  align="left" class="d-flex ">dont have Account? </h5>
+                <v-btn
+                    @click="register()"
+                    class="link-left d-flex"
+                    text
+                    x-small
+                    color="blue"
+                >
+                  Sing in
+                </v-btn>
+              </div>
+
+              <v-card-text class="card-text-border">
+                <v-form v-model="valid">
+                  <v-text-field
+                      v-model="email"
+                      dense
+                      label="Email"
+                      clearble
+                      filled
+                      outlined
+                      rounded
+                      background-color="white"
+                      color="blue"
+                      type="text"
+                      :rules="[rules.required, rules.email]"
+
+                  ></v-text-field>
+                  <v-text-field
+                      v-model="password"
+                      dense
+                      label="Password"
+                      clearble
+                      filled
+                      rounded
+                      outlined
+                      background-color="white"
+                      color="blue"
+                      :rules="[rules.required, rules.min]"
+                      :type="showIcon ? 'text' : 'password'"
+
+                  ></v-text-field>
+                </v-form>
+                <v-btn
+                    @click="openDialog"
+                    class="link-left"
+                    text
+                    x-small
+                    color="blue"
+                >
+                  Forgot password?
+                </v-btn>
+
+
+
+              </v-card-text>
+              <v-card-actions class="card-actions">
+                <v-btn @click="login" :disabled="isButtonDisabled" >
+                  OK
+                </v-btn>
+              </v-card-actions>
+            </div>
+            <v-dialog
+                width="300px"
+                outlined
+                persistent
+                v-model="passwordIssuesDialog"
             >
-              Forgot password?
-            </v-btn>
+              <v-card class="card-border">
+                <v-card-title>E-mail</v-card-title>
+                <v-card-subtitle>enter you e-mail</v-card-subtitle>
+                <v-card-text>
+                  <v-text-field
+                      v-model="emailForPassword"
+                      dense
+                      label="Email"
+                      clearble
+                      type="text"
+                      :rules="[rules.required, rules.email]"
+                      outlined
+                  ></v-text-field>
+                </v-card-text>
+                <v-card-actions class="card-actions">
+                  <v-btn
+                      class="btn-right-margin"
+                      color="red darken-3"
+                      outlined
+                      text
 
-            <v-btn
-                @click="register()"
-                class="link-left"
-                text
-                x-small
-                color="blue"
-            >
-              Don't have Account?
-            </v-btn>
+                      small
+                      @click="closeDialog"
+                  >
+                    CLOSE
+                  </v-btn>
 
-          </v-card-text>
-          <v-card-actions class="card-actions">
-            <v-btn @click="login" :disabled="isButtonDisabled" outlined>
-              OK
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-        <v-dialog
-            width="300px"
-            outlined
-            persistent
-            v-model="passwordIssuesDialog"
-        >
-          <v-card class="card-border">
-            <v-card-title>E-mail</v-card-title>
-            <v-card-subtitle> Please enter you e-mail</v-card-subtitle>
-            <v-card-text>
-              <v-text-field
-                  v-model="emailForPassword"
-                  dense
-                  label="Email"
-                  clearble
-                  type="text"
-                  :rules="[rules.required, rules.email]"
-                  outlined
-              ></v-text-field>
-            </v-card-text>
-            <v-card-actions class="card-actions">
-              <v-btn
-                  class="btn-right-margin"
-                  color="red darken-3"
-                  outlined
-                  text
+                  <v-btn outlined text @click="resetPassword(emailForPassword)">
+                    SEND
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
 
-                  small
-                  @click="closeDialog"
-              >
-                CLOSE
-              </v-btn>
-
-              <v-btn outlined text @click="resetPassword(emailForPassword)">
-                SEND
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-col>
-    </v-row>
-  </v-container>
+          </v-col>
+        </v-row>
+      </v-card>
+    </div>
+  </v-img>
 </template>
 <script>
 import {
@@ -145,7 +165,6 @@ export default {
   },
   computed: {
     ...mapGetters(
-
         {
           mail: "getEmail",
 
@@ -154,7 +173,7 @@ export default {
   },
   methods: {
 
-    async  checkLoginStatus() {
+    async checkLoginStatus() {
       await onAuthStateChanged(auth, (user) => {
         if (user) {
           this.userLoginStatus = true;
@@ -227,8 +246,7 @@ export default {
     },
   },
   created() {
-    if ( this.checkLoginStatus()) {
-      console.log(this.userLoginStatus);
+    if (this.checkLoginStatus()) {
       //this.$router.push("/test");
     }
   },

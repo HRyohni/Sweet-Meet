@@ -3,7 +3,7 @@
     <v-card width="" class="d-flex justify-center">
       <v-row>
 
-        <v-col>
+        <v-col  ref="mojElement">
           <Vue2InteractDraggable
               class="d-flex justify-center"
               style=" width: 100%"
@@ -17,7 +17,7 @@
 
             <!--  Social media-->
             <div v-if="!isDatingSweetCard">
-              <v-scroll-y-transition>
+              <v-scroll-y-transition style="height: 200px">
                 <div v-if="false" class="comment pa-4 ma-2">  <!--Comment section-->
                   <div>
                     <v-avatar class="d-inline">
@@ -90,60 +90,65 @@
         </v-col>
 
 
-        <v-col v-if="isCommentWindowOpen">
+        <v-col  ref="mojColumn" v-if="isCommentWindowOpen">
           <v-expand-transition>
-
-            <div class="pa-5 overflow-y-auto"
-                 style="width: 100%; max-height: 500px; min-height: 500px; background-color: #f3f3f3; color: black; ">
-
-              <div>
-                <p>Comments: {{ this.numberOfCommentsOnPost }}</p>
-                <div class="d-flex justify-center " v-if="this.existingCommentsOnPost[0] == null">
-                  <p style="text-align: center; font-size: 20px">Be first to leave a comment</p>
-                </div>
-                comment:
-                <div style=" width: 100%" class="">
-                  <v-row>
-                    <v-col>
-                      <v-text-field outlined v-model="newComment" class="d-inline justify-end"
-                                    hint="Leave a comment"></v-text-field>
-                    </v-col>
-                    <v-col cols="2">
-                      <v-btn elevation="1" icon dark @click="addNewComment()">
-                        <v-icon color="black">{{ sendIcon }}</v-icon>
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </div>
+            <div style=" background-color: #51A6F5">
 
 
-                <div class="d-flex mt-2"
-
-                     v-for="(data, index) in this.existingCommentsOnPost[0]"
-                     :key="index">
-
-                  <v-avatar class="">
-                    <v-img :src="data.UserProfilePicture"></v-img>
-                  </v-avatar>
-                  <v-col class="ml-2" style="font-size: 0.8vw">
-
-                    <v-row>{{ data.UserName }}</v-row>
-
-                    <v-row>{{ data.Comment }}</v-row>
+              <v-card height="500" class="pa-5 overflow-y-auto"
+                      style="width: auto;  background-color: #f3f3f3; color: black; ">
+                <div>
+                  <p>Comments: {{ this.numberOfCommentsOnPost }}</p>
+                  <div class="d-flex justify-center " v-if="this.existingCommentsOnPost[0] == null">
+                    <p style="text-align: center; font-size: 20px">Be first to leave a comment</p>
+                  </div>
+                  comment:
+                  <div style=" width: 100%" class="">
                     <v-row>
-                      <v-divider></v-divider>
+                      <v-col>
+                        <v-text-field
+                            height="50px"
+                        outlined
+                        v-model="newComment"
+                        class="d-inline justify-end"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="2">
+                        <v-btn elevation="1" icon dark @click="addNewComment()">
+                          <v-icon color="black">{{ sendIcon }}</v-icon>
+                        </v-btn>
+                      </v-col>
                     </v-row>
+                  </div>
 
-                  </v-col>
+
+                  <div class="d-flex mt-2"
+
+                       v-for="(data, index) in this.existingCommentsOnPost[0]"
+                       :key="index">
+
+                    <v-avatar class="">
+                      <v-img :src="data.UserProfilePicture"></v-img>
+                    </v-avatar>
+                    <v-col class="ml-2" style="font-size: 0.8vw">
+
+                      <v-row>{{ data.UserName }}</v-row>
+
+                      <v-row>{{ data.Comment }}</v-row>
+                      <v-row>
+                        <v-divider></v-divider>
+                      </v-row>
+
+                    </v-col>
+
+                  </div>
+
 
                 </div>
+                <v-divider class="mt-4"></v-divider>
 
-
-              </div>
-              <v-divider class="mt-4"></v-divider>
-
+              </v-card>
             </div>
-
           </v-expand-transition>
         </v-col>
       </v-row>
@@ -201,7 +206,7 @@ export default {
       'Fourth',
       'Fifth',
     ],
-
+heightOfElement: 0,
 
   }),
 
@@ -386,6 +391,7 @@ export default {
       const postData = docSnap.data();
       this.test1 = docSnap.data();
       this.existingCommentsOnPost.push(postData.Comments)
+      console.log(this.existingCommentsOnPost.reverse());
 
     },
 
@@ -490,6 +496,7 @@ export default {
 
 
   // dating Card   --->
+
 
 
   async mounted() {

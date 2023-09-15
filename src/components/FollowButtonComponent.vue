@@ -1,10 +1,10 @@
 <template>
   <div>
-    <v-btn v-if="!isUserFollowed" @click="follow()" class="d-inline  mt-5 red  font-weight-light pa-1"
-           style="font-size: 1em">Follow
+    <v-btn v-if="!isUserFollowed" @click="follow()" class="d-inline  red   pa-1"
+           style="">Follow
     </v-btn>
-    <v-btn v-if="isUserFollowed" @click="unFollow()" class="d-inline  mt-5 blue  font-weight-light pa-1"
-           style="font-size: 1em">Un Follow
+    <v-btn v-if="isUserFollowed" @click="unFollow()" class="d-inline  blue  pa-1"
+           style="">Un Follow
     </v-btn>
   </div>
 </template>
@@ -14,6 +14,7 @@ import VuePhoneNumberInput from 'vue-phone-number-input';
 import 'vue-phone-number-input/dist/vue-phone-number-input.css';
 import {collection, doc, getDoc, getDocs, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
+import {onAuthStateChanged} from "firebase/auth";
 
 export default {
 
@@ -37,10 +38,15 @@ export default {
         userToFollow: "",
       },
   async mounted() {
-    this.currentUser = auth.currentUser.displayName;
-    await this.fetchUserToFollowData();
-    await this.fetchUsersFollowing();
-    await this.checkUserFollowed();
+    await onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        this.currentUser = auth.currentUser.displayName;
+         await this.fetchUserToFollowData();
+         await this.fetchUsersFollowing();
+         await this.checkUserFollowed();
+      }
+    });
+
   },
   methods:
       {
@@ -65,6 +71,7 @@ export default {
           console.log("we follow");
           console.log(this.userFollowing);
         },
+
 
         async checkUserFollowed() {
           this.isUserFollowed = this.userToFollowFollowers.includes(this.currentUser);

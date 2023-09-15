@@ -6,35 +6,30 @@ import {auth, db, doc, getDoc, email} from "../../firebase.js";
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-
-      storeUserEmail: "default",
-      checkDrop: "fuck off",
-  },
-  getters: {
-
-    getEmail (state) {
-      return state.storeUserEmail;
+    state: {
+        phoneNumber: "",
     },
+    getters: {
 
-    checkDrop(state) {
-      return state.checkDrop;
+        getPhoneNumber(state) {
+            return state.phoneNumber;
+        },
+
     },
+    mutations: {
 
-  },
-  mutations: {
+        setPhoneNumber(state, payload) {
+            state.phoneNumber = payload;
+        },
 
-    setUserEmail(state, payload) {
-      state.storeUserEmail = payload;
+
     },
-  },
-  actions: {
-    async loadUser({ commit }) {
+    actions: {
+        async loadUser({commit}) {
 
-       await commit("setUserEmail", auth.currentUser.email);
+            await commit("setUserEmail", auth.currentUser.email);
 
-    }
-  },
-  modules: {
-  }
+        }
+    },
+    modules: {}
 })

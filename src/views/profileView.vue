@@ -23,10 +23,7 @@
       />
 
 
-
       <div v-if="" class="text-center">
-
-
         <v-overlay
             v-if="this.overlay"
             class="align-center justify-center"
@@ -41,10 +38,7 @@
       </div>
     </div>
 
-    <v-col>
-      <div class="profileinfo">
-      </div>
-    </v-col>
+
 
     <div v-if="!userExists">
 
@@ -55,7 +49,7 @@
         </v-card>
       </v-container>
     </div>
-    <v-row v-if="userExists && profilePrivate" class="BottomSite">
+    <v-row  v-if="userExists && profilePrivate" class="BottomSite mt-5">
 
       <v-col cols="3">
         <FollowSugestionComponent v-if="userAdmin"/>
@@ -91,20 +85,21 @@
 
 
       <!--                                      Settings and other stuf-->
-      <v-col style="color: gray" class="ma-5" cols="2">
-        <h1>Interests </h1>
-        <div class="d-inline" v-for="item in interests">
-          <v-chip color="primary" class=" ma-1 pa-2">{{ item }}</v-chip>
-        </div>
-        <h1>movies </h1>
-        <div class="d-inline" v-for="item in movies">
-          <v-chip color="red" class="ma-1 pa-2 ">{{ item }}</v-chip>
-        </div>
+      <v-col   style="color: gray; " class="ma-5" cols="">
+          <h1 style="text-align: center">Interests </h1>
+          <div class="d-inline" v-for="item in interests">
+            <v-chip color="primary" class=" ma-1 pa-2">{{ item }}</v-chip>
+          </div>
+          <h1 style="text-align: center">movies </h1>
+          <div class="d-inline" v-for="item in movies">
+            <v-chip color="red" class="ma-1 pa-2 ">{{ item }}</v-chip>
+          </div>
 
-        <h1>music </h1>
-        <div class="d-inline" v-for="item in music">
-          <v-chip color="green" class="ma-1 pa-2">{{ item }}</v-chip>
-        </div>
+          <h1 style="text-align: center">music </h1>
+          <div class="d-inline" v-for="item in music">
+            <v-chip color="green" class="ma-1 pa-2">{{ item }}</v-chip>
+          </div>
+
       </v-col>
 
     </v-row>
@@ -164,8 +159,10 @@ export default {
     userUrlName: "",
 
     // Firebase Data
+
     auth: null,
     userLoginStatus: null,
+
     userEmail: null,
 
     // User Information
@@ -195,6 +192,18 @@ export default {
     await this.getUserData();
 
 
+
+
+
+
+
+
+
+
+
+
+
+
   },
   methods:
       {
@@ -214,6 +223,10 @@ export default {
           this.userUrlName = this.$route.params["id"];
 
         },
+
+
+
+
 
         async setUserEditProfileIfAdmin() {
           this.userAdmin = auth.currentUser.displayName === this.userUrlName;
@@ -255,7 +268,7 @@ export default {
             this.userExists = false;
           }
 
-          const querySnapshot3 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName,"Information", "Followers"));
+          const querySnapshot3 = await getDocs(collection(db, "Users", "UserNames", this.userUrlName, "Information", "Followers"));
           let userFollowers, userFollowing;
           try {
             querySnapshot3.forEach((doc) => {
@@ -266,9 +279,9 @@ export default {
 
             this.followersCount = userFollowers.length;
             this.followingCount = userFollowing.length;
+          } catch (e) {
+            console.log(e);
           }
-          catch (e)
-          { console.log(e);}
 
 
           // const querySnapshot = await getDoc(collection(db, "Users", "UserNames", this.userUrlName));

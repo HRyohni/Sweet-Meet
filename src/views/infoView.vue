@@ -1,6 +1,5 @@
 <template>
-  <div class="data d-flex  justify-center">
-
+  <v-img src="../../public/imgassets/backgroundSweetMeet.png" class="data d-flex  justify-center" align="center">
     <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10" v-if="step===1">
       <v-progress-linear class="mt-5 mb-3" value="14"></v-progress-linear>
       <h1>Introduce yourself</h1>
@@ -8,12 +7,13 @@
         <v-row>
           <v-col class="ma-2">
             <h3>First Name</h3>
-            <v-text-field outlined v-model="firstName" placeholder="First Name"></v-text-field>
+            <v-text-field :rules="valueRules" required outlined v-model="firstName"
+                          placeholder="First Name"></v-text-field>
           </v-col>
 
           <v-col class="ma-2">
             <h3>Second Name</h3>
-            <v-text-field outlined v-model="secondName" placeholder="First Name"></v-text-field>
+            <v-text-field :rules="valueRules" outlined v-model="secondName" placeholder="Second Name"></v-text-field>
           </v-col>
         </v-row>
 
@@ -22,6 +22,7 @@
             <h3>Country</h3>
             <v-select
                 outlined
+                :rules="valueRules"
                 :items="this.countries"
                 label="Pick Country"
                 v-model="countriesPick"
@@ -30,14 +31,17 @@
           </v-col>
           <v-col class="ma-2">
             <h3>City</h3>
-            <v-text-field outlined placeholder="City name" v-model="city"></v-text-field>
+            <v-text-field :rules="valueRules" outlined placeholder="City name" v-model="city"></v-text-field>
           </v-col>
         </v-row>
-        <phone-number @phone-number="handlePhoneNumber"/>
 
+        <vue-phone-number-input v-model="retrievedPhoneNumber"></vue-phone-number-input>
 
         <div>
-          <v-btn class="ma-5 white--text d-flex justify-end" color="red" @click="nextStep"> next</v-btn>
+          <v-btn class="ma-5 white--text d-flex justify-end"
+                 :disabled="this.firstName.length < 2 || this.secondName.length < 2  || this.city.length < 2 "
+                 color="red" @click="nextStep"> next
+          </v-btn>
 
         </div>
       </div>
@@ -45,34 +49,52 @@
 
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
+    <v-card class="red--text pa-12 ma-12" width="1000px" elevation="10" v-if="step == 2">
       <v-progress-linear class="mt-5 mb-3" value="28"></v-progress-linear>
-      <h3>What is yor Gender?</h3>
-      <v-select
-          :items="genders"
-          label="Pick Gender"
-          v-model="UserGender"
-      ></v-select>
-      <h3>What are you attracted to?</h3>
+      <v-row class="d-flex pa-2">
+        <v-col class="pa-4">
+          <h3>What is your Gender?</h3>
+          <v-select
+              :items="genders"
+              label="Pick Gender"
+              v-model="UserGender"
+          ></v-select>
+          <h3>What are you attracted to?</h3>
 
-      <v-select
-          :items="genders"
-          label="Pick Gender"
-          v-model="UserAttractedToGender"
-      ></v-select>
-      <v-text-field
-          label="What is your age?"
-          :rules="rules"
-          hide-details="auto"
-          v-model="age"
-      ></v-text-field>
+          <v-select
+              :items="genders"
+              label="Pick Gender"
+              v-model="UserAttractedToGender"
+          ></v-select>
+        </v-col>
+        <v-col class="pa-4">
+          <h3>What is your age?</h3>
+          <v-text-field
+              label="What is your age?"
+              :rules="rules"
+              hide-details="auto"
+              v-model="age"
+          ></v-text-field>
+          <h3>What are you looking for?</h3>
+          <v-select
+              :items="lookingFor"
+              label="Pick Gender"
+              v-model="userLookingFor"
+          ></v-select>
+        </v-col>
+      </v-row>
+
+
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <v-btn class="ma-5 white--text " color="red" @click="nextStep"> next</v-btn>
+      <v-btn class="ma-5 white--text "
+             :disabled=" this.UserGender.length < 2 ||this.UserAttractedToGender.length < 2 || age.length < 2 "
+             color="red" @click="nextStep"> next
+      </v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 3">
+    <v-card class="red--text pa-12 ma-12" width="1000px" elevation="10" v-if="step == 3">
       <v-progress-linear class="mt-5 mb-3" value="42"></v-progress-linear>
-      <h3 class="ma-6">Add some information you want to add</h3>
+      <h3 class="ma-6">Let us <b>meet</b> you <b>better</b></h3>
       <v-select
           :items="this.questions"
           label="Pick Question no.1"
@@ -100,10 +122,13 @@
       ></v-select>
       <v-text-field outlined v-model="answer3"></v-text-field>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <v-btn class="ma-5" @click="appendQuestionsAndAnswers(), nextStep()"> next</v-btn>
+      <v-btn class="ma-5" color="red"
+             :disabled=" answer1.length< 2 ||answer2.length < 2 ||answer3< 2 || question1.length< 2 ||question2.length < 2 || question3< 2 "
+             @click="appendQuestionsAndAnswers(), nextStep()"> next
+      </v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 4">
+    <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10" v-if="step == 4">
       <v-progress-linear class="mt-5 mb-3" value="56"></v-progress-linear>
       <v-card-title>Chose your interests</v-card-title>
       <v-chip
@@ -113,7 +138,7 @@
           light
           :class="{ green: inter.isActive }"
           v-for="(inter, index) in interests"
-          :key="index"
+          :key="index+ 'a'"
           v-model="interest"
           @click="checkedElement(interests,index)"
       >{{ inter.label }}
@@ -129,7 +154,7 @@
           light
           :class="{ green: music.isActive }"
           v-for="(music, index) in musicType"
-          :key="index"
+          :key="index+'b'"
           v-model="musics"
           @click="checkedElement(musicType,index)"
       >{{ music.label }}
@@ -146,16 +171,16 @@
           light
           :class="{ green: movie.isActive }"
           v-for="(movie, index) in movieType"
-          :key="index"
+          :key="index+'c'"
           @click="checkedElement(movieType,index)"
       >{{ movie.label }}
       </v-chip>
       <v-spacer></v-spacer>
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <v-btn class="ma-5" @click="nextStep()"> next</v-btn>
+      <v-btn color="red" class="ma-5" @click="nextStep()"> next</v-btn>
     </v-card>
 
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step == 5">
+    <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10" v-if="step === 5">
       <v-progress-linear class="mt-5 mb-3" value="70"></v-progress-linear>
       <v-card-title>Location</v-card-title>
 
@@ -165,7 +190,7 @@
             :zoom="3"
             map-style-id="roadmap"
             :options="mapOptions"
-            style="width: 100vmin; height: 50vmin"
+            style="width: 80vmin; height: 50vmin"
             ref="mapRef"
             @click="handleMapClick"
         >
@@ -188,28 +213,30 @@
 
 
     <!--            SETUP PROFILE DESCRIPTION-->
-    <v-card class="pa-12 ma-12" width="1000px" elevation="10" v-if="step === 6">
+    <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10" v-if="step === 6">
       <v-progress-linear class="mt-5 mb-3" value="100"></v-progress-linear>
-      <v-card-title> Setup your profile Description</v-card-title>
-      <v-btn>
-        <label class="custom-file-upload">
-          Change Profile Image
-          <input type="file" @change="onFileChangeProfileImage"/>
+      <div class="d-flex justify-center">
+        <v-card-title style="font-size: x-large"> Setup your profile</v-card-title>
+      </div>
 
-        </label>
-      </v-btn>
+      <v-row class="ma-2">
 
+        <v-col>
+          <label class="custom-file-upload blue--text">
+            Change Profile Image
+            <input type="file" @change="onFileChangeProfileImage"/>
 
-      Change Profile background Image
-
-      <v-btn>
-        <label class="custom-file-upload">
-          Change Profile Image
-          <input @change="this.onFileChangeProfileBackground" type="file">
-        </label>
-      </v-btn>
-
+          </label>
+        </v-col>
+        <v-col>
+          <label class="custom-file-upload blue--text">
+            Change Profile Image
+            <input @change="this.onFileChangeProfileBackground" type="file">
+          </label>
+        </v-col>
+      </v-row>
       <profile-info-card
+          align="left"
           :display-name="this.displayName"
           :first-name="this.firstName"
           :second-name="this.secondName"
@@ -217,38 +244,64 @@
           :profile-description="description"
           :background-image="this.urlImageBackgroundProfile"
           :card-color="this.cardColor"
+          :show-case="true"
       ></profile-info-card>
       <div class="ma-4">
-        <p>Pick Color:</p>
-        <v-btn @click="colorOfCard('white')" class="ma-2" color="white"></v-btn>
+        <p class="black--text">Pick Color:</p>
         <v-btn @click="colorOfCard('blue')" class="ma-2" color="blue"></v-btn>
         <v-btn @click="colorOfCard('red')" class="ma-2" color="red"></v-btn>
         <v-btn @click="colorOfCard('green')" class="ma-2" color="green"></v-btn>
+        <v-btn @click="colorOfCard('purple')" class="ma-2" color="purple"></v-btn>
+        <v-btn @click="colorOfCard('pink')" class="ma-2" color="pink"></v-btn>
+        <v-btn @click="colorOfCard('deep-purple')" class="ma-2" color="deep-purple"></v-btn>
+        <v-btn @click="colorOfCard('indigo')" class="ma-2" color="indigo"></v-btn>
+        <v-btn @click="colorOfCard('orange')" class="ma-2" color="orange"></v-btn>
+        <v-btn @click="colorOfCard('blue-grey')" class="ma-2" color="blue-grey"></v-btn>
       </div>
-      <v-text-field label="Description" outlined class="mt-10" v-model="description"></v-text-field>
+      <v-text-field :rules="descriptionRules" label="Description" outlined class="mt-10"
+                    v-model="description"></v-text-field>
 
       <v-btn class="ma-5" @click="backStep"> back</v-btn>
-      <v-btn class="ma-5" color="primary"
-             @click="UplodaAllDataToFirebase()">Done
+      <v-btn class="ma-5" :disabled="this.description.length >100" color="primary" @click="UplodaAllDataToFirebase()">
+        Done
       </v-btn>
     </v-card>
 
-  </div>
+  </v-img>
 </template>
 
 <script>
+
 
 import {auth, db, getDoc, storage} from "../../firebase.js";
 import {getDownloadURL, ref, uploadBytes} from "firebase/storage";
 import {collection, doc, getDocs, setDoc, updateDoc} from "firebase/firestore";
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
-import PhoneNumber from "@/components/PhoneNumber.vue";
-import 'vue-phone-number-input/dist/vue-phone-number-input.css';
 
 
 export default {
-  components: {PhoneNumber, ProfileInfoCard},
+  components: {ProfileInfoCard},
   data: () => ({
+    // Rules
+    valueRules: [
+      value => {
+        if (value) return true
+        return 'Cant be empty.'
+      },
+    ],
+
+    descriptionRules: [
+      value => {
+        if (value) return true
+        return 'Cant be empty.'
+      },
+      value => {
+        if (value?.length <= 100) return true
+
+        return 'Description must be less than 100 characters.'
+      },
+    ],
+
     marker: {position: {lat: 10, lng: 10}},
     center: {lat: 10, lng: 10},
 
@@ -258,10 +311,13 @@ export default {
     google: null,
 
     genders: ["Male", "Female", "other"],
+    lookingFor: ["Still figuring it out", "Long-term partner", "Short-term fun", "New friends", "Short-term, but long-term OK"],
 
     UserGender: "",
     UserAttractedToGender: "",
     age: null,
+    userLookingFor: "",
+    test1: "",
 
     musics: null,
     interest: null,
@@ -753,8 +809,8 @@ export default {
       this.urlImageBackgroundProfile = URL.createObjectURL(this.file);
       this.profileBackgroundImageUrl = this.file;
     },
-    handlePhoneNumber(phoneNumber) {
-      this.retrievedPhoneNumber = phoneNumber;
+    handlePhoneNumber(newPhoneNumber) {
+      this.retrievedPhoneNumber = newPhoneNumber;
     },
 
     async addInfo() {
@@ -785,6 +841,7 @@ export default {
         FavMovieType: FavoriteMovieType,
         FavInterestType: FavoriteInterestType,
         InformationComplete: true,
+        UserLookingFor: this.userLookingFor,
       };
       await updateDoc(reff, InformationData);
       this.answerdQuestions = [];
@@ -820,7 +877,7 @@ export default {
         Notifications: [],
       }).then(console.log("done!"));
 // Add Report System
-      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName,"Reports"), {
+      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Reports"), {
         Reports: [],
       }).then(console.log("done!"));
 
@@ -882,8 +939,13 @@ export default {
       await this.UploadProfileImageToStorage()
       await this.UploadProfileBackgroundImageToStorage();
 
-    },
 
+    },
+    getPhoneNumberFromComponent() {
+      const phoneNumberComponent = this.$refs.phoneNumberComponent;
+      const phoneNumber = phoneNumberComponent.phoneNumber; // Assuming `phoneNumber` is the property in your `PhoneNumber` component
+      console.log(phoneNumber); // This will print the phone number
+    }
   },
 }
 ;
@@ -918,5 +980,9 @@ input[type="file"] {
 
 * {
   background-color: white;
+}
+
+.phone-input-container {
+  margin: 10px;
 }
 </style>
