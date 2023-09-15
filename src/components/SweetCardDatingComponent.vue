@@ -245,6 +245,7 @@ import {mdiAccountHeart, mdiArrowLeft, mdiArrowRight, mdiArrowDownBold, mdiArrow
 import SweetCard from "@/components/SweetCard.vue";
 import VueConfetti from 'vue-confetti'
 import Vue from 'vue'
+
 Vue.use(VueConfetti)
 
 export default {
@@ -253,6 +254,7 @@ export default {
     Vue2InteractDraggable
   },
   data: () => ({
+    userName: "",
     soulMateExists: true,
     closeOverly: false,
     currentUserData: null,
@@ -263,7 +265,7 @@ export default {
     usersDistance: null,
     rejectedSoulmates: [],
     approvedSoulmates: [],
-    soulMateDisplayNameTemp:"",
+    soulMateDisplayNameTemp: "",
 
     items: [
       {
@@ -300,7 +302,6 @@ export default {
   props: {
     // main data to catch all information
     postID: null,
-    userName: null,
     // For debugging
     debugMod: false,
     // Dating system
@@ -311,9 +312,11 @@ export default {
   name: 'SweetCardDating',
 
   async mounted() {
+
     await onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
+          this.userName = user.displayName;
           // Fetch current user data
           await this.fetchUserInformation();
 
@@ -350,6 +353,207 @@ export default {
 
   methods: {
 
+    async fetchNewSoulmate() {
+      try {
+        // Fetch current user data
+        await this.fetchUserInformation();
+
+        // Fetch Rejected and approved Soulmates
+        await this.fetchStatusOfSoulmates();
+
+        // Fetch all usernames
+        await this.fetchAllUsers();
+
+        // Find soulmate
+        await this.findSoulMate();
+
+        // Fetch soulmate posts
+        await this.fetchPostsFromUser();
+
+        // Calculate distance if both soulMate and currentUserData are available
+        if (this.soulMate && this.currentUserData) {
+          this.calculateDistance(this.soulMate["lat"], this.soulMate["lng"], this.currentUserData["lat"], this.currentUserData["lng"]);
+        }
+
+        await this.checkForMatchingSoulmates();
+
+        // fetch user Report Status
+        await this.fetchUserReports();
+
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    },
+
+
+    async fetchUserInformation() {
+      const collection = doc(db, "Users", "UserNames", this.userName, "Information");
+      const currentUser = await getDoc(collection);
+      this.currentUserData = currentUser.data();
+    },
+
+    async fetchStatusOfSoulmates() {
+      const docSnap = await getDoc(doc(db, "Users", "UserNames", this.userName, "Soulmate", "Dating", "Status",));
+      if (docSnap.exists()) {
+        this.rejectedSoulmates = docSnap.data()["RejectedSoulmates"];
+        this.approvedSoulmates = docSnap.data()["ApprovedSoulmates"];
+      } else {
+        console.log("nope");
+        await this.createSoulmateDatabase();
+        return null;
+      }
+    },
+
+    async fetchAllUsers() {
+      const userNames = await getDoc(doc(db, "Users", "UserNames"));
+      this.allUserNames = userNames.data()["ListOfAllUsernames"];
+    },
+
+    async findSoulMate() {
+      try {
+        this.soulMate = [];
+        for (let userName of this.allUserNames) {
+          const collection = doc(db, "Users", "UserNames", userName, "Information");
+
+          const userData = await getDoc(collection);
+          await this.fetchStatusOfSoulmates();
+          if (this.currentUserData["UserAttractedToGender"] === userData.data()["UserGender"] && !this.rejectedSoulmates.includes(userData.data()["displayName"]) && !this.approvedSoulmates.includes(userData.data()["displayName"])) {
+            this.soulMate = userData.data();       // TODO: ADD BREAK
+            break;
+          }
+
+        }
+
+        if (this.soulMate.age !== undefined) {
+          await this.getPostIDs(this.soulMate["displayName"]);
+          await this.getUserProfilePicture(this.soulMate["displayName"]);
+        } else {
+          this.soulMateExists = false;
+        }
+
+
+      } catch (error) {
+        console.log(error)
+      }
+
+    },
+
+    async fetchPostsFromUser() {
+      for (let PostId of this.soulMatePostsId) {
+        const docRef = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Posts", "UserPosts", PostId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists())
+          this.soulMatePosts.push(docSnap.data());
+
+        else {
+          console.log("error");
+          return null;
+        }
+      }
+    },
+
+    calculateDistance(lat1, lon1, lat2, lon2) {
+      if (!lat1 && !lon1 && !lat2 && !lon2) {
+        return null;
+      }
+      // Radius of the Earth in kilometers
+      const earthRadius = 6371;
+
+      // Convert latitude and longitude from degrees to radians
+      const lat1Rad = this.toRadians(lat1);
+      const lon1Rad = this.toRadians(lon1);
+      const lat2Rad = this.toRadians(lat2);
+      const lon2Rad = this.toRadians(lon2);
+
+      // Haversine formula
+      const dLat = lat2Rad - lat1Rad;
+      const dLon = lon2Rad - lon1Rad;
+
+      const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(dLon / 2) ** 2;
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      // Calculate the distance in kilometers
+      if (earthRadius * c < 1) {
+        this.usersDistance = "less then kilometre";
+        return "less then kilometre";
+      }
+      this.usersDistance = (earthRadius * c).toFixed(1) + " km";
+      return ((earthRadius * c).toFixed(1) + " km");
+    },
+
+    async getPostIDs(username) {
+      const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", username, "Posts", "UserPosts"));
+      this.soulMatePostsId = collectionSnapshot.docs.map(doc => doc.id);
+    },
+
+
+    async createSoulmateDatabase() {
+      await setDoc(doc(db, "Users", "UserNames", this.userName, "Soulmate", "Dating", "Status"), {
+        RejectedSoulmates: [],
+        ApprovedSoulmates: [],
+      });
+
+    },
+
+
+    async rejectSoulmate() {
+      await this.fetchStatusOfSoulmates();
+      this.rejectedSoulmates.push(this.soulMate["displayName"])
+      await setDoc(doc(db, "Users", "UserNames", this.userName, "Soulmate", "Dating", "Status"), {
+        RejectedSoulmates: this.rejectedSoulmates,
+        ApprovedSoulmates: this.approvedSoulmates,
+      });
+
+    },
+
+    async approveSoulmate() {
+      this.approvedSoulmates.push(this.soulMate["displayName"])
+      await setDoc(doc(db, "Users", "UserNames", this.userName, "Soulmate", "Dating", "Status"), {
+        RejectedSoulmates: this.rejectedSoulmates,
+        ApprovedSoulmates: this.approvedSoulmates,
+      });
+
+    },
+
+    async checkForMatchingSoulmates() {
+
+      let reff = doc(db, "Users", "UserNames", this.userName, "Soulmate", "Dating", "Status");
+      console.log(this.userName);
+      const docSnapCurrentUser = await getDoc(reff);
+
+      // this.soulMate["displayName"]
+      let reff2 = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Soulmate", "Dating", "Status");
+      let docSnapSoulmate = await getDoc(reff2);
+
+      if (docSnapCurrentUser.exists()) {
+        if (docSnapSoulmate.data()["ApprovedSoulmates"].includes(this.userName) && docSnapCurrentUser.data()["ApprovedSoulmates"].includes(this.soulMate["displayName"])) {
+          await this.sendNewNotificationToUser(this.soulMate["displayName"], {
+            username: this.userName,
+            comment: "you got match with " + this.userName,
+            FollowRequest: false
+          });
+          this.soulMateDisplayNameTemp = this.soulMate["displayName"];
+          this.love();
+          this.closeOverly = true
+        }
+      } else {
+        console.log("nothing found");
+      }
+
+    },
+
+
+    toRadians(degrees) {
+      return degrees * (Math.PI / 180);
+    },
+    async fetchUserReports() {
+
+
+    },
+
     async getPostData() {
       const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID);
       const docSnap = await getDoc(docRef);
@@ -357,6 +561,7 @@ export default {
         this.imageUrl = docSnap.data()["PostUrl"];
       } else {
         console.log("Cant Find post!");
+
       }
 
     },
@@ -367,32 +572,7 @@ export default {
       return this.imageUrl;
     },
 
-    async draggedRight() {
-      //const x = event.clientX; // X coordinate
-      this.hideCard();
-      await this.approveSoulmate();
-      await this.checkForMatchingSoulmates();
-      this.soulMatePosts = [];
-      await this.fetchNewSoulmate();
 
-
-    },
-    async draggedLeft() {
-
-      this.hideCard();
-      await this.rejectSoulmate();
-      this.soulMatePosts = [];
-      await this.fetchNewSoulmate();
-    },
-
-    hideCard() {
-      setTimeout(() => {
-        this.isShowing = false;
-      }, 200);
-      setTimeout(() => {
-        this.isShowing = true;
-      }, 1000);
-    },
     async getUserProfilePicture(user) {
       const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data");
       const docSnap = await getDoc(docRef);
@@ -446,244 +626,51 @@ export default {
       }
     },
 
-    async fetchNewSoulmate() {
-      try {
-        // Fetch current user data
-        await this.fetchUserInformation();
-
-        // Fetch Rejected and approved Soulmates
-        await this.fetchStatusOfSoulmates();
-
-        // Fetch all usernames
-        await this.fetchAllUsers();
-
-        // Find soulmate
-        await this.findSoulMate();
-
-        // Fetch soulmate posts
-        await this.fetchPostsFromUser();
-
-        // Calculate distance if both soulMate and currentUserData are available
-        if (this.soulMate && this.currentUserData) {
-          this.calculateDistance(this.soulMate["lat"], this.soulMate["lng"], this.currentUserData["lat"], this.currentUserData["lng"]);
-        }
-
-        await this.checkForMatchingSoulmates();
-
-        // fetch user Report Status
-        await this.fetchUserReports();
-
-      } catch (error) {
-        console.error("An error occurred:", error);
-      }
-    },
-
-
-    async fetchUserInformation() {
-      const collection = doc(db, "Users", "UserNames", this.userName, "Information");
-      const currentUser = await getDoc(collection);
-      this.currentUserData = currentUser.data();
-    },
-
-    async fetchAllUsers() {
-      const collection = doc(db, "Users", "UserNames");
-      const userNames = await getDoc(collection);
-      this.allUserNames = userNames.data()["ListOfAllUsernames"];
-    },
-
-    async findSoulMate() {
-      try {
-        this.soulMate = [];
-        for (let userName of this.allUserNames) {
-          const collection = doc(db, "Users", "UserNames", userName, "Information");
-
-          const userData = await getDoc(collection);
-          await this.fetchStatusOfSoulmates();
-          if (this.currentUserData["UserAttractedToGender"] === userData.data()["UserGender"] && !this.rejectedSoulmates.includes(userData.data()["displayName"]) && !this.approvedSoulmates.includes(userData.data()["displayName"])) {
-            this.soulMate = userData.data();       // TODO: ADD BREAK
-            break;
-          }
-
-        }
-
-        if (this.soulMate.age !== undefined) {
-          await this.getPostIDs(this.soulMate["displayName"]);
-          await this.getUserProfilePicture(this.soulMate["displayName"]);
-        }
-        else
-        {
-          this.soulMateExists = false;
-        }
-
-
-      } catch (error) {
-        console.log(error)
-      }
-
-    },
-
-    async getPostIDs(username) {
-      const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", username, "Posts", "UserPosts"));
-      this.soulMatePostsId = collectionSnapshot.docs.map(doc => doc.id);
-    },
-
-    async fetchPostsFromUser() {
-
-      for (let PostId of this.soulMatePostsId) {
-        const docRef = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Posts", "UserPosts", PostId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists())
-          this.soulMatePosts.push(docSnap.data());
-
-        else {
-          console.log("error");
-          return null;
-        }
-
-      }
-
-    },
-
-
-    async createSoulmateDatabase() {
-      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Soulmate", "Dating", "Status"), {
-        RejectedSoulmates: [],
-        ApprovedSoulmates: [],
-      });
-
-    },
-
-    async fetchStatusOfSoulmates() {
-
-      let reff = doc(
-          db,
-          "Users",
-          "UserNames",
-          auth.currentUser.displayName,
-          "Soulmate",
-          "Dating",
-          "Status",
-      );
-
-      const docSnap = await getDoc(reff);
-      if (docSnap.exists()) {
-        this.rejectedSoulmates = docSnap.data()["RejectedSoulmates"];
-        this.approvedSoulmates = docSnap.data()["ApprovedSoulmates"];
-      } else {
-        console.log("nope");
-        await this.createSoulmateDatabase();
-        return null;
-
-      }
-
-    },
-    async rejectSoulmate() {
-      await this.fetchStatusOfSoulmates();
-      this.rejectedSoulmates.push(this.soulMate["displayName"])
-      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Soulmate", "Dating", "Status"), {
-        RejectedSoulmates: this.rejectedSoulmates,
-        ApprovedSoulmates: this.approvedSoulmates,
-      });
-
-    },
-
-    async approveSoulmate() {
-      this.approvedSoulmates.push(this.soulMate["displayName"])
-      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Soulmate", "Dating", "Status"), {
-        RejectedSoulmates: this.rejectedSoulmates,
-        ApprovedSoulmates: this.approvedSoulmates,
-      });
-
-    },
-
-    async checkForMatchingSoulmates() {
-
-      let reff = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Soulmate", "Dating", "Status");
-      console.log(auth.currentUser.displayName);
-      const docSnapCurrentUser = await getDoc(reff);
-
-      // this.soulMate["displayName"]
-      let reff2 = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Soulmate", "Dating", "Status");
-      let docSnapSoulmate = await getDoc(reff2);
-
-      if (docSnapCurrentUser.exists()) {
-        if (docSnapSoulmate.data()["ApprovedSoulmates"].includes(auth.currentUser.displayName) && docSnapCurrentUser.data()["ApprovedSoulmates"].includes(this.soulMate["displayName"])) {
-          await this.sendNewNotificationToUser(this.soulMate["displayName"], {
-            username: auth.currentUser.displayName,
-            comment: "you got match with " + auth.currentUser.displayName,
-            FollowRequest: false
-          });
-          this.soulMateDisplayNameTemp = this.soulMate["displayName"];
-          this.love();
-          this.closeOverly = true
-        }
-      } else {
-        console.log("nothing found");
-      }
-
-    },
-
-
-    calculateDistance(lat1, lon1, lat2, lon2) {
-      if (!lat1 && !lon1 && !lat2 && !lon2) {
-        return null;
-      }
-      const earthRadius = 6371; // Radius of the Earth in kilometers
-
-      // Convert latitude and longitude from degrees to radians
-      const lat1Rad = this.toRadians(lat1);
-      const lon1Rad = this.toRadians(lon1);
-      const lat2Rad = this.toRadians(lat2);
-      const lon2Rad = this.toRadians(lon2);
-
-      // Haversine formula
-      const dLat = lat2Rad - lat1Rad;
-      const dLon = lon2Rad - lon1Rad;
-
-      const a =
-          Math.sin(dLat / 2) ** 2 +
-          Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(dLon / 2) ** 2;
-
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-      // Calculate the distance in kilometers
-      if (earthRadius * c < 1) {
-        this.usersDistance = "less then kilometre";
-        return "less then kilometre";
-      }
-      this.usersDistance = (earthRadius * c).toFixed(1) + " km";
-      return ((earthRadius * c).toFixed(1) + " km");
-    },
-    toRadians(degrees) {
-      return degrees * (Math.PI / 180);
-    },
-    async fetchUserReports() {
-
-
-    },
-
     async reportUser() {
       let reff2 = doc(db, "Users", "UserNames", this.soulMate["displayName"], "Report");
       let docSnapSoulmate = await getDoc(reff2);
 
       let reportList = docSnapSoulmate.data()["Reports"];
-      if (!reportList.includes(auth.currentUser.displayName)) {
-        reportList.push(auth.currentUser.displayName);
+      if (!reportList.includes(this.userName)) {
+        reportList.push(this.userName);
         await setDoc(reff2, {
           Reports: reportList,
         });
 
       }
     },
-    goToProfile()
-    {
+    goToProfile() {
       this.$router.push('/profile/' + this.soulMateDisplayNameTemp);
     },
 
     stop() {
       this.$confetti.stop();
     },
+    async draggedRight() {
+      //const x = event.clientX; // X coordinate
+      this.hideCard();
+      await this.approveSoulmate();
+      await this.checkForMatchingSoulmates();
+      this.soulMatePosts = [];
+      await this.fetchNewSoulmate();
+    },
 
+    async draggedLeft() {
+
+      this.hideCard();
+      await this.rejectSoulmate();
+      this.soulMatePosts = [];
+      await this.fetchNewSoulmate();
+    },
+
+    hideCard() {
+      setTimeout(() => {
+        this.isShowing = false;
+      }, 200);
+      setTimeout(() => {
+        this.isShowing = true;
+      }, 1000);
+    },
 
     love() {
       this.$confetti.start();

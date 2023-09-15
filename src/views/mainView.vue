@@ -70,7 +70,6 @@
           <sweet-card-dating
               style="width: 500px"
               :debug-mod="true"
-              :user-name="userName"
               :is-swipe-locked="false"
               :is-dating-sweet-card="true"
           ></sweet-card-dating>
@@ -201,6 +200,7 @@ export default {
         await this.$router.push("/")
       }
     },
+
     GetUserStatus() {
 
       let auth = getAuth();
