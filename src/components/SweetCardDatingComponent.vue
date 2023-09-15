@@ -4,10 +4,12 @@
     <v-card class="d-flex justify-center">
       <div class="ma-5 d-flex justify-center" v-if="!soulMateExists">
         <h3>sorry cant find your Soulmate at the time try later!</h3>
+        <v-btn @click="fetchNewSoulmate">Try Again!</v-btn>
       </div>
+
       <Vue2InteractDraggable
           style="background-color: #d4d4d4; width: 500px"
-
+          v-if="soulMateExists"
           @draggedRight="draggedRight"
           @draggedLeft="draggedLeft"
           :interact-max-rotation="15"
@@ -15,14 +17,13 @@
           :interact-x-threshold="500"
           :interact-block-drag-up="true"
           :interact-block-drag-down="true"
-          v-if="isShowing && soulMateExists"
 
       >
 
 
         <!--      dating app-->
         <v-carousel
-            v-if="isDatingSweetCard"
+
             hide-delimiter-background
             show-arrows-on-hover
         >
@@ -43,7 +44,9 @@
               <v-icon>{{ rightArrow }}</v-icon>
             </v-btn>
           </template>
-
+          <div v-if="!soulMate['age']" >
+            <v-progress-circular indeterminate color="red"  ></v-progress-circular>
+          </div>
           <v-carousel-item
               v-for="(user, i) in this.soulMatePosts"
               :key="i"
@@ -59,7 +62,7 @@
               >
 
 
-                <v-img max-width="500" :src="user.PostUrl">
+                <v-img lazy-src="https://placehold.co/300x500?text=sweetMeet" max-width="500" :src="user.PostUrl">
                   <v-app-bar
                       flat
                       style="background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(0,0,0,1) 100%);"
@@ -355,6 +358,10 @@ export default {
 
     async fetchNewSoulmate() {
       try {
+        // Reset Values
+        this.soulMateExists = true;
+        this.rejectedSoulmates = [];
+        this.approvedSoulmates = [];
         // Fetch current user data
         await this.fetchUserInformation();
 
@@ -374,12 +381,6 @@ export default {
         if (this.soulMate && this.currentUserData) {
           this.calculateDistance(this.soulMate["lat"], this.soulMate["lng"], this.currentUserData["lat"], this.currentUserData["lng"]);
         }
-
-        await this.checkForMatchingSoulmates();
-
-        // fetch user Report Status
-        await this.fetchUserReports();
-
       } catch (error) {
         console.error("An error occurred:", error);
       }
@@ -414,11 +415,17 @@ export default {
         this.soulMate = [];
         for (let userName of this.allUserNames) {
           const collection = doc(db, "Users", "UserNames", userName, "Information");
-
-          const userData = await getDoc(collection);
+          const userData = await getDoc(collection)
           await this.fetchStatusOfSoulmates();
-          if (this.currentUserData["UserAttractedToGender"] === userData.data()["UserGender"] && !this.rejectedSoulmates.includes(userData.data()["displayName"]) && !this.approvedSoulmates.includes(userData.data()["displayName"])) {
-            this.soulMate = userData.data();       // TODO: ADD BREAK
+
+          if (this.currentUserData["UserAttractedToGender"] === userData.data()["UserGender"] && // match attractive
+              !this.rejectedSoulmates.includes(userData.data()["displayName"]) &&                // remove rejected ones
+              !this.approvedSoulmates.includes(userData.data()["displayName"]) &&                // remove approved ones
+              this.userName !== userData.data()["displayName"] &&                             // remove scenario of showing my self
+              await this.doesUserHavePost(userData.data()["displayName"])                        // Check if user has post
+
+          ) {
+            this.soulMate = userData.data();
             break;
           }
 
@@ -521,7 +528,6 @@ export default {
     async checkForMatchingSoulmates() {
 
       let reff = doc(db, "Users", "UserNames", this.userName, "Soulmate", "Dating", "Status");
-      console.log(this.userName);
       const docSnapCurrentUser = await getDoc(reff);
 
       // this.soulMate["displayName"]
@@ -549,10 +555,7 @@ export default {
     toRadians(degrees) {
       return degrees * (Math.PI / 180);
     },
-    async fetchUserReports() {
 
-
-    },
 
     async getPostData() {
       const docRef = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID);
@@ -582,11 +585,14 @@ export default {
         return docSnap.data()["ProfilePictureUrl"];
       } else {
         console.log("error");
-        return null;
-
+        return false;
       }
+    },
+    async doesUserHavePost(username) {
+      const collectionSnapshot = await getDocs(collection(db, "Users", "UserNames", username, "Posts", "UserPosts"));
+      const postID = collectionSnapshot.docs.map(doc => doc.id);
 
-
+      return postID.length !== 0;
     },
 
     async sendNewNotificationToUser(username, notificationMessage) {

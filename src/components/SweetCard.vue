@@ -435,10 +435,9 @@ heightOfElement: 0,
       } else {
         console.log("error");
         return null;
-
       }
-
     },
+
     async sendNewNotificationToUser(notificationMessage) {
       try {
         let notificationList = [];
