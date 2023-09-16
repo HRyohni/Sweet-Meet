@@ -1,9 +1,10 @@
 <template>
-  <v-row class="ma-5 mt-15"  style="">
+  <v-row class="ma-5 mt-15" style="">
     <v-col cols="1" style="z-index: 4">
       <div class=" ml-2 mt-2">
         <v-avatar @click="goToProfilePage()" size="50">
-          <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
+          <v-img :src="userProfileAvatar"></v-img>
+
         </v-avatar>
         <p class="d-inline ma-2">{{ displayName }}</p>
         <div>
@@ -41,49 +42,49 @@
               @click="getFriendUsername(pickedFriend)"
           ></v-autocomplete>
         </div>
+        <div v-if="friendList.length === 0 ">
+          <div class="d-flex justify-center">
+
+            <h3>Meet new people!</h3>
+          </div>
+
+          <follow-suggestion-component style="width: 100%"></follow-suggestion-component>
+        </div>
         <v-card
+            v-if="friendList.length !== 0 "
             color="green"
             class="ma-3"
-            v-for="(user, index) in this.friendList"
+            v-for="(friend, index) in this.friendList"
             :key="index"
         >
 
           <v-list color="#b8c6ff">
             <v-list-item>
               <v-list-item-avatar>
-                <v-progress-circular v-if="!user.username" color="error" indeterminate :size="20"
+                <v-progress-circular v-if="!friend.username" color="error" indeterminate :size="20"
                                      :width="5"></v-progress-circular>
                 <img
-                    @click="goToProfileOnClick(user.username)"
-                    v-if="user"
-                    :src="user.userAvatar"
+                    @click="goToProfileOnClick(friend.username)"
+                    v-if="friend"
+                    :src="friend.userAvatar"
                     alt="Profile Avatar"
                 >
               </v-list-item-avatar>
 
 
-              <v-list-item-content @click="getFriendUsername(user.username)">
-                <v-list-item-title>{{ user.username }}</v-list-item-title>
-                <v-list-item-subtitle v-if="user.lastMessage"> {{ user.lastMessage.text }}</v-list-item-subtitle>
-                <v-list-item-subtitle v-if="user.newUser"> {{ user.username }} wants to send you msg
-                </v-list-item-subtitle>
+              <v-list-item-content @click="getFriendUsername(friend.username)">
+                <v-list-item-subtitle><h3>{{ friend.username }}</h3></v-list-item-subtitle>
+                <v-list-item-subtitle v-if="friend.lastMessage"> {{ friend.lastMessage.text }}</v-list-item-subtitle>
+                <v-list-item-subtitle v-if="friend.newUser"><b>new Friend</b></v-list-item-subtitle>
 
-                <div v-if="user.newUser">
-                  <follow-button-component
-                      :user-to-follow="user.username">
+                <div class="d-flex" v-if="friend.newUser">
+                  <follow-button-component :user-to-follow="friend.username"></follow-button-component>
 
-                  </follow-button-component>
+                  <BlockUserComponent class="ml-1" :current-user="user"
+                                      :username-to-block="friend.username"></BlockUserComponent>
+
                 </div>
               </v-list-item-content>
-
-              <v-list-item-action>
-                <v-btn
-                    :class="'red--text'"
-                    icon
-                >
-                  <v-icon>mdi-heart</v-icon>
-                </v-btn>
-              </v-list-item-action>
             </v-list-item>
           </v-list>
 
@@ -103,8 +104,9 @@
     </v-col>
 
     <v-col style="z-index: 3" cols="3">
-      <v-card   class="pa-4 " >
-        <v-img  lazy-src="https://placehold.co/300x400?text=sweetMeet"  style="height: 400px" :src="friendsProfileBackground" class="d-flex justify-center pa-10">
+      <v-card class="pa-4 ">
+        <v-img lazy-src="https://placehold.co/300x400?text=sweetMeet" style="height: 400px"
+               :src="friendsProfileBackground" class="d-flex justify-center pa-10">
           <v-progress-circular indeterminate color="red" v-if="!this.userProfileAvatar"></v-progress-circular>
           <div class="d-inline " style="text-align: center">
             <div class="d-flex justify-center">
@@ -117,31 +119,31 @@
               </v-avatar>
             </div>
 
-            <h1 style="color: white" >{{ this.friend }}</h1>
-            <h3 style="color: white" >{{ this.friendFirstName + ' ' + this.friendSecondName }}</h3>
+            <h1 style="color: white">{{ this.friend }}</h1>
+            <h3 style="color: white">{{ this.friendFirstName + ' ' + this.friendSecondName }}</h3>
           </div>
         </v-img>
 
-        <v-card  elevation="2" class="d-flex justify-start pa-10 mt-5">
+        <v-card elevation="2" class="d-flex justify-start pa-10 mt-5">
           <v-progress-circular indeterminate color="red" v-if="!this.userProfileAvatar"></v-progress-circular>
           <div class=" " style="text-align: center">
 
             <h1>Personal Information</h1>
             <v-progress-circular indeterminate color="red" v-if="!this.friendPhoneNumber"></v-progress-circular>
-            <div  v-if="friendPhoneNumber" class="d-inline" style="text-align: left; color: black">
+            <div v-if="friendPhoneNumber" class="d-inline" style="text-align: left; color: black">
 
 
               <p class="ma-2 black--text">
-                <v-icon right  class="mr-2" >
+                <v-icon right class="mr-2">
                   {{ cityIcon }}
                 </v-icon>
 
-                 {{ this.friendCitiy }}
+                {{ this.friendCitiy }}
                 <v-spacer></v-spacer>
               </p>
 
               <p class="ma-2 black--text">
-                <v-icon right  class="mr-2" >
+                <v-icon right class="mr-2">
                   {{ phoneIcon }}
                 </v-icon>
                 + {{ this.friendPhoneNumber }}
@@ -149,14 +151,13 @@
               </p>
 
               <p class="ma-2 black--text">
-                <v-icon right  class="mr-2" >
-                  {{emailIcon}}
+                <v-icon right class="mr-2">
+                  {{ emailIcon }}
                 </v-icon>
 
                 {{ this.friendEmail.toLowerCase() }}
                 <v-spacer></v-spacer>
               </p>
-
 
 
             </div>
@@ -167,7 +168,8 @@
           <v-progress-circular indeterminate color="red" v-if="!this.userProfileAvatar"></v-progress-circular>
           <div class="" style="text-align: center">
             <follow-button-component class="d-inline ma-1" :user-to-follow="this.friend"></follow-button-component>
-
+            <block-user-component @click="this.fetchFriendList()" class="mr-2 ma-1" :current-user="user"
+                                  :username-to-block="this.friend"></block-user-component>
             <v-dialog
                 v-model="dialog"
                 width="500"
@@ -177,6 +179,7 @@
                 <v-btn
                     color="red "
                     dark
+                    class="ma-1"
                     v-bind="attrs"
                     v-on="on"
                 >
@@ -205,7 +208,7 @@
                   <v-spacer></v-spacer>
                   <v-btn
                       color="red"
-                      class="white--text"
+                      class="white--text "
                       @click="reportUser()"
                       reportUser
                   >
@@ -233,7 +236,9 @@ import NotificationMenuComponent from "@/components/NotificationMenuComponent.vu
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import router from "@/router";
 import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
-import {mdiBell, mdiLogout, mdiMessage, mdiPlus , mdiPhone, mdiEmail,mdiCity} from "@mdi/js";
+import BlockUserComponent from "@/components/BlockUserComponent.vue";
+import {mdiBell, mdiLogout, mdiMessage, mdiPlus, mdiPhone, mdiEmail, mdiCity} from "@mdi/js";
+import FollowSuggestionComponent from "@/components/FollowSugestionComponent.vue";
 
 export default {
   data() {
@@ -243,9 +248,10 @@ export default {
       messageIcon: mdiMessage,
       plusIcon: mdiPlus,
       logoutIcon: mdiLogout,
-      emailIcon:mdiEmail,
-      phoneIcon:mdiPhone,
-      cityIcon:mdiCity,
+      emailIcon: mdiEmail,
+      phoneIcon: mdiPhone,
+      cityIcon: mdiCity,
+
       //Data
       friendList: [],
       userFollowing: null,
@@ -274,23 +280,27 @@ export default {
   name: 'Home',
 
   components: {
+    FollowSuggestionComponent,
+    BlockUserComponent,
     FollowButtonComponent,
     NotificationMenuComponent,
     MessageSystemComponent
   },
+
   created() {
     // Use created hook instead of mounted
 
     // Check authentication state using onAuthStateChanged
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is authenticated, fetch necessary data
+         //User is authenticated, fetch necessary data
         this.user = user.displayName;
         this.userProfileAvatar = await this.fetchProfileAvatar(this.user);
-        this.friend = "jabuka";
+        this.friend = "Franko";
+
         await this.fetchFriendList();
         await this.fetchFriendInformation();
-        //this.newMessageRequest();
+        await this.newMessageRequest()
       } else {
         await this.$router.push("/login");
         // User is not authenticated, handle accordingly
@@ -324,15 +334,17 @@ export default {
 
       const userCollectionsDoc = await getDoc(userCollectionsRef);
       this.userFollowing = userCollectionsDoc.data().Following;
+      const blockedList = await this.fetchBlockedUsers(this.user);
 
       for (let userFollowingKey in this.userFollowing) {
         let lastMessage = await this.fetchLastMessage(this.userFollowing[userFollowingKey]);
-        this.friendListArray.push(this.userFollowing[userFollowingKey]);
-        this.friendList.push({
-          username: this.userFollowing[userFollowingKey],
-          lastMessage: lastMessage,
-          userAvatar: await this.fetchProfileAvatar(this.userFollowing[userFollowingKey])
-        })
+        if (!blockedList.includes(this.userFollowing[userFollowingKey])) {
+          this.friendList.push({
+            username: this.userFollowing[userFollowingKey],
+            lastMessage: lastMessage,
+            userAvatar: await this.fetchProfileAvatar(this.userFollowing[userFollowingKey])
+          })
+        }
       }
 
 
@@ -371,7 +383,6 @@ export default {
     },
 
 
-
     async getFriendUsername(username) {
       this.friend = username;
       await this.fetchFriendInformation();
@@ -379,78 +390,62 @@ export default {
     },
 
 
-    async newMessageRequest() {
-      let userFollowList = await this.returnUserFollowing();
+    newMessageRequest: async function () {
+
+      let currentUserFollowingList = await this.returnUserFollowing();
+      this.userFollowers = await this.returnUserFollowers();
+      const blockedList = await this.fetchBlockedUsers(this.user);
 
       try {
-        // Fetch followers
-        const userCollectionsRef = doc(
-            db,
-            "Users",
-            "UserNames",
-            auth.currentUser.displayName,
-            "Information",
-            "Followers",
-            "Following"
-        );
-
-        const userCollectionsDoc = await getDoc(userCollectionsRef);
-        this.userFollowers = await userCollectionsDoc.data().Followers;
-
         for (let userFollowersKey in this.userFollowers) {
-          const followerUsername = await this.userFollowers[userFollowersKey];
-          const messageRef = doc(
-              db,
-              "Users",
-              "UserNames",
-              followerUsername,
-              "Friends",
-              this.user,
-              "Messages"
-          );
 
-          const docSnap = await getDoc(messageRef);
-          const messageData = docSnap.data().messages;
+          if (!currentUserFollowingList.includes(this.userFollowers[userFollowersKey]) && this.userFollowers[userFollowersKey] !== this.user &&
+              !blockedList.includes(this.userFollowers[userFollowersKey])) {
+            const followerUsername = await this.userFollowers[userFollowersKey];
+            const messageRef = doc(
+                db,
+                "Users",
+                "UserNames",
+                followerUsername,
+                "Friends",
+                this.user,
+                "Messages"
+            );
 
-          let userHasSendMessageBack = false;
-          let isFriendAlready = false;
+            const docSnap = await getDoc(messageRef);
+            const messageData = docSnap.data().messages;
 
-          for (let message in messageData) {
-            if (messageData[message].sender === auth.currentUser.displayName) {
-              userHasSendMessageBack = true;
-              break;
-            }
-          }
+            let userHasSendMessageBack = false;
+            let isFriendAlready = false;
 
-          if (userHasSendMessageBack && !userFollowList.includes(followerUsername)) {
+
             this.friendList.push({
               username: followerUsername,
               lastMessage: "lastMessage",
               userAvatar: await this.fetchProfileAvatar(followerUsername),
               newUser: true,
             });
+
+
+            userHasSendMessageBack = false;
+
           }
 
-          userHasSendMessageBack = false;
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     },
     async returnUserFollowing() {
-      const userCollectionsRef = doc(
-          db,
-          "Users",
-          "UserNames",
-          auth.currentUser.displayName,
-          "Information",
-          "Followers",
-          "Following",
-      );
-      const userCollectionsDoc = await getDoc(userCollectionsRef);
+      const userCollectionsDoc = await getDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Information", "Followers", "Following"));
       return userCollectionsDoc.data().Following
-
     },
+
+    async returnUserFollowers() {
+      const userCollectionsDoc = await getDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Information", "Followers", "Following"));
+      return userCollectionsDoc.data().Followers
+    },
+
     async fetchFriendInformation() {
       let docSnap = await getDoc(doc(db, "Users", "UserNames", this.friend, "Information"));
 
@@ -474,6 +469,7 @@ export default {
     },
 
     async reportUser() {
+      this.dialog = false;
       let reff2 = doc(db, "Users", "UserNames", this.friend, "Reports");
       let docSnapSoulmate = await getDoc(reff2);
 
@@ -494,7 +490,7 @@ export default {
       const auth = getAuth();
       signOut(auth)
           .then(() => {
-            this.$router.push("/login");
+            this.$router.push("/");
           })
           .catch((error) => {
             // An error happened.
@@ -513,7 +509,17 @@ export default {
 
     goToProfilePage() {
       this.$router.push("profile/" + auth.currentUser.displayName);
-    }
+    },
+
+    async fetchBlockedUsers(username) {
+      const docSnap = await getDoc(doc(db, "Users", "UserNames", username, "BlockedUser"));
+      if (docSnap.exists()) {
+        return docSnap.data()["Blocked"];
+      } else {
+        console.log("error");
+        return null;
+      }
+    },
 
   },
 

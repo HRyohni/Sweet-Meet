@@ -1,5 +1,6 @@
 <template>
   <div class="text-center">
+<v-fab-transition>
     <v-menu
         v-model="menu"
         :close-on-content-click="false"
@@ -13,64 +14,71 @@
           <v-icon>{{ notificationIcon }}</v-icon>
         </v-btn>
 
+
       </template>
-      <v-btn v-if="this.notificationList" @click="clearNotifications" icon elevation="5" class="ma-3">
-        <v-icon>{{ trashcan }}</v-icon>
-      </v-btn>
-      <h3 class="pa-3" v-if="!this.notificationList">No new notifications</h3>
+      <v-card elevation="2" class="pa-2 " style="background-color: #f86262" >
+        <h3 class="pa-3" v-if="!this.notificationList">No new notifications</h3>
+        <div class="d-flex justify-center">
+          <v-btn v-if="this.notificationList" @click="clearNotifications" icon elevation="5" class="ma-3">
+            <v-icon>{{ trashcan }}</v-icon>
+          </v-btn>
+          <v-spacer></v-spacer>
+          <h1 class="white--text">Notifications</h1>
+        </div>
 
-      <v-card
-          v-for="(notification, index) in this.notificationList"
-          :key="index"
-      >
-        <v-list>
-          <v-list-item>
-            <v-list-item-avatar>
-              <v-progress-circular v-if="!notification.profileAvatar" color="error" indeterminate :size="20"
-                                   :width="5"></v-progress-circular>
-              <img
-                  v-if="notification.profileAvatar"
-                  :src="notification.profileAvatar"
-                  alt="Profile Avatar"
-              >
-            </v-list-item-avatar>
+        <v-card
+            class="ma-1 overflow-y-auto"
 
-
-
-
-
-            <v-list-item-content>
-              <v-list-item-title>{{ notification.username }}</v-list-item-title>
-              <v-list-item-subtitle>{{ notification.comment }}</v-list-item-subtitle>
-              <div v-if="notification.FollowRequest" > <follow-button-component :user-to-follow="notification.username" ></follow-button-component> </div>
-            </v-list-item-content>
-
-            <v-list-item-action>
-              <v-btn
-                  :class="fav ? 'red--text' : ''"
-                  icon
-                  @click="fav = !fav"
-              >
-                <v-icon>mdi-heart</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
-        </v-list>
-
-        <v-divider></v-divider>
+            v-for="(notification, index) in this.notificationList"
+            :key="index"
+        >
+          <v-list>
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-progress-circular v-if="!notification.profileAvatar" color="error" indeterminate :size="20"
+                                     :width="5"></v-progress-circular>
+                <img
+                    v-if="notification.profileAvatar"
+                    :src="notification.profileAvatar"
+                    alt="Profile Avatar"
+                >
+              </v-list-item-avatar>
 
 
+              <v-list-item-content>
+                <v-list-item-title>{{ notification.username }}</v-list-item-title>
+                <v-list-item-subtitle>{{ notification.comment }}</v-list-item-subtitle>
+                <div v-if="notification.FollowRequest">
+                  <follow-button-component :user-to-follow="notification.username"></follow-button-component>
+                </div>
+              </v-list-item-content>
+              <v-list-item-action >
+
+                  <v-icon  v-if="notification.comment.includes('liked')" color="red">mdi-heart</v-icon>
+                  <v-icon  v-if="notification.comment.includes('commented')" color="red">{{commentIcon}}</v-icon>
+                  <v-icon v-if="notification.comment.includes('match')" color="red">{{ cupcakeIcon }}</v-icon>
+
+              </v-list-item-action>
+            </v-list-item>
+          </v-list>
+
+          <v-divider></v-divider>
+
+
+        </v-card>
       </v-card>
     </v-menu>
+</v-fab-transition>
   </div>
 </template>
 
 <script>
 import 'vue-phone-number-input/dist/vue-phone-number-input.css';
-import {mdiBell, mdiTrashCan} from "@mdi/js";
+import {mdiBell, mdiTrashCan,mdiComment,mdiCupcake} from "@mdi/js";
 import {doc, getDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
+import {onAuthStateChanged} from "firebase/auth";
 
 export default {
 
@@ -78,8 +86,12 @@ export default {
 
   data() {
     return {
+      //Icons
       notificationIcon: mdiBell,
       trashcan: mdiTrashCan,
+      commentIcon: mdiComment,
+      cupcakeIcon: mdiCupcake,
+
       fav: true,
       menu: false,
       message: false,
@@ -92,7 +104,12 @@ export default {
 
   },
   async mounted() {
-   // await this.fetchNotifications(); TODO: fix later
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await this.fetchNotifications();
+      }
+    });
+
   },
 
   updated() {
@@ -129,7 +146,7 @@ export default {
           const postData = docSnap.data();
 
           this.notificationList = postData.Notifications;
-          //this.NumberNotification =  this.notificationList.length; TODO: error
+          this.NumberNotification = this.notificationList.length;
 
           for (let notification of this.notificationList) {
             notification.profileAvatar = await this.fetchNotificationsProfileAvatar(notification.username);
@@ -150,8 +167,7 @@ export default {
           const postData = docSnap.data();
           let newLength = postData.Notifications
 
-          if (newLength.length !== this.NumberNotification)
-          {
+          if (newLength.length !== this.NumberNotification) {
             this.fetchNotifications();
           }
 
@@ -179,6 +195,10 @@ export default {
           }
 
         },
+        goToProfilePage(username) {
+          this.$router.push("profile/" + username);
+        },
+
 
       },
 

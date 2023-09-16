@@ -1,15 +1,19 @@
 <template>
   <v-container>
 
-    <v-card class="d-flex justify-center">
-      <div class="ma-5 d-flex justify-center" v-if="!soulMateExists">
-        <h3>sorry cant find your Soulmate at the time try later!</h3>
-        <v-btn @click="fetchNewSoulmate">Try Again!</v-btn>
+    <v-card  >
+      <div class="ma-5  pa-10" v-if="!soulMateExists">
+        <div class="d-flex justify-center">
+          <h3>Sorry cant find your Soulmate at the time try later!</h3>
+        </div>
+        <div class="d-flex justify-center">
+          <v-btn color="blue" outlined @click="fetchNewSoulmate">Try Again!</v-btn>
+        </div>
       </div>
 
       <Vue2InteractDraggable
-          style="background-color: #d4d4d4; width: 500px"
-          v-if="soulMateExists"
+          style="background-color: #f1b8b8; width: 500px"
+          v-if="soulMateExists && isShowing"
           @draggedRight="draggedRight"
           @draggedLeft="draggedLeft"
           :interact-max-rotation="15"
@@ -44,8 +48,8 @@
               <v-icon>{{ rightArrow }}</v-icon>
             </v-btn>
           </template>
-          <div v-if="!soulMate['age']" >
-            <v-progress-circular indeterminate color="red"  ></v-progress-circular>
+          <div class="d-flex justify-center mt-10" v-if="!soulMate['age']">
+            <v-progress-circular indeterminate color="red"></v-progress-circular>
           </div>
           <v-carousel-item
               v-for="(user, i) in this.soulMatePosts"
@@ -213,27 +217,60 @@
         </v-list-item>
 
       </Vue2InteractDraggable>
+      <!--          :value="closeOverly"-->
       <v-overlay
           :value="closeOverly"
+
           class="d-flex justify-center"
+          v-show="true"
       >
-        <h1>You got Sweet Meet</h1>
+        <h1 class="d-flex justify-center" style="font-size: 100px">It's a Sweet Meet</h1>
+        <div class="d-flex justify-center">
+          <div>
+            <v-avatar size="200">
+              <img
 
-        <v-btn
-            class="justify-center ma-2"
-            color="success"
-            @click="closeOverly = false, stop()"
-        >
-          Great!
-        </v-btn>
-        <v-btn
+                  :src="matchedSoulmateProfileAvatar"
+                  alt="John"
+              >
+            </v-avatar>
 
-            class="justify-center ma-2"
-            color="success"
-            @click="stop(),goToProfile()"
-        >
-          Go Meet your Sweet Meet!
-        </v-btn>
+            <h1 class="d-flex justify-center">{{ matchedSoulmateUsername }}</h1>
+          </div>
+
+          <v-icon color="red" size="100">{{ heart }}</v-icon>
+
+          <div>
+            <v-avatar size="200">
+              <img
+                  :src="userProfilePicture"
+              >
+            </v-avatar>
+
+            <h1 class="d-flex justify-center">{{ userName }}</h1>
+          </div>
+
+
+        </div>
+
+        <div class="d-flex justify-center">
+          <v-btn
+              class="justify-center ma-2"
+              color="success"
+              @click="closeOverly = false, stop()"
+          >
+            keep swiping
+          </v-btn>
+          <v-btn
+
+              class="justify-center ma-2"
+              color="red"
+              @click="stop(),goToProfile()"
+          >
+            Send a message
+          </v-btn>
+        </div>
+
       </v-overlay>
 
     </v-card>
@@ -244,7 +281,7 @@ import {Vue2InteractDraggable} from 'vue2-interact'
 import {collection, doc, getDoc, getDocs, setDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../../firebase";
 import {onAuthStateChanged} from "firebase/auth";
-import {mdiAccountHeart, mdiArrowLeft, mdiArrowRight, mdiArrowDownBold, mdiArrowUpBold} from '@mdi/js'
+import {mdiHeart, mdiArrowLeft, mdiArrowRight, mdiArrowDownBold, mdiArrowUpBold} from '@mdi/js'
 import SweetCard from "@/components/SweetCard.vue";
 import VueConfetti from 'vue-confetti'
 import Vue from 'vue'
@@ -268,7 +305,11 @@ export default {
     usersDistance: null,
     rejectedSoulmates: [],
     approvedSoulmates: [],
+    userProfilePicture: "",
+    matchedSoulmateProfileAvatar: "",
+    matchedSoulmateUsername: "",
     soulMateDisplayNameTemp: "",
+
 
     items: [
       {
@@ -279,12 +320,12 @@ export default {
     ],
 
     imageUrl: "",
-    userProfilePicture: "",
+
 
     // icons
     leftArrow: mdiArrowLeft,
     rightArrow: mdiArrowRight,
-    heart: mdiAccountHeart,
+    heart: mdiHeart,
     arrowDown: mdiArrowDownBold,
     arrowUp: mdiArrowUpBold,
 
@@ -316,10 +357,12 @@ export default {
 
   async mounted() {
 
+
     await onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           this.userName = user.displayName;
+          this.userProfilePicture = await this.getUserProfilePicture(this.userName);
           // Fetch current user data
           await this.fetchUserInformation();
 
@@ -343,7 +386,6 @@ export default {
           await this.checkForMatchingSoulmates();
 
           // fetch user Report Status
-          await this.fetchUserReports();
 
         } catch (error) {
           console.error("An error occurred:", error);
@@ -421,7 +463,7 @@ export default {
           if (this.currentUserData["UserAttractedToGender"] === userData.data()["UserGender"] && // match attractive
               !this.rejectedSoulmates.includes(userData.data()["displayName"]) &&                // remove rejected ones
               !this.approvedSoulmates.includes(userData.data()["displayName"]) &&                // remove approved ones
-              this.userName !== userData.data()["displayName"] &&                             // remove scenario of showing my self
+              this.userName !== userData.data()["displayName"] &&                                // remove scenario of showing my self
               await this.doesUserHavePost(userData.data()["displayName"])                        // Check if user has post
 
           ) {
@@ -542,6 +584,9 @@ export default {
             FollowRequest: false
           });
           this.soulMateDisplayNameTemp = this.soulMate["displayName"];
+
+          this.matchedSoulmateProfileAvatar = await this.getUserProfilePicture(this.soulMate["displayName"]);
+          this.matchedSoulmateUsername = this.soulMate["displayName"];
           this.love();
           this.closeOverly = true
         }
@@ -582,6 +627,7 @@ export default {
 
       if (docSnap.exists()) {
         this.profileDescription = docSnap.data()["ProfileDescription"];
+        console.log(docSnap.data()["ProfilePictureUrl"]);
         return docSnap.data()["ProfilePictureUrl"];
       } else {
         console.log("error");

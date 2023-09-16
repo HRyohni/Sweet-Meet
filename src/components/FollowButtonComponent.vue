@@ -1,9 +1,9 @@
 <template>
   <div>
-    <v-btn v-if="!isUserFollowed" @click="follow()" class="d-inline  red   pa-1"
+    <v-btn v-if="!isUserFollowed" @click="follow()" class="d-inline white--text  red   pa-1"
            style="">Follow
     </v-btn>
-    <v-btn v-if="isUserFollowed" @click="unFollow()" class="d-inline  blue  pa-1"
+    <v-btn v-if="isUserFollowed" @click="unFollow()" class="d-inline white--text  blue  pa-1"
            style="">Un Follow
     </v-btn>
   </div>
@@ -30,7 +30,7 @@ export default {
       userFollowing: [],
       currentUser: "",
 
-      isUserFollowed: true,
+      isUserFollowed: false,
     };
   },
   props:
@@ -40,7 +40,7 @@ export default {
   async mounted() {
     await onAuthStateChanged(auth, async (user) => {
       if (user) {
-        this.currentUser = auth.currentUser.displayName;
+        this.currentUser = user.displayName;
          await this.fetchUserToFollowData();
          await this.fetchUsersFollowing();
          await this.checkUserFollowed();
@@ -59,8 +59,6 @@ export default {
             this.userToFollowFollowing = doc.data()["Following"];
           });
 
-          console.log(this.userToFollowFollowers);
-          console.log(this.userToFollowFollowing);
         },
 
         async fetchUsersFollowing() {
@@ -68,8 +66,7 @@ export default {
           querySnapshot.forEach((doc) => {
             this.userFollowing = doc.data()["Following"];
           });
-          console.log("we follow");
-          console.log(this.userFollowing);
+
         },
 
 
@@ -111,7 +108,6 @@ export default {
                 updatedFollowing.push(userFollowingElement)
 
             // Remove the followed user from the current user's following list
-            console.log(updatedFollowing);
             await updateDoc(
                 doc(db, "Users", "UserNames", this.currentUser, "Information", "Followers", "Following"),
                 {Following: updatedFollowing}

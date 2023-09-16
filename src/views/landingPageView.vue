@@ -3,7 +3,7 @@
 
     <v-img height="1000" src="../../public/imgassets/backgroundSweetMeet.png">
       <div class="d-flex justify-end">
-        <v-btn @click="loginPage" class="pa-2 ma-2" color="white" outlined>Log in</v-btn>
+        <v-btn @click="loginPage" class="pa-2 ma-5" color="white" outlined>Log in</v-btn>
 
       </div>
 

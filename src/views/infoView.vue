@@ -876,9 +876,14 @@ export default {
       await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Notification"), {
         Notifications: [],
       }).then(console.log("done!"));
-// Add Report System
+      // Add Report System
       await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Reports"), {
         Reports: [],
+      }).then(console.log("done!"));
+
+      // Add Block System
+      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "BlockedUser"), {
+        Blocked: [],
       }).then(console.log("done!"));
 
 

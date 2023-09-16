@@ -1,25 +1,27 @@
 <template>
-  <div class="data  d-flex  justify-center">
+  <div class="data mt-15  d-flex  justify-center">
 
     <v-card class="pa-12 ma-12 red--text" width="1000px" elevation="10">
 
       <v-card-title> Setup your profile Description</v-card-title>
-      <v-btn>
-        <label class="custom-file-upload">
-          Change Profile Image
-          <input type="file" @change="onFileChangeProfileImage"/>
+      <v-row class="ma-2 justify-center">
 
-        </label>
-      </v-btn>
-      Change Profile background Image
-      <v-btn>
-        <label class="custom-file-upload">
-          Change Profile Image
-          <input @change="this.onFileChangeProfileBackground" type="file">
-        </label>
-      </v-btn>
+        <v-col>
+          <label class="custom-file-upload blue--text">
+            Change Profile Image
+            <input type="file" @change="onFileChangeProfileImage"/>
 
+          </label>
+        </v-col>
+        <v-col>
+          <label class="custom-file-upload blue--text">
+            Change Profile Image
+            <input @change="this.onFileChangeProfileBackground" type="file">
+          </label>
+        </v-col>
+      </v-row>
       <profile-info-card
+          :show-case="true"
           :display-name="this.displayName"
           :first-name="this.firstName"
           :second-name="this.secondName"
@@ -30,12 +32,20 @@
       ></profile-info-card>
       <div class="ma-4">
         <p>Pick Color:</p>
-        <v-btn @click="colorOfCard('white')" class="ma-2" color="white"></v-btn>
-        <v-btn @click="colorOfCard('blue')" class="ma-2" color="blue"></v-btn>
-        <v-btn @click="colorOfCard('red')" class="ma-2" color="red"></v-btn>
-        <v-btn @click="colorOfCard('green')" class="ma-2" color="green"></v-btn>
+        <div class="d-flex justify-center">
+          <v-btn @click="colorOfCard('blue')" class="ma-2" color="blue"></v-btn>
+          <v-btn @click="colorOfCard('red')" class="ma-2" color="red"></v-btn>
+          <v-btn @click="colorOfCard('green')" class="ma-2" color="green"></v-btn>
+          <v-btn @click="colorOfCard('purple')" class="ma-2" color="purple"></v-btn>
+          <v-btn @click="colorOfCard('pink')" class="ma-2" color="pink"></v-btn>
+          <v-btn @click="colorOfCard('deep-purple')" class="ma-2" color="deep-purple"></v-btn>
+          <v-btn @click="colorOfCard('indigo')" class="ma-2" color="indigo"></v-btn>
+          <v-btn @click="colorOfCard('orange')" class="ma-2" color="orange"></v-btn>
+          <v-btn @click="colorOfCard('blue-grey')" class="ma-2" color="blue-grey"></v-btn>
+        </div>
+
       </div>
-      <v-text-field label="Description" outlined class="mt-10" v-model="description"></v-text-field>
+      <v-text-field  :rules="descriptionRules" label="Description" outlined class="mt-10" v-model="description"></v-text-field>
 
       <h1>Introduce yourself</h1>
       <div class="d-inline">
@@ -206,6 +216,7 @@
 
 
       <v-btn class="ma-5" color="primary"
+             :disabled="this.description.length >100"
              @click="UplodaAllDataToFirebase()">Save
       </v-btn>
     </v-card>
@@ -627,6 +638,18 @@ export default {
     currentProfileImage: "",
     currentBackgroundProfileImage: "",
 
+    descriptionRules: [
+      value => {
+        if (value) return true
+        return 'Cant be empty.'
+      },
+      value => {
+        if (value?.length <= 100) return true
+
+        return 'Description must be less than 100 characters.'
+      },
+    ],
+
 
 
   }),
@@ -852,8 +875,8 @@ export default {
         this.downloadProfileBackgroundPictureUrl = this.currentBackgroundProfileImage;
       }
 
-
       await this.addInfo()
+      await this.$router.push("/profile/" + this.displayName);
 
 
     },

@@ -168,12 +168,16 @@ export default {
   },
 
   updated() {
-
-    this.fetchMessageHistory()
+    if (this.friend && this.user)
+      this.fetchMessageHistory()
   },
 
   async mounted() {
-    await this.allFunctions();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await this.allFunctions();
+      }
+    });
 
   },
   watch: {
@@ -189,9 +193,10 @@ export default {
   methods: {
 
     async allFunctions() {
-      if (this.friend || this.user) {
+      if (this.friend && this.user) {
         //check if user exists
         await this.checkIfFriendExists();
+
         //Check if Messages exists and Send Message
         await this.checkIfMessagesDatabaseExists();
 
@@ -205,8 +210,6 @@ export default {
       }
     },
 
-
-    icon,
 
     async checkIfFriendExists() {
       const querySnapshot = await getDocs(collection(db, "Users", "UserNames", this.friend));
@@ -327,9 +330,7 @@ export default {
     clearCurrentMessage() {
       this.currentMessage = ''
     },
-    resetIcon() {
-      this.iconIndex = 0
-    },
+
     selectEmoji(emoji) {
       this.currentMessage += emoji["data"];
     }

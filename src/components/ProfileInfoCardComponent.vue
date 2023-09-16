@@ -40,8 +40,8 @@
             </div>
           </v-col>
 
-          <v-col class="white--text">
-            <h3>{{ this.profileDescription }}</h3>
+          <v-col class="d-flex justify-center white--text">
+            <h2>{{ this.profileDescription }}</h2>
           </v-col>
 
 

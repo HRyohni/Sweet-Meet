@@ -3,7 +3,7 @@
     <div class="topbar pa-2" style="position: absolute; width: 100%">
       <v-row>
         <v-col>
-          <h4></h4>
+          <v-btn color="red" elevation="5" icon @click="goToFeed"> <v-icon>{{homeIcon}}</v-icon></v-btn>
         </v-col>
 
         <v-col style="text-align: center">
@@ -34,6 +34,7 @@ import {
 } from "../firebase.js";
 import {doc, getDoc} from "firebase/firestore";
 import SearchUserComponent from "@/components/SearchUserComponent.vue";
+import {mdiHome} from "@mdi/js";
 
 export default {
   name: "App",
@@ -48,6 +49,8 @@ export default {
     userInfo: null,
     userEmail: null,
     displayName: null,
+    //icons
+    homeIcon: mdiHome,
   }),
   async mounted() {
 
@@ -98,6 +101,9 @@ export default {
         // docSnap.data() will be undefined in this case
         console.log("DisplayName Error");
       }
+    },
+    goToFeed() {
+      this.$router.push("/login")
     },
 
 

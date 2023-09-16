@@ -3,10 +3,11 @@
 
   <v-container class="d-flex ma-10 justify-center">
     <v-row>
-      <v-col cols="2">
+      <v-col cols="1">
         <div class=" ml-2 mt-2">
           <v-avatar @click="goToProfilePage()" size="50">
-            <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
+            {{ profile }}
+            <v-img :src="userProfilePicture"></v-img>
           </v-avatar>
           <p class="d-inline ma-2">{{ userName }}</p>
           <div>
@@ -28,7 +29,7 @@
         </div>
       </v-col>
 
-      <v-col>
+      <v-col cols="6">
         <div class="d-inline" style="">
           <v-card
               style="width: fit-content"
@@ -65,8 +66,8 @@
       </v-col>
 
 
-      <v-col cols="3">
-        <div style=" ">
+      <v-col width="100%" cols="4">
+        <div class="d-flex justify-center">
           <sweet-card-dating
               style="width: 500px"
               :debug-mod="true"
@@ -108,7 +109,8 @@ export default {
       userLoginStatus: false,
       userInfo: null,
       userEmail: null,
-      userName:"",
+      userName: "",
+      userProfilePicture: "",
       // icons
       notificationIcon: mdiBell,
       messageIcon: mdiMessage,
@@ -140,9 +142,10 @@ export default {
     SweetCard,
   },
   async mounted() {
-    await onAuthStateChanged(auth,  async (user) => {
+    await onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.userName = user.displayName;
+        this.userProfilePicture = await this.getUserProfilePicture(this.userName)
         await this.showFollowingUsersPosts();
         // get data
         await this.getPostIDs();
@@ -194,10 +197,6 @@ export default {
       if (docSnap.exists()) {
         // setup display name
         this.displayName = docSnap.data().displayName;
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("Unkown Users");
-        await this.$router.push("/")
       }
     },
 
@@ -262,7 +261,7 @@ export default {
       const auth = getAuth();
       signOut(auth)
           .then(() => {
-            this.$router.push("/login");
+            this.$router.push("/");
           })
           .catch((error) => {
             // An error happened.
@@ -279,10 +278,21 @@ export default {
       this.$router.push("messages")
     },
 
-    goToProfilePage()
-    {
+    goToProfilePage() {
       this.$router.push("profile/" + auth.currentUser.displayName);
-    }
+    },
+
+    async getUserProfilePicture(user) {
+      const docRef = doc(db, "Users", "UserNames", user, "Information", "Profile", "Data");
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        return docSnap.data()["ProfilePictureUrl"];
+      } else {
+        console.log("error");
+        return null;
+      }
+    },
   },
 };
 

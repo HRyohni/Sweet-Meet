@@ -293,9 +293,7 @@ export default {
     clearCurrentMessage() {
       this.currentMessage = ''
     },
-    resetIcon() {
-      this.iconIndex = 0
-    },
+
     selectEmoji(emoji) {
       this.currentMessage += emoji["data"];
       console.log(emoji["data"]);

@@ -4,15 +4,9 @@
       <v-row>
 
         <v-col  ref="mojElement">
-          <Vue2InteractDraggable
+          <div
               class="d-flex justify-center"
-              style=" width: 100%"
-              @draggedRight="draggedRight"
-              :interact-max-rotation="15"
-              :interact-out-of-sight-x-coordinate="3000"
-              :interact-x-threshold="500"
-              :interact-lock-y-axis="true"
-              :interact-lock-x-axis="isSwipeLocked"
+
           >
 
             <!--  Social media-->
@@ -47,7 +41,7 @@
 
 
               <v-scroll-y-transition style="background-color: aqua;" class="align-center">
-                <v-img contain max-width="500" :src="randomImageUrl(debugMod)">
+                <v-img lazy-src="https://placehold.co/300x400?text=sweetMeet" contain max-width="500" :src="randomImageUrl(debugMod)">
 
                   <!--    COMMENTS SYSTEM-->
 
@@ -86,7 +80,7 @@
                 </div>
               </v-container>
             </div>
-          </Vue2InteractDraggable>
+          </div>
         </v-col>
 
 

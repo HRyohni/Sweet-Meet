@@ -52,7 +52,7 @@
     <v-row  v-if="userExists && profilePrivate" class="BottomSite mt-5">
 
       <v-col cols="3">
-        <FollowSugestionComponent v-if="userAdmin"/>
+
         <v-card elevation="12" class="pa-3 mt-3 white--text pa-5" :color="this.profileCardColor">
           <h3 class="d-inline">{{ this.firstName }} {{ this.secondName }}</h3>
           <h3 class="d-inline"> {{ this.age }}</h3>
@@ -70,6 +70,21 @@
             </v-col>
           </v-row>
         </v-card>
+
+        <v-card elevation="12" class="pa-3 mt-3 white--text pa-5" :color="this.profileCardColor">
+          <h3 class="d-inline"><b>About me</b></h3>
+
+              <h5 class="font-weight-thin mt-2">{{ answeredQuestions[0] }}</h5>
+              <h4 class="ml-1">{{ answeredQuestions[1] }}</h4>
+
+              <h5 class="font-weight-thin mt-2">{{ answeredQuestions[2] }}</h5>
+              <h4 class="ml-1">{{ answeredQuestions[3] }}</h4>
+
+              <h5 class="font-weight-thin mt-2">{{ answeredQuestions[4] }}</h5>
+              <h4 class="ml-1">{{ answeredQuestions[5] }}</h4>
+        </v-card>
+        <FollowSugestionComponent class=" mt-3" />
+
       </v-col>
       <!--Sweet Card profile images-->
       <v-col cols="6">
@@ -85,21 +100,20 @@
 
 
       <!--                                      Settings and other stuf-->
-      <v-col   style="color: gray; " class="ma-5" cols="">
+      <v-col   style="color: gray; " class="ma-5 " cols="">
           <h1 style="text-align: center">Interests </h1>
-          <div class="d-inline" v-for="item in interests">
+          <div class="d-inline " v-for="item in interests">
             <v-chip color="primary" class=" ma-1 pa-2">{{ item }}</v-chip>
           </div>
-          <h1 style="text-align: center">movies </h1>
+          <h1 class="mt-2" style="text-align: center">movies </h1>
           <div class="d-inline" v-for="item in movies">
-            <v-chip color="red" class="ma-1 pa-2 ">{{ item }}</v-chip>
+            <v-chip color="red"  class="white--text ma-1 pa-2 ">{{ item }}</v-chip>
           </div>
 
-          <h1 style="text-align: center">music </h1>
+          <h1 class="mt-2" style="text-align: center">music </h1>
           <div class="d-inline" v-for="item in music">
-            <v-chip color="green" class="ma-1 pa-2">{{ item }}</v-chip>
+            <v-chip color="green" class="white--text ma-1 pa-2">{{ item }}</v-chip>
           </div>
-
       </v-col>
 
     </v-row>
@@ -136,6 +150,7 @@ export default {
     age: "",
     gender: "",
     AllPostsIdNames: [],
+    answeredQuestions: [],
 
     followersCount: 0,
     followingCount: 0,
@@ -263,6 +278,7 @@ export default {
             this.sexualOrientation = docSnap.data()["UserAttractedToGender"];
             this.age = docSnap.data()["age"];
             this.gender = docSnap.data()["UserGender"];
+            this.answeredQuestions = docSnap.data()["AnswerQuestions"];
           } else {
             // docSnap.data() will be undefined in this case
             this.userExists = false;
