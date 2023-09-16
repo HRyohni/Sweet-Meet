@@ -1,15 +1,16 @@
 <template>
-
-
   <v-container class="d-flex ma-10 justify-center">
+    <UploadPostComponent :dialog="dialog" ></UploadPostComponent>
+
     <v-row>
       <v-col cols="1">
         <div class=" ml-2 mt-2">
           <v-avatar @click="goToProfilePage()" size="50">
-            {{ profile }}
+
             <v-img :src="userProfilePicture"></v-img>
           </v-avatar>
           <p class="d-inline ma-2">{{ userName }}</p>
+
           <div>
 
             <NotificationMenuComponent></NotificationMenuComponent>
@@ -17,7 +18,7 @@
               <v-icon>{{ messageIcon }}</v-icon>
             </v-btn>
 
-            <v-btn @click="addPost" class="d-block mt-2" icon elevation="2" fab color="red">
+            <v-btn @click="openDialog()" class="d-block mt-2" icon elevation="2" fab color="red">
               <v-icon>{{ plusIcon }}</v-icon>
             </v-btn>
 
@@ -100,6 +101,7 @@ import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue"
 import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
 import SweetCardDating from "@/components/SweetCardDatingComponent.vue";
 import {signOut} from "../../firebase";
+import UploadPostComponent from "@/components/UploadPostComponent.vue";
 
 export default {
   data() {
@@ -116,6 +118,7 @@ export default {
       messageIcon: mdiMessage,
       plusIcon: mdiPlus,
       logoutIcon: mdiLogout,
+      dialog: false,
 
 
       extend: false,
@@ -133,6 +136,7 @@ export default {
 
 
   components: {
+    UploadPostComponent,
     SweetCardDating,
     FollowButtonComponent,
     FollowSugestionComponent,
@@ -293,6 +297,11 @@ export default {
         return null;
       }
     },
+    openDialog()
+    {
+      this.dialog = !this.dialog;
+
+    }
   },
 };
 

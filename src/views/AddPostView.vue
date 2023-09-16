@@ -1,7 +1,12 @@
 <template>
-<div>
+  <v-dialog
+      v-model="dialog"
+      width="500"
+      class="pa-10 ma-1"
+  >
+
   <div class="ma-15">
-    <v-btn icon color="red" elevation="5" >X</v-btn>
+    <v-btn icon color="red" elevation="5" fab>X</v-btn>
   </div>
   <div   class="pa-2 mt-15 d-flex justify-center " >
 
@@ -117,7 +122,8 @@
       </template>
     </v-snackbar>
   </div>
-</div>
+
+    </v-dialog>
 </template>
 
 <script>
@@ -148,6 +154,9 @@ export default {
 
 
       }),
+
+
+
   mounted() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -160,6 +169,7 @@ export default {
     });
 
   },
+
   methods:
       {
         router() {

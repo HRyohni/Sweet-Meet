@@ -298,7 +298,7 @@ export default {
         this.userProfileAvatar = await this.fetchProfileAvatar(this.user);
         this.friend = "Franko";
 
-        await this.fetchFriendList();
+            await this.fetchFriendList();
         await this.fetchFriendInformation();
         await this.newMessageRequest()
       } else {
