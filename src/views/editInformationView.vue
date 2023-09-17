@@ -77,7 +77,7 @@
             <v-text-field outlined placeholder="City name" v-model="city"></v-text-field>
           </v-col>
         </v-row>
-        <phone-number :phone-number="phoneNumber" @phone-number="handlePhoneNumber"/>
+        <vue-phone-number-input v-model="retrievedPhoneNumber"></vue-phone-number-input>
 
       </div>
 
@@ -915,6 +915,7 @@ export default {
         this.age = docSnap.data()["age"];
         this.UserGender = docSnap.data()["UserGender"];
         this.UserAttractedToGender = docSnap.data()["UserAttractedToGender"];
+        this.retrievedPhoneNumber = docSnap.data()["PhoneNumber"];
 
         this.answerQuestions = docSnap.data()["AnswerQuestions"];
         lat = docSnap.data()["lat"];

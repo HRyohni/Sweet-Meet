@@ -38,7 +38,6 @@
                   dense
                   label="Password"
                   clearble
-                  :append-icon="showIcon ? 'mdi-eye' : 'mdi-eye-off'"
                   :rules="[rules.required, rules.min]"
                   :type="showIcon ? 'text' : 'password'"
                   outlined
@@ -106,6 +105,7 @@ export default {
       valid: true,
       firstName: null,
       email: null,
+      lastName: "",
       displayName: null,
       password: null,
       showIcon: false,
@@ -132,10 +132,12 @@ export default {
       this.email = null;
       this.password = null;
     },
+
     postActionMoveToView() {
       this.$router.push({path: "/info"});
     },
-    async saveAdditionalData(user, email, firstName, lastName) {
+
+    async saveAdditionalData(user, email, firstName) {
       await setDoc(doc(db, "Users", "UserNames", firstName, "Information"), {
         Email: email,
         displayName: firstName,
@@ -143,10 +145,10 @@ export default {
       });
       await setDoc(doc(db, "Users", "UserNames", firstName, "Information", "Profile", "Data"), {});
     },
+
     async registerUser() {
       if (await this.checkIfUserNameExists(this.firstName))
       {
-        console.log("fuck off");
         alert("user already exists");
         return "error"
       }
@@ -164,26 +166,23 @@ export default {
             updateProfile(auth.currentUser, {
               displayName: this.firstName,
             }).then(() => {
+              console.log("error login");
               // Profile updated!
               // ...
             }).catch((error) => {
               // An error occurred
-              // ...
+              console.log("error login");
             });
 
             this.saveAdditionalData(user, email, firstName, lastName);
             this.UpdateProfile();
             this.postActionMoveToView();
-
-
           })
           .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log(error, errorCode, errorMessage);
           });
-
-
     },
 
 
@@ -196,7 +195,6 @@ export default {
         // ...
       }).catch((error) => {
         // An error occurred
-        console.log("fuck");
       });
     },
 
@@ -204,21 +202,13 @@ export default {
 
       this.$router.push("/login");
     },
-    async checkIfUserNameExists(username)
 
+    async checkIfUserNameExists(username)
     {
       let usernameList = [];
-      const docRef = doc(
-          db,
-          "Users",
-          "UserNames",
-      );
-
-      const docSnap = await getDoc(docRef);
-
+      const docSnap = await getDoc( doc(db,"Users","UserNames"));
 
       if (docSnap.exists()) {
-        // setup display name
         usernameList = docSnap.data().ListOfAllUsernames;
         return usernameList.includes(username);
 
@@ -227,8 +217,8 @@ export default {
         console.log("cant find nothing");
         await this.$router.push("/")
       }
-
     },
+
   },
 };
 </script>

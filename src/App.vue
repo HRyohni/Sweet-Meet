@@ -3,7 +3,13 @@
     <div class="topbar pa-2" style="position: absolute; width: 100%">
       <v-row>
         <v-col>
-          <v-btn color="red" elevation="5" icon @click="goToFeed"> <v-icon>{{homeIcon}}</v-icon></v-btn>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on" color="red" elevation="5" icon @click="goToFeed"> <v-icon>{{homeIcon}}</v-icon></v-btn>
+            </template>
+            <span>Go to Home</span>
+          </v-tooltip>
+
         </v-col>
 
         <v-col style="text-align: center">

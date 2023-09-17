@@ -47,8 +47,13 @@
 
           <v-col class="d-flex mx-auto justify-end" style="text-align: right;">
             <div class="">
-              <v-btn   v-if="userAdmin" class="d-flex mx-auto mb-2" @click="editInformationBtn()">Edit</v-btn>
-              <follow-button-component v-if="!showCase" class="d-inline" :user-to-follow="this.displayName"></follow-button-component>
+
+                  <v-btn v-bind="attrs" v-on="on" outlined  color="white" elevation="5" icon v-if="userAdmin" class="d-flex mx-auto mb-2" @click="editInformationBtn()">
+                    <v-icon> {{settingsIcon}}</v-icon>
+                  </v-btn>
+
+              <follow-button-component v-if="!showCase && !userAdmin" class="d-inline"
+                                       :user-to-follow="this.displayName"></follow-button-component>
             </div>
           </v-col>
 
@@ -64,15 +69,18 @@
 <script>
 
 
-import {collection, doc, getDocs, setDoc, updateDoc} from "firebase/firestore";
-import {auth, db} from "../../firebase";
 import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
+import {mdiAccountEdit} from "@mdi/js";
 
 export default {
   name: 'ProfileInfoCard',
+
+
   components: {FollowButtonComponent},
 
   data: () => ({
+    //icons
+    settingsIcon: mdiAccountEdit,
     valueRules: [
       value => {
         if (value) return true

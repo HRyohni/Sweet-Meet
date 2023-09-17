@@ -5,27 +5,48 @@
     <v-row>
       <v-col cols="1">
         <div class=" ml-2 mt-2">
-          <v-avatar @click="goToProfilePage()" size="50">
+          <v-avatar  @click="goToProfilePage()" size="50">
 
-            <v-img :src="userProfilePicture"></v-img>
+            <v-img  :src="userProfilePicture"></v-img>
           </v-avatar>
           <p class="d-inline ma-2">{{ userName }}</p>
 
           <div>
 
+
             <NotificationMenuComponent></NotificationMenuComponent>
-            <v-btn @click="openMessageView" class="d-block mt-2" icon elevation="2" fab color="red">
-              <v-icon>{{ messageIcon }}</v-icon>
-            </v-btn>
 
-            <v-btn @click="openDialog()" class="d-block mt-2" icon elevation="2" fab color="red">
-              <v-icon>{{ plusIcon }}</v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on" @click="openMessageView" class="d-block mt-2" icon elevation="2" fab color="red">
+                  <v-icon>{{ messageIcon }}</v-icon>
+                </v-btn>
+              </template>
+              <span>Open Messages</span>
+            </v-tooltip>
 
 
-            <v-btn @click="signOut()" class="d-block mt-2" icon elevation="2" fab color="red">
-              <v-icon>{{ logoutIcon }}</v-icon>
-            </v-btn>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+
+                <v-btn v-bind="attrs" v-on="on" @click="openDialog()" class="d-block mt-2" icon elevation="2" fab color="red">
+                  <v-icon>{{ plusIcon }}</v-icon>
+                </v-btn>
+              </template>
+              <span>Add Post</span>
+            </v-tooltip>
+
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on" @click="signOut()" class="d-block mt-2" icon elevation="2" fab color="red">
+                  <v-icon>{{ logoutIcon }}</v-icon>
+                </v-btn>
+              </template>
+              <span>Sign out</span>
+            </v-tooltip>
+
           </div>
         </div>
       </v-col>
@@ -258,6 +279,7 @@ export default {
 
       //append to show
       this.friendsPosts = followingData;
+      this.friendsPosts.reverse()
     },
 
 

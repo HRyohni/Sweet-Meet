@@ -722,7 +722,6 @@ export default {
     panToMarker() {
       this.$refs.mapRef.panTo(this.marker.position);
       this.$refs.mapRef.$mapPromise.then((map) => {
-
         console.log(map);
       });
     },
@@ -730,15 +729,12 @@ export default {
     //Moves the marker to click position on the map
     handleMapClick(e) {
       this.marker.position = {lat: e.latLng.lat(), lng: e.latLng.lng()};
-      console.log(this.marker);
     },
-
-    // TODO: https://github.com/pespantelis/vue-location-picker google maps
-    // https://stackblitz.com/github/googlemaps/js-samples/tree/sample-add-map?file=index.html
 
     nextStep() {
       this.step = this.step + 1;
     },
+
     backStep() {
       if (this.step > 1) this.step = this.step - 1;
     },

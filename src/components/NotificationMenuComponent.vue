@@ -10,9 +10,14 @@
         class="overflow-y-auto"
     >
       <template v-slot:activator="{ on, attrs }">
-        <v-btn class="d-block  mt-2" icon elevation="2" fab color="red" v-bind="attrs" v-on="on">
-          <v-icon>{{ notificationIcon }}</v-icon>
-        </v-btn>
+
+
+            <v-btn  class="d-block  mt-2" icon elevation="2" fab color="red" v-bind="attrs" v-on="on">
+              <v-icon>{{ notificationIcon }}</v-icon>
+            </v-btn>
+
+
+
 
 
       </template>

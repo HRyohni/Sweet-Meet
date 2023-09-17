@@ -1,15 +1,15 @@
-<template >
-  <v-img class="pa-0  ma-0" src="../../public/imgassets/backgroundSweetMeet.png"  >
+<template>
+  <v-img class="pa-0  ma-0" src="../../public/imgassets/backgroundSweetMeet.png">
     <div class="d-flex justify-center">
-      <v-card style="width: 40%"  class="background mt-15 pa-5"  >
+      <v-card style="width: 40%" class="background mt-15 pa-5">
         <v-row align="center" justify="center">
-          <v-col  justify="center" cols="12">
+          <v-col justify="center" cols="12">
             <div class="card-border">
               <div class="d-flex justify-center" style="font-size: x-large; color: black">
                 <h1 align="left">LOGIN</h1>
               </div>
               <div class="d-flex">
-                <h5  align="left" class="d-flex ">dont have Account? </h5>
+                <h5 align="left" class="d-flex ">dont have Account? </h5>
                 <v-btn
                     @click="register()"
                     class="link-left d-flex"
@@ -63,10 +63,9 @@
                 </v-btn>
 
 
-
               </v-card-text>
               <v-card-actions class="card-actions">
-                <v-btn @click="login" :disabled="isButtonDisabled" >
+                <v-btn @click="login" :disabled="isButtonDisabled">
                   OK
                 </v-btn>
               </v-card-actions>
@@ -216,6 +215,7 @@ export default {
           });
       this.closeDialog();
     },
+
     postActionMoveToView() {
       this.$router.push({path: "/info"});
     },
@@ -228,16 +228,16 @@ export default {
           "Information"
       );
       const docSnap = await getDoc(docRef);
-
       if (docSnap.exists()) {
-        //console.log("Document data:", docSnap.data());
+        return !!docSnap.data()["age"];
 
-        return true;
       } else {
         // docSnap.data() will be undefined in this case
         return false;
       }
     },
+
+
     closeDialog() {
       this.passwordIssuesDialog = false;
     },

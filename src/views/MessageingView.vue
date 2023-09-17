@@ -1,5 +1,6 @@
 <template>
   <v-row class="ma-5 mt-15" style="">
+    <UploadPostComponent :dialog="dialog2" ></UploadPostComponent>
     <v-col cols="1" style="z-index: 4">
       <div class=" ml-2 mt-2">
         <v-avatar @click="goToProfilePage()" size="50">
@@ -14,7 +15,7 @@
             <v-icon>{{ messageIcon }}</v-icon>
           </v-btn>
 
-          <v-btn @click="addPost" class="d-block mt-2" icon elevation="2" fab color="red">
+          <v-btn @click="openDialog" class="d-block mt-2" icon elevation="2" fab color="red">
             <v-icon>{{ plusIcon }}</v-icon>
           </v-btn>
           <v-btn @click="signOut()" class="d-block mt-2" icon elevation="2" fab color="red">
@@ -239,6 +240,7 @@ import FollowButtonComponent from "@/components/FollowButtonComponent.vue";
 import BlockUserComponent from "@/components/BlockUserComponent.vue";
 import {mdiBell, mdiLogout, mdiMessage, mdiPlus, mdiPhone, mdiEmail, mdiCity} from "@mdi/js";
 import FollowSuggestionComponent from "@/components/FollowSugestionComponent.vue";
+import UploadPostComponent from "@/components/UploadPostComponent.vue";
 
 export default {
   data() {
@@ -260,7 +262,7 @@ export default {
       friendListArray: [],
       pickedFriend: "",
       userProfileAvatar: "",
-      dialog: false,
+      dialog2: false,
 
       //Friend Data
       friendFirstName: "",
@@ -280,6 +282,7 @@ export default {
   name: 'Home',
 
   components: {
+    UploadPostComponent,
     FollowSuggestionComponent,
     BlockUserComponent,
     FollowButtonComponent,
@@ -520,6 +523,12 @@ export default {
         return null;
       }
     },
+
+    openDialog()
+    {
+      this.dialog2 = !this.dialog2;
+
+    }
 
   },
 

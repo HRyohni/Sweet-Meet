@@ -39,7 +39,6 @@
     </div>
 
 
-
     <div v-if="!userExists">
 
       <v-container class="d-flex justify-center">
@@ -49,7 +48,7 @@
         </v-card>
       </v-container>
     </div>
-    <v-row  v-if="userExists && profilePrivate" class="BottomSite mt-5">
+    <v-row v-if="userExists && profilePrivate" class="BottomSite mt-5">
 
       <v-col cols="3">
 
@@ -74,16 +73,16 @@
         <v-card elevation="12" class="pa-3 mt-3 white--text pa-5" :color="this.profileCardColor">
           <h3 class="d-inline"><b>About me</b></h3>
 
-              <h5 class="font-weight-thin mt-2">{{ answeredQuestions[0] }}</h5>
-              <h4 class="ml-1">{{ answeredQuestions[1] }}</h4>
+          <h5 class="font-weight-thin mt-2">{{ answeredQuestions[0] }}</h5>
+          <h4 class="ml-1">{{ answeredQuestions[1] }}</h4>
 
-              <h5 class="font-weight-thin mt-2">{{ answeredQuestions[2] }}</h5>
-              <h4 class="ml-1">{{ answeredQuestions[3] }}</h4>
+          <h5 class="font-weight-thin mt-2">{{ answeredQuestions[2] }}</h5>
+          <h4 class="ml-1">{{ answeredQuestions[3] }}</h4>
 
-              <h5 class="font-weight-thin mt-2">{{ answeredQuestions[4] }}</h5>
-              <h4 class="ml-1">{{ answeredQuestions[5] }}</h4>
+          <h5 class="font-weight-thin mt-2">{{ answeredQuestions[4] }}</h5>
+          <h4 class="ml-1">{{ answeredQuestions[5] }}</h4>
         </v-card>
-        <FollowSugestionComponent class=" mt-3" />
+        <FollowSugestionComponent class=" mt-3"/>
 
       </v-col>
       <!--Sweet Card profile images-->
@@ -100,20 +99,20 @@
 
 
       <!--                                      Settings and other stuf-->
-      <v-col   style="color: gray; " class="ma-5 " cols="">
-          <h1 style="text-align: center">Interests </h1>
-          <div class="d-inline " v-for="item in interests">
-            <v-chip color="primary" class=" ma-1 pa-2">{{ item }}</v-chip>
-          </div>
-          <h1 class="mt-2" style="text-align: center">movies </h1>
-          <div class="d-inline" v-for="item in movies">
-            <v-chip color="red"  class="white--text ma-1 pa-2 ">{{ item }}</v-chip>
-          </div>
+      <v-col style="color: gray; " class="ma-5 " cols="">
+        <h1 style="text-align: center">Interests </h1>
+        <div class="d-inline " v-for="item in interests">
+          <v-chip color="primary" class=" ma-1 pa-2">{{ item }}</v-chip>
+        </div>
+        <h1 class="mt-2" style="text-align: center">movies </h1>
+        <div class="d-inline" v-for="item in movies">
+          <v-chip color="red" class="white--text ma-1 pa-2 ">{{ item }}</v-chip>
+        </div>
 
-          <h1 class="mt-2" style="text-align: center">music </h1>
-          <div class="d-inline" v-for="item in music">
-            <v-chip color="green" class="white--text ma-1 pa-2">{{ item }}</v-chip>
-          </div>
+        <h1 class="mt-2" style="text-align: center">music </h1>
+        <div class="d-inline" v-for="item in music">
+          <v-chip color="green" class="white--text ma-1 pa-2">{{ item }}</v-chip>
+        </div>
       </v-col>
 
     </v-row>
@@ -128,11 +127,11 @@ import {auth, db, doc, getDoc, email} from "../../firebase.js";
 import ProfileInfoCard from "@/components/ProfileInfoCardComponent.vue";
 import FollowSugestionComponent from "@/components/FollowSugestionComponent.vue";
 
-import {getStorage, ref} from "firebase/storage";
 
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {collection, getDocs} from "firebase/firestore";
 import logger from "@fortawesome/vue-fontawesome/src/logger";
+
 
 export default {
   components: {
@@ -155,6 +154,7 @@ export default {
     followersCount: 0,
     followingCount: 0,
     postCount: 0,
+
 
 
     profileCardColor: "blue",
@@ -207,18 +207,6 @@ export default {
     await this.getUserData();
 
 
-
-
-
-
-
-
-
-
-
-
-
-
   },
   methods:
       {
@@ -238,9 +226,6 @@ export default {
           this.userUrlName = this.$route.params["id"];
 
         },
-
-
-
 
 
         async setUserEditProfileIfAdmin() {

@@ -3,7 +3,7 @@
     <v-card width="" class="d-flex justify-center">
       <v-row>
 
-        <v-col  ref="mojElement">
+        <v-col ref="mojElement">
           <div
               class="d-flex justify-center"
 
@@ -41,7 +41,8 @@
 
 
               <v-scroll-y-transition style="background-color: aqua;" class="align-center">
-                <v-img lazy-src="https://placehold.co/300x400?text=sweetMeet" contain max-width="500" :src="randomImageUrl(debugMod)">
+                <v-img lazy-src="https://placehold.co/300x400?text=sweetMeet" contain max-width="500"
+                       :src="randomImageUrl(debugMod)">
 
                   <!--    COMMENTS SYSTEM-->
 
@@ -84,7 +85,7 @@
         </v-col>
 
 
-        <v-col  ref="mojColumn" v-if="isCommentWindowOpen">
+        <v-col ref="mojColumn" v-if="isCommentWindowOpen">
           <v-expand-transition>
             <div style=" background-color: #51A6F5">
 
@@ -102,9 +103,9 @@
                       <v-col>
                         <v-text-field
                             height="50px"
-                        outlined
-                        v-model="newComment"
-                        class="d-inline justify-end"
+                            outlined
+                            v-model="newComment"
+                            class="d-inline justify-end"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="2">
@@ -116,29 +117,40 @@
                   </div>
 
 
-                  <div class="d-flex mt-2"
+                  <div class=" mt-2"
+                       style="width: 100%"
 
                        v-for="(data, index) in this.existingCommentsOnPost[0]"
                        :key="index">
+                    <v-card width="100%" class="mt-2 pa-2">
+                      <div class="d-flex " width="100%">
 
-                    <v-avatar class="">
-                      <v-img :src="data.UserProfilePicture"></v-img>
-                    </v-avatar>
-                    <v-col class="ml-2" style="font-size: 0.8vw">
+                        <v-avatar class="d-flex">
+                          <v-img :src="data.UserProfilePicture"></v-img>
+                        </v-avatar>
 
-                      <v-row>{{ data.UserName }}</v-row>
 
-                      <v-row>{{ data.Comment }}</v-row>
-                      <v-row>
-                        <v-divider></v-divider>
-                      </v-row>
+                        <div class="ml-1" style="width: auto">
+                          <div style="width: 190px"><b>{{ data.UserName }}</b> {{ data.Comment }}
+                            <div class="grey--text">{{ data.CommentId.toDate().toDateString() }}</div>
+                          </div>
+                        </div>
 
-                    </v-col>
 
+                      </div>
+                      <div class="d-flex ">
+                        <v-btn @click="likeComment(data.CommentId,index)" elevation="1" icon>
+                          <v-icon>{{ heartIcon }}</v-icon>
+                        </v-btn>
+                        <p>{{ data.LikesOnComment }} Likes</p>
+                      </div>
+
+                    </v-card>
                   </div>
 
-
                 </div>
+
+
                 <v-divider class="mt-4"></v-divider>
 
               </v-card>
@@ -183,6 +195,8 @@ export default {
 
     // Like system
     isLikedPost: "grey",
+    isLikedComment: false,
+    commentLiked: false,
 
     // dating app
 
@@ -200,7 +214,7 @@ export default {
       'Fourth',
       'Fifth',
     ],
-heightOfElement: 0,
+    heightOfElement: 0,
 
   }),
 
@@ -263,15 +277,7 @@ heightOfElement: 0,
     async likeBtn() {
 
       // Put +1 for likes
-      const reff = doc(
-          db,
-          "Users",
-          "UserNames",
-          this.userName,
-          "Posts",
-          "UserPosts",
-          this.postID
-      );
+      const reff = doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID);
 
       // save post as liked on personal firebase account
       if (!await this.isPostAlreadyLiked()) {
@@ -311,7 +317,6 @@ heightOfElement: 0,
     },
 
     async addNewComment() {
-      console.log(this.newComment);
       if (this.newComment !== "") {
         const reff = doc(
             db,
@@ -339,6 +344,7 @@ heightOfElement: 0,
           UserName: auth.currentUser.displayName,
           Comment: this.newComment,
           CommentId: new Date(),
+          LikesOnComment: 0,
           UserProfilePicture: usersProfilePictureUrl,
         };
         postData.Comments.push(newComment);
@@ -385,7 +391,6 @@ heightOfElement: 0,
       const postData = docSnap.data();
       this.test1 = docSnap.data();
       this.existingCommentsOnPost.push(postData.Comments)
-      console.log(this.existingCommentsOnPost.reverse());
 
     },
 
@@ -416,6 +421,20 @@ heightOfElement: 0,
       } else {
         return null;
 
+      }
+    },
+
+    async isCommentAlreadyLiked(commentID) {
+
+      const docRef = doc(db, "Users", "UserNames", auth.currentUser.displayName, "Posts", "LikedComment", commentID);
+      const docSnap = await getDoc(docRef);
+      console.log(docSnap.data());
+      if (docSnap.exists()) {
+        return docSnap.data()["LikedComment"];
+
+      } else {
+        await this.changeLikeState(commentID, true);
+        return true;
       }
     },
 
@@ -468,8 +487,61 @@ heightOfElement: 0,
         console.error("Error sending new notification:", error);
       }
     },
+
     goToProfile(username) {
       this.$router.push("/profile/" + username);
+    },
+
+    async changeLikeState(commentId, bool) {
+      await setDoc(doc(db, "Users", "UserNames", auth.currentUser.displayName, "Posts", "LikedComment", commentId), {
+        LikedComment: bool,
+      });
+    },
+
+    async updateComment(index,isLiked) {
+      //add like to a post
+      console.log(this.existingCommentsOnPost[0][index].LikesOnComment);
+      if (isLiked)
+      this.existingCommentsOnPost[0][index].LikesOnComment -= 1;
+      else
+      this.existingCommentsOnPost[0][index].LikesOnComment += 1;
+
+      await updateDoc(
+          doc(db, "Users", "UserNames", this.userName, "Posts", "UserPosts", this.postID),
+          {Comments: this.existingCommentsOnPost[0]}
+      );
+    },
+
+    async toggleCommentBtnColor(bool)
+    {
+      this.isLikedComment = !this.isLikedComment;
+    },
+
+    async likeComment(commentId, index) {
+      //this.toggleCommentBtnColor();
+
+
+      if (!await this.isCommentAlreadyLiked(commentId.seconds.toString())) {
+        console.log("lajkaj")
+
+
+        await this.changeLikeState(commentId.seconds.toString(), true);
+        await this.updateComment(index,true);
+        await this.sendNewNotificationToUser({username: auth.currentUser.displayName,comment: auth.currentUser.displayName + " liked your Comment!"});
+
+
+        await this.toggleCommentBtnColor(commentId.seconds.toString());
+      } else {
+        console.log("dislajkaj")
+
+        await this.changeLikeState(commentId.seconds.toString(), false);
+        await this.updateComment(index,false);
+        this.toggleCommentBtnColor(commentId.seconds.toString());
+
+
+
+      }
+
     },
 
     async reportUser() {
@@ -485,11 +557,11 @@ heightOfElement: 0,
 
       }
     },
-  },
+  }
+  ,
 
 
-  // dating Card   --->
-
+// dating Card   --->
 
 
   async mounted() {
@@ -499,8 +571,10 @@ heightOfElement: 0,
     await this.getComments();
     await this.isPostAlreadyLiked()
     this.userProfilePicture = await this.getUserProfilePicture(this.userName);
-  },
-};
+  }
+  ,
+}
+;
 
 
 </script>
