@@ -1,6 +1,6 @@
 # Sweet Meet Project Summary
 
-visit Sweet Meet page: [Sweet Meet Page](https://sweetmeet-app.netlify.app/).
+**visit Sweet Meet page: [Sweet Meet Page](https://sweetmeet-app.netlify.app/ "Sweet Meet").**
 
 **University:** Sveučilište Jurja Dobrile u Puli  
 **Faculty:** Fakultet informatike u Puli  
