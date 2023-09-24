@@ -27,7 +27,6 @@ Sweet Meet targets a diverse audience, from those seeking romance to those expan
 ## Implementation
 To download and implement Sweet Meet on your local PC, follow these steps:
 1. **Download the Project:**
-   - Visit [GitHub Repository](https://github.com/leomatosevic/SweetMeet).
    - Click on the "Code" button and select "Download ZIP."
 
 2. **Vue Version and Tools:**
