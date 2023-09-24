@@ -1,5 +1,15 @@
 # Sweet Meet Project Summary
 
+visit Sweet Meet page: [Sweet Meet Page](https://sweetmeet-app.netlify.app/).
+
+**University:** Sveučilište Jurja Dobrile u Puli  
+**Faculty:** Fakultet informatike u Puli  
+**Author:** Leo Matošević  
+**Major:** Informatika  
+**Course:** Programsko inženjerstvo  
+**Mentor:** doc. dr. sc. Nikola Tanković  
+**Assistant:** Toni Starčić, mag. inf.  
+
 ## Introduction
 Sweet Meet is an innovative platform that combines elements of social networking and dating apps. It aims to create a community for finding partners, making friends, and connecting with people who share common interests.
 
