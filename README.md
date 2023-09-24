@@ -1,7 +1,7 @@
 # Sweet Meet Project Summary
 
 ![Landing page](https://cdn.discordapp.com/attachments/913822778988331009/1155470386381721711/image.png)
-**visit Sweet Meet page: [Sweet Meet Page](https://sweetmeet-app.netlify.app/ "Sweet Meet").**
+### **visit Sweet Meet page: [Sweet Meet Page](https://sweetmeet-app.netlify.app/ "Sweet Meet").**
 
 **University:** Sveučilište Jurja Dobrile u Puli  
 **Faculty:** Fakultet informatike u Puli  
