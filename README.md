@@ -11,9 +11,7 @@
 **Mentor:** doc. dr. sc. Nikola Tanković  
 **Assistant:** Toni Starčić, mag. inf.  
 
-When you find your soulemate
-![sweetmeet](https://cdn.discordapp.com/attachments/913822778988331009/1155474016128221245/ezgif.com-video-to-gif.gif)
-
+![](https://cdn.discordapp.com/attachments/913822778988331009/1155475937673084938/sweet.gif)
 ## Introduction
 Sweet Meet is an innovative platform that combines elements of social networking and dating apps. It aims to create a community for finding partners, making friends, and connecting with people who share common interests.
 
