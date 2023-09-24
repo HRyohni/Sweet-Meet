@@ -22,9 +22,10 @@ Sweet Meet targets a diverse audience, from those seeking romance to those expan
 - **Vuetify 2:** A Material Design component framework for Vue.
 - **Firebase:** A platform for developing mobile and web applications, offering various services and tools for efficient app development.
 
+![Message View] (https://cdn.discordapp.com/attachments/913822778988331009/1155470901362573352/image_14.png)
+
 ## Implementation
 To download and implement Sweet Meet on your local PC, follow these steps:
-
 1. **Download the Project:**
    - Visit [GitHub Repository](https://github.com/leomatosevic/SweetMeet).
    - Click on the "Code" button and select "Download ZIP."
