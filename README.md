@@ -1,6 +1,6 @@
 # Sweet Meet Project Summary
 
-![Landing page]([https://media.discordapp.net/attachments/913822778988331009/1418645743627141352/image.png?ex=68cee04e&is=68cd8ece&hm=c846b75b03962845be73b4fe655de77e022ee5d6a61895605b1dc5af1b432c2d&=&format=webp&quality=lossless&width=1480&height=933])
+![Landing page](https://media.discordapp.net/attachments/913822778988331009/1418645743627141352/image.png?ex=68cee04e&is=68cd8ece&hm=c846b75b03962845be73b4fe655de77e022ee5d6a61895605b1dc5af1b432c2d&=&format=webp&quality=lossless&width=1480&height=933)
 ### **visit Sweet Meet page: [Sweet Meet Page](https://sweetmeet-app.netlify.app/ "Sweet Meet").**
 
 **University:** Sveučilište Jurja Dobrile u Puli  
